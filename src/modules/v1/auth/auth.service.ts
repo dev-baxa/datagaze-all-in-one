@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import * as bycrypt from 'bcrypt';
-import * as jose from 'jose'
+import * as jose from 'jose';
 
 import { Injectable } from '@nestjs/common';
 import db from 'src/config/database.config';
@@ -15,30 +15,29 @@ import { User } from './entities/user.interface';
 @Injectable()
 export class AuthService extends BaseService<User> {
     private saltRounds = 10;
-    private privateKey = fs.readFileSync(path.join(process.cwd(), 'keys', 'private.pem'), 'utf8');
-
+    private privateKey = ENV.JWT_PRIVAT_KEY || '';
 
     constructor() {
         super('users');
     }
 
-
     async generateTokenEncryptedJwt(payload: object): Promise<string> {
-        const secret = await jose.importPKCS8(this.privateKey, "RSA-OAEP");
+        const secret = await jose.importPKCS8(this.privateKey, 'RSA-OAEP');
         const token = await new jose.EncryptJWT({ ...payload })
-            .setProtectedHeader({ alg: "RSA-OAEP", enc: "A256GCM" })
+            .setProtectedHeader({ alg: 'RSA-OAEP', enc: 'A256GCM' })
             // .setExpirationTime(Math.floor(Date.now() / 1000) + (60 * 60)*24)
             .encrypt(secret);
-        return token
-
+        return token;
     }
     async updatePassword(id: string, hawedPassword: string) {
-        const updatedUser = await db('users').where({ id }).update({ password: hawedPassword, updated_at: new Date() });
-        return updatedUser
+        const updatedUser = await db('users')
+            .where({ id })
+            .update({ password: hawedPassword, updated_at: new Date() });
+        return updatedUser;
     }
 
     async decryptJWT(encryptedToken: string) {
-        const secret = await jose.importPKCS8(this.privateKey, "RSA-OAEP");
+        const secret = await jose.importPKCS8(this.privateKey, 'RSA-OAEP');
         const { payload } = await jose.jwtDecrypt(encryptedToken, secret);
         return payload;
     }
@@ -69,12 +68,11 @@ export class AuthService extends BaseService<User> {
         const role = await db('roles').where({ name }).first();
         return role as Role;
     }
-    async findUserWithRole(id: string): Promise<User & { role: string } | null> {
+    async findUserWithRole(id: string): Promise<(User & { role: string }) | null> {
         const joinData = await db('users')
             .join('roles', 'users.role_id', 'roles.id')
             .where('users.id', id)
             .select('users.*', 'roles.name as role');
         return joinData[0];
     }
-
 }

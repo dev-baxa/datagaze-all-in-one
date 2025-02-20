@@ -1,9 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import db from "src/config/database.config";
+import { Injectable } from '@nestjs/common';
+// import { UUID } from 'crypto';
+import db from 'src/config/database.config';
 
 @Injectable()
-export class BaseService<T>{
-    constructor(private tableName: string){}
+export class BaseService<T> {
+    constructor(private tableName: string) {}
 
     async create(data: Partial<T>): Promise<T> {
         return (await db(this.tableName).insert(data).returning('*'))[0];
@@ -18,7 +19,7 @@ export class BaseService<T>{
     }
 
     async findById(id: string): Promise<T | null> {
-        return await db(this.tableName).where({ id }).first();
+        return await db(this.tableName).where({ id: id }).first();
     }
 
     async update(id: string, data: Partial<T>): Promise<number> {
