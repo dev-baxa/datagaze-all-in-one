@@ -1,9 +1,9 @@
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class ConnectionDTO {
-    @IsNotEmpty()
-    @IsString()
-    server_id: string;
+    // @IsNotEmpty()
+    // @IsString()
+    // server_id: string;
 
     @IsNotEmpty()
     @IsString()

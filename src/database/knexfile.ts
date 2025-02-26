@@ -1,22 +1,27 @@
 // src/database/knexfile.ts
-import { config } from 'dotenv';
 import { join } from 'path';
 import type { Knex } from 'knex';
-import { ENV } from 'src/config/env';
+import * as dotenv from 'dotenv'
 
-// .env faylini yuklash
-config({ path: join(__dirname, '../../.env') });
+// console.log(join(__dirname, '../../../.env'));
+// console.log(__filename);
+
+
+dotenv.config({
+    path: join(__dirname, '../../../.env')
+})
+
 
 const knexConfig: { [key: string]: Knex.Config } = {
     development: {
         debug: true,
         client: 'pg',
         connection: {
-            host: ENV.DB_HOST || 'localhost',
-            port: Number(ENV.DB_PORT) || 5432,
-            database: ENV.DB_NAME,
-            user: ENV.DB_USER,
-            password: ENV.DB_PASSWORD?.toString(),
+            host: process.env.DB_HOST || 'localhost',
+            port: Number(process.env.DB_PORT) || 5432,
+            database: process.env.DB_NAME,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD?.toString(),
         },
         pool: {
             min: 2,
@@ -38,11 +43,11 @@ const knexConfig: { [key: string]: Knex.Config } = {
     production: {
         client: 'pg',
         connection: {
-            host: ENV.DB_HOST || 'localhost',
-            port: Number(ENV.DB_PORT) || 5432,
-            database: ENV.DB_NAME,
-            user: ENV.DB_USER,
-            password: ENV.DB_PASSWORD?.toString(),
+            host: process.env.DB_HOST || 'localhost',       
+            port: Number(process.env.DB_PORT) || 5432,
+            database: process.env.DB_NAME,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD?.toString(),
         },
         pool: {
             min: 2,

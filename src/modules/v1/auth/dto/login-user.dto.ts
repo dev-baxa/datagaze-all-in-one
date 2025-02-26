@@ -8,11 +8,5 @@ export class LoginUserDto {
 
     @IsString()
     @IsNotEmpty()
-    @MinLength(8)
-    @MaxLength(32)
-    @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$/, {
-        message:
-            'Invalid password. Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
-    })
     password: string;
 }

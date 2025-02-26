@@ -1,47 +1,139 @@
-import { readFileSync } from 'fs';
+import { Injectable } from '@nestjs/common';
 import { Client } from 'ssh2';
+import * as fs from 'fs';
+import { promisify } from 'util';
 
-const conn = new Client();
+@Injectable()
+export class SshReverseTransferService {
+    private sshConfig = {
+        host: 'remote-server-ip',
+        username: 'your-username',
+        password: 'your-password', // yoki privateKey ishlatish mumkin
+        port: 22,
+    };
 
-conn.on('ready', () => {
-  console.log('Client :: ready');
-  conn.exec('uptime', (err, stream) => {
-    if (err) {
-      throw err;
+    async transferAndInstallApp(localFilePath: string, remoteFilePath: string) {
+        return new Promise((resolve, reject) => {
+            const conn = new Client();
+
+            conn.on('ready', () => {
+                console.log("SSH ulanish muvaffaqiyatli o'rnatildi");
+
+                // 1-qadam: Faylni ko'chirish uchun SFTP sessiya yaratish
+                conn.sftp((err, sftp) => {
+                    if (err) {
+                        conn.end();
+                        return reject(`SFTP sessiya ochishda xatolik: ${err.message}`);
+                    }
+
+                    console.log(`Fayl ko'chirish boshlandi: ${localFilePath} -> ${remoteFilePath}`);
+
+                    // 2-qadam: Faylni lokal serverdan remote serverga ko'chirish
+                    sftp.fastPut(localFilePath, remoteFilePath, err => {
+                        if (err) {
+                            conn.end();
+                            return reject(`Faylni ko'chirishda xatolik: ${err.message}`);
+                        }
+
+                        console.log("Fayl muvaffaqiyatli ko'chirildi");
+
+                        // 3-qadam: Faylni remote serverda ochish va o'rnatish
+                        conn.exec(
+                            `tar -xzf ${remoteFilePath} -C /tmp/extracted_app`,
+                            (err, stream) => {
+                                if (err) {
+                                    conn.end();
+                                    return reject(`Arxivni ochishda xatolik: ${err.message}`);
+                                }
+
+                                let errorOutput = '';
+
+                                stream.stderr.on('data', data => {
+                                    errorOutput += data.toString();
+                                });
+
+                                stream.on('close', code => {
+                                    if (code !== 0) {
+                                        conn.end();
+                                        return reject(
+                                            `Arxivni ochishda xatolik, chiqish kodi: ${code}, xatolik: ${errorOutput}`,
+                                        );
+                                    }
+
+                                    console.log('Fayl arxivdan chiqarildi');
+
+                                    // 4-qadam: Applicationni o'rnatish (npm install)
+                                    conn.exec(
+                                        'cd /tmp/extracted_app && npm install',
+                                        (err, stream) => {
+                                            if (err) {
+                                                conn.end();
+                                                return reject(
+                                                    `NPM o'rnatishda xatolik: ${err.message}`,
+                                                );
+                                            }
+
+                                            let errorOutput = '';
+
+                                            stream.stderr.on('data', data => {
+                                                errorOutput += data.toString();
+                                            });
+
+                                            stream.on('close', code => {
+                                                if (code !== 0) {
+                                                    conn.end();
+                                                    return reject(
+                                                        `NPM o'rnatishda xatolik, chiqish kodi: ${code}, xatolik: ${errorOutput}`,
+                                                    );
+                                                }
+
+                                                console.log("NPM paketlari o'rnatildi");
+
+                                                // 5-qadam: Applicationni ishga tushirish
+                                                conn.exec(
+                                                    'cd /tmp/extracted_app && npm start',
+                                                    (err, stream) => {
+                                                        if (err) {
+                                                            conn.end();
+                                                            return reject(
+                                                                `Applicationni ishga tushirishda xatolik: ${err.message}`,
+                                                            );
+                                                        }
+
+                                                        console.log('Application ishga tushirildi');
+                                                        conn.end();
+                                                        resolve({
+                                                            success: true,
+                                                            message:
+                                                                "Application muvaffaqiyatli o'rnatildi va ishga tushirildi",
+                                                        });
+                                                    },
+                                                );
+                                            });
+                                        },
+                                    );
+                                });
+                            },
+                        );
+                    });
+                });
+            });
+
+            conn.on('error', err => {
+                reject(`SSH ulanish xatoligi: ${err.message}`);
+            });
+
+            conn.connect(this.sshConfig);
+        });
     }
 
-    if (!stream) {
-      console.error("Stream is undefined or null");
-      conn.end();
-      return;
+    // Faylni tekshirish
+    async checkLocalFile(filePath: string): Promise<boolean> {
+        try {
+            await promisify(fs.access)(filePath);
+            return true;
+        } catch {
+            return false;
+        }
     }
-
-    stream.on('close', (code, signal) => {
-      console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);
-      conn.end();
-    }).on('data', (data: Buffer) => {
-      console.log('STDOUT: ' + data.toString()); // Convert Buffer to string
-    }).stderr.on('data', (data: Buffer) => {
-      console.log('STDERR: ' + data.toString()); // Convert Buffer to string
-    });
-  });
-}).on('error', (err) => {  // Handle connection errors
-    console.error("Connection error:", err);
-});
-
-
-// Best practice: Store sensitive info like private keys securely (environment variables)
-const privateKeyPath = process.env.SSH_PRIVATE_KEY_PATH || '/path/to/my/key'; // Fallback path if env variable is not set
-try {
- const privateKey = readFileSync(privateKeyPath);
- conn.connect({
-  host: '192.168.100.100',
-  port: 22,
-  username: 'frylock',
-  privateKey: privateKey,
-});
-} catch (error) {
-    console.error("Error reading private key:", error);
 }
-
-

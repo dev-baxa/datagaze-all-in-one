@@ -2,7 +2,7 @@ import knex from 'knex';
 import knexConfig from '../database/knexfile';
 import { ENV } from './env';
 
-const db = knex(knexConfig[ ENV.NODE_ENV || '']);
+const db = knex(knexConfig[ ENV.NODE_ENV || 'development']);
 
 export default db;
 

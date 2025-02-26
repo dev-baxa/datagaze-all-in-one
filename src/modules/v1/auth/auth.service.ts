@@ -1,16 +1,14 @@
-import * as fs from 'fs';
-import * as path from 'path';
-
 import * as bycrypt from 'bcrypt';
 import * as jose from 'jose';
 
 import { Injectable } from '@nestjs/common';
+import { BaseService } from 'src/common/utils/base.service';
 import db from 'src/config/database.config';
 import { ENV } from 'src/config/env';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Role } from './entities/role.interface';
-import { BaseService } from 'src/common/utils/base.service';
 import { User } from './entities/user.interface';
+import { Payload } from './entities/token.interface';
 
 @Injectable()
 export class AuthService extends BaseService<User> {
@@ -21,7 +19,7 @@ export class AuthService extends BaseService<User> {
         super('users');
     }
 
-    async generateTokenEncryptedJwt(payload: object): Promise<string> {
+    async generateTokenEncryptedJwt(payload: Payload): Promise<string> {
         const secret = await jose.importPKCS8(this.privateKey, 'RSA-OAEP');
         const token = await new jose.EncryptJWT({ ...payload })
             .setProtectedHeader({ alg: 'RSA-OAEP', enc: 'A256GCM' })
@@ -36,10 +34,11 @@ export class AuthService extends BaseService<User> {
         return updatedUser;
     }
 
-    async decryptJWT(encryptedToken: string) {
+    async decryptJWT(encryptedToken: string):Promise<Payload>{
         const secret = await jose.importPKCS8(this.privateKey, 'RSA-OAEP');
-        const { payload } = await jose.jwtDecrypt(encryptedToken, secret);
-        return payload;
+        const { payload} = await jose.jwtDecrypt(encryptedToken, secret);
+        return payload as unknown as Payload;
+        
     }
 
     async register(dto: CreateUserDto) {

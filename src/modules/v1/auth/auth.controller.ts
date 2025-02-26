@@ -11,20 +11,19 @@ import {
     UnauthorizedException,
     UseFilters,
     UseGuards,
-    UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
+import { log } from 'console';
+import { Roles } from 'src/common/decorators/roles.decorators';
+import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
+import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
-import { User } from './entities/user.interface';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorators';
-import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
-import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { UpdatePasswordDTO } from './dto/update-password.dto';
-import { log } from 'console';
 import { UpdateProfileDTO } from './dto/update-profile.dto';
+import { User } from './entities/user.interface';
 // import { Request } from 'express';
 
 @Controller('auth')
@@ -59,7 +58,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async login(@Body(new ValidationPipe()) dto: LoginUserDto) {
         const user = await this.authService.findByQuery({ username: dto.username });
-        if (!user[0]) throw new NotFoundException('User not found');
+        if (!user[0]) throw new NotFoundException('User not found');        
 
         const isPasswordMatch = await this.authService.comparePassword(
             dto.password,

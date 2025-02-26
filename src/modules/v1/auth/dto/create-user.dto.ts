@@ -1,6 +1,7 @@
 import {
     IsEmail,
     IsNotEmpty,
+    IsOptional,
     IsString,
     IsStrongPassword,
     IsUUID,
@@ -18,6 +19,7 @@ export class CreateUserDto {
     @IsNotEmpty()
     email: string;
 
+    @IsOptional()
     @IsUUID()
     role_id?: string;
 

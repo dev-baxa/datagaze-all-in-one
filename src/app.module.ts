@@ -4,9 +4,10 @@ import { AppService } from './app.service';
 import { AuthModule } from './modules/v1/auth/auth.module';
 import { ServerModule } from './modules/v1/server/server.module';
 import { SshModule } from './modules/v1/ssh-connection/ssh.connection.module';
+import { ProductModule } from './modules/v1/product/product.module';
 
 @Module({
-    imports: [AuthModule , ServerModule , SshModule],
+    imports: [AuthModule , ServerModule , SshModule , ProductModule],
     controllers: [AppController],
     providers: [AppService],
 })
