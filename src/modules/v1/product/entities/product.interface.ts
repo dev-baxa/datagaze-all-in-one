@@ -5,6 +5,7 @@ export interface Product{
     os_type: string;
     description: string;
     min_requirements: string;
+    version?: string;
     path:string;
     scripts: JSON;
     created_at?: Date;

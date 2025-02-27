@@ -414,6 +414,13 @@ export class SshConnectService {
                                     .where({ id: Log.id })
                                     .update({ status: 'succes', server_id: server.id });
                                 
+                                await db('installed_products').insert({
+                                    product_id: product.id,
+                                    server_id: server.id,
+                                    version: product.version,
+                                    status: 'installed',
+                                })
+                                
 
                                 await db('products')
                                     .update({ server_id: server.id })

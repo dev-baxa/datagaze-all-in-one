@@ -1,16 +1,11 @@
 // src/database/knexfile.ts
-import { join } from 'path';
+import * as dotenv from 'dotenv';
 import type { Knex } from 'knex';
-import * as dotenv from 'dotenv'
-
-// console.log(join(__dirname, '../../../.env'));
-// console.log(__filename);
-
+import { join } from 'path';
 
 dotenv.config({
-    path: join(__dirname, '../../../.env')
-})
-
+    path: '/home/baxa/Desktop/work/datagaze-all-in-one/.env',
+});
 
 const knexConfig: { [key: string]: Knex.Config } = {
     development: {
@@ -43,7 +38,7 @@ const knexConfig: { [key: string]: Knex.Config } = {
     production: {
         client: 'pg',
         connection: {
-            host: process.env.DB_HOST || 'localhost',       
+            host: process.env.DB_HOST || 'localhost',
             port: Number(process.env.DB_PORT) || 5432,
             database: process.env.DB_NAME,
             user: process.env.DB_USER,
