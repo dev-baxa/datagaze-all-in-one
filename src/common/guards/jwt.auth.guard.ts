@@ -14,13 +14,10 @@ export class JwtAuthGuard implements CanActivate {
             throw new UnauthorizedException('Token not found');
         }
 
-        
-
-            const payload: Payload = await this.authService.decryptJWT(token);
-            const user = await this.authService.findById(payload.id)
-            if (!user)
-                throw new UnauthorizedException('User unauthorized')
-            request.user = payload;
+        const payload: Payload = await this.authService.decryptJWT(token);
+        const user = await this.authService.findById(payload.id);
+        if (!user) throw new UnauthorizedException('User unauthorized');
+        request.user = payload;
         return true;
     }
     private extractTokenFromHeader(request: Request): string | undefined {

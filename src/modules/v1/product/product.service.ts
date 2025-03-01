@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { BaseService } from 'src/common/utils/base.service';
 import db from 'src/config/database.config';
 import { Product } from './entities/product.interface';
-import { ServerService } from '../server/server.service';
 
 @Injectable()
 export class ProductService extends BaseService<Product> {
@@ -10,7 +9,7 @@ export class ProductService extends BaseService<Product> {
         super('products');
     }
 
-    async findByOne(id :string) {
+    async findByOne(id: string) {
         return await db('products')
             .leftJoin('servers', 'products.server_id', 'servers.id')
             .where('products.id', id)
@@ -36,7 +35,7 @@ export class ProductService extends BaseService<Product> {
                     'CASE WHEN products.server_id IS NULL THEN NULL ELSE servers.ip_address END AS ip',
                 ),
             );
-            
+
         //     .select(
         //     'id',
         //     'server_id',

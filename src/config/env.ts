@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 
 dotenv.config({
-    path:path.join(process.cwd(), '.env')
+    path: path.join(process.cwd(), '.env'),
 });
 
 interface EnvConfig {
@@ -28,5 +28,3 @@ export const ENV: EnvConfig = {
     JWT_PRIVAT_KEY: process.env.JWT_PRIVATE_KEY,
     NODE_ENV: process.env.NODE_ENV,
 };
-
-

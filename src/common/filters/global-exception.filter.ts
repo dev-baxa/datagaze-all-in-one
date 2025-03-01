@@ -13,7 +13,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         const response = ctx.getResponse();
 
         let status = 500;
-        let message: string | Object = 'Unexpected error';
+        let message: string | object = 'Unexpected error';
 
         if (exception instanceof HttpException) {
             status = exception.getStatus();

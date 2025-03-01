@@ -1,4 +1,3 @@
 export class ProductInstallDTO {
-  productId: string;
-  
+    productId: string;
 }

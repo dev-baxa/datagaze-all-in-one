@@ -1,20 +1,8 @@
-import {
-    IsNotEmpty,
-    IsOptional,
-    IsString,
-    IsUUID,
-    Matches,
-    MaxLength,
-    MinLength,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
-export class UpdatePasswordDTO {
+export class UpdatePasswordDTOauth {
     @IsOptional()
-    @IsUUID()
-    user_id?: string;
-
-    @IsOptional()
-    old_password?: string;
+    old_password: string;
 
     @IsString()
     @IsNotEmpty()

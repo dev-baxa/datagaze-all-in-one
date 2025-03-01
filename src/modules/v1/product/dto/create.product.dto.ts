@@ -1,5 +1,4 @@
-import { IsEnum, IsJSON, IsNotEmpty, IsObject, IsOptional, IsString, IsUUID } from "class-validator";
-import { UUID } from "crypto";
+import { IsEnum, IsNotEmpty, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateProfilDTO {
     @IsOptional()
@@ -8,7 +7,7 @@ export class CreateProfilDTO {
     server_id?: string;
 
     @IsString()
-    @IsEnum(['linux' , 'windows'])
+    @IsEnum(['linux', 'windows'])
     @IsOptional()
     os_type?: string;
 
@@ -19,10 +18,10 @@ export class CreateProfilDTO {
     @IsString()
     @IsNotEmpty()
     min_requirements: string;
-    
+
     @IsString()
     @IsNotEmpty()
-    path:string;
+    path: string;
 
     @IsObject()
     @IsNotEmpty()

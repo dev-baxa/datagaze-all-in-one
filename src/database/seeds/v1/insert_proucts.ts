@@ -1,4 +1,4 @@
-import * as path from 'path'
+import * as path from 'path';
 import { Knex } from 'knex';
 
 export async function seed(knex: Knex): Promise<void> {

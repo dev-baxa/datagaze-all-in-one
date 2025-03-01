@@ -6,7 +6,7 @@ import { ENV } from './config/env';
 
 async function bootstrap() {
     // console.log(ENV);
-    
+
     const app = await NestFactory.create(AppModule);
     app.useGlobalFilters(new AllExcetionsFilter());
     app.useGlobalFilters(new HttpExceptionFilter());

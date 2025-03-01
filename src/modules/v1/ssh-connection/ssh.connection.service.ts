@@ -270,6 +270,7 @@ export class SshConnectService {
                     stream.on('close', code => {
                         conn.end();
                         if (code !== 0) {
+                            console.log(errorOutPut, 'Bu erroning logi');
                             reject(new BadRequestException(`Command failed: ${errorOutPut}`));
                         } else {
                             resolve({
@@ -334,8 +335,6 @@ export class SshConnectService {
             conn.on('ready', async () => {
                 console.log(`SSH connection established to ${data.ip}`);
 
-                
-
                 conn.sftp((err, sftp) => {
                     if (err) {
                         conn.end();
@@ -343,8 +342,8 @@ export class SshConnectService {
                         return reject(err);
                     }
                     console.log("FAylni ko'chirish boshlandi !!!!");
-                    let remoteFilePath = path.basename(product.path);
-                    let localFilePath = product.path;
+                    const remoteFilePath = path.basename(product.path);
+                    const localFilePath = product.path;
                     console.log(localFilePath, 'local');
                     console.log(remoteFilePath, 'remote');
 
@@ -363,7 +362,6 @@ export class SshConnectService {
                         console.log("Fayl muvaffaqiiyatli ko'chirildi !");
 
                         conn.exec(`sudo dpkg -i ${remoteFilePath} `, async (err, stream) => {
-
                             if (err) {
                                 conn.end();
                                 console.log(err, 22);
@@ -413,17 +411,16 @@ export class SshConnectService {
                                 await db('ssh_logs')
                                     .where({ id: Log.id })
                                     .update({ status: 'succes', server_id: server.id });
-                                
+
                                 await db('installed_products').insert({
                                     product_id: product.id,
                                     server_id: server.id,
                                     version: product.version,
                                     status: 'installed',
-                                })
-                                
+                                });
 
                                 await db('products')
-                                    .update({ server_id: server.id })
+                                    .update({ server_id: server.id, is_installed: true })
                                     .where({ id: product.id });
 
                                 console.log("Ilova o'rnatildi !");
@@ -436,12 +433,8 @@ export class SshConnectService {
                                 });
                             });
                         });
-
-                        
                     });
                 });
-
-        
             });
             conn.on('error', async err => {
                 console.log(err);
@@ -459,6 +452,140 @@ export class SshConnectService {
 
                 await db('ssh_logs')
                     .where({ id: Log.id })
+                    .update({ status: 'failed', error_msg: errorMessage });
+
+                reject(new BadRequestException({ message: errorMessage }));
+            });
+
+            try {
+                conn.connect(connectionConfig);
+            } catch (error) {
+                reject(
+                    new HttpException(
+                        {
+                            status: 'error',
+                            message: 'Invalid SSH connection parameters.',
+                        },
+                        HttpStatus.BAD_REQUEST,
+                    ),
+                );
+            }
+        });
+    }
+    async installProductInServer2(data: installDto, user: User): Promise<object> {
+        return new Promise(async (resolve, reject) => {
+            const product: Product = await db('products').where({ id: data.productId }).first();
+
+            const conn = new ssh.Client();
+            const connectionConfig: ConnectConfigInterface = {
+                host: data.ip,
+                port: data.port,
+                username: data.username,
+            };
+
+            if (data.auth_type === 'password' && data.password) {
+                connectionConfig.password = data.password;
+            } else if (data.auth_type === 'private_key' && data.private_key) {
+                connectionConfig.privateKey = data.private_key;
+            } else {
+                reject(
+                    new BadRequestException({
+                        message: 'Invalid authentication method',
+                    }),
+                );
+                return;
+            }
+
+            const logId = (
+                await db('ssh_logs')
+                    .insert({
+                        server_id: null,
+                        status: 'pending',
+                        error_msg: null,
+                        user_id: user.id,
+                    })
+                    .returning('id')
+            )[0].id; // **Logni obyekt shaklida olish**
+
+            conn.on('ready', async () => {
+                console.log(`SSH connection established to ${data.ip}`);
+
+                conn.sftp((err, sftp) => {
+                    if (err) {
+                        conn.end();
+                        console.log(err);
+                        return reject(err);
+                    }
+                    console.log("FAylni ko'chirish boshlandi !!!!");
+                    const remoteFilePath = path.basename(product.path);
+                    const localFilePath = product.path;
+
+                    sftp.fastPut(localFilePath, remoteFilePath, async err => {
+                        if (err) {
+                            conn.end();
+                            console.log(err);
+
+                            console.log(err.message);
+                            return reject(
+                                new InternalServerErrorException(
+                                    `Faylni ko'chirishda xatolik : ${err.message}`,
+                                ),
+                            );
+                        }
+                        console.log("Fayl muvaffaqiiyatli ko'chirildi !");
+                        conn.end();
+
+                        const serverId = (
+                            await db('servers')
+                                .insert({
+                                    name: 'string',
+                                    ip_address: data.ip,
+                                    port: data.port,
+                                    password: data.password,
+                                    private_key: data.private_key,
+                                    username: data.username,
+                                    os_type: 'linux',
+                                })
+                                .returning('id')
+                        )[0].id;
+                        console.log(serverId, ' 11serverId');
+
+                        await db('products')
+                            .update({ server_id: serverId })
+                            .where({ id: data.productId });
+
+                        await db('ssh_logs')
+                            .update({
+                                server_id: serverId,
+                                status: 'succes',
+                            })
+                            .where({ id: logId });
+
+                        return resolve({
+                            status: 'succes',
+                            message:
+                                "O'rnatish uchun faylni serverga ko'chirib qo'yildi endi terminaldan kirib o'rnatsa bass",
+                        });
+                    });
+                });
+            });
+
+            conn.on('error', async err => {
+                console.log(err);
+
+                let errorMessage = 'Unknown error occurred while connecting to the server.';
+
+                if (err.message.includes('Cannot parse privateKey')) {
+                    errorMessage = 'Invalid private key format. Please check your key file.';
+                } else if (err.message.includes('All configured authentication methods failed')) {
+                    errorMessage =
+                        'Authentication failed. Please check your username and password/private key.';
+                } else if (err.message.includes('ECONNREFUSED')) {
+                    errorMessage = 'Connection refused. Server might be unreachable.';
+                }
+
+                await db('ssh_logs')
+                    .where({ id: logId })
                     .update({ status: 'failed', error_msg: errorMessage });
 
                 reject(new BadRequestException({ message: errorMessage }));

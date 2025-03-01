@@ -1,14 +1,21 @@
 import * as bycrypt from 'bcrypt';
 import * as jose from 'jose';
 
-import { Injectable } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { BaseService } from 'src/common/utils/base.service';
+import { comparePassword, generateHashedPassword } from 'src/common/utils/bcrypt.functions';
 import db from 'src/config/database.config';
 import { ENV } from 'src/config/env';
-import { CreateUserDto } from './dto/create-user.dto';
-import { Role } from './entities/role.interface';
-import { User } from './entities/user.interface';
+import { LoginUserDto } from './dto/login-user.dto';
+import { UpdatePasswordDTOauth } from './dto/updata_password.dto';
+import { UpdateProfileDTO } from './dto/update-profile.dto';
 import { Payload } from './entities/token.interface';
+import { User } from './entities/user.interface';
 
 @Injectable()
 export class AuthService extends BaseService<User> {
@@ -19,6 +26,53 @@ export class AuthService extends BaseService<User> {
         super('users');
     }
 
+    async createToken(dto: LoginUserDto): Promise<string> {
+        const user = await this.findByQueryOne({ username: dto.username });
+        if (!user) throw new NotFoundException('User not found');
+
+        const isPasswordMatch = await comparePassword(dto.password, user.password);
+
+        if (!isPasswordMatch) throw new UnauthorizedException('Password is incorrect');
+
+        const userWithRole = await this.findUserWithRole(user.id);
+
+        if (!userWithRole) {
+            throw new NotFoundException('User role not found');
+        }
+
+        const token = await this.generateTokenEncryptedJwt({
+            id: user.id,
+            username: userWithRole.username,
+            role: userWithRole.role,
+            email: userWithRole.email,
+        });
+
+        return token;
+    }
+
+    async updateProfil(dto: UpdateProfileDTO, user: Payload): Promise<void> {
+        if (dto.username && dto.username !== user.username) {
+            const existingUsername = await this.findByQuery({
+                username: dto.username,
+            });
+            if (existingUsername[0]) {
+                throw new BadRequestException('Username already taken');
+            }
+        }
+
+        if (dto.email && dto.email !== user.email) {
+            const existingEmail = await this.findByQuery({
+                email: dto.email,
+            });
+            if (existingEmail[0]) {
+                throw new BadRequestException('Email already registered');
+            }
+        }
+
+        // Update user profile
+        await this.update(user.id, dto);
+    }
+
     async generateTokenEncryptedJwt(payload: Payload): Promise<string> {
         const secret = await jose.importPKCS8(this.privateKey, 'RSA-OAEP');
         const token = await new jose.EncryptJWT({ ...payload })
@@ -27,28 +81,27 @@ export class AuthService extends BaseService<User> {
             .encrypt(secret);
         return token;
     }
-    async updatePassword(id: string, hawedPassword: string) {
-        const updatedUser = await db('users')
-            .where({ id })
-            .update({ password: hawedPassword, updated_at: new Date() });
-        return updatedUser;
+
+    async updatePassword(dto: UpdatePasswordDTOauth, user: Payload): Promise<void> {
+        const fullUser = await this.findById(user.id);
+
+        console.log(fullUser);
+
+        const isPasswordMatch = await comparePassword(dto.old_password, fullUser.password);
+
+        if (!isPasswordMatch) {
+            throw new UnauthorizedException('Password is incorrect');
+        }
+
+        await this.update(user.id, { password: await generateHashedPassword(dto.new_password) });
     }
 
-    async decryptJWT(encryptedToken: string):Promise<Payload>{
+    async decryptJWT(encryptedToken: string): Promise<Payload> {
         const secret = await jose.importPKCS8(this.privateKey, 'RSA-OAEP');
-        const { payload} = await jose.jwtDecrypt(encryptedToken, secret);
+        const { payload } = await jose.jwtDecrypt(encryptedToken, secret);
         return payload as unknown as Payload;
-        
     }
 
-    async register(dto: CreateUserDto) {
-        const user = await db('users').insert(dto).returning('*');
-        return user;
-    }
-    async findByQuery(query: object) {
-        const users = await db('users').where(query);
-        return users;
-    }
     async findByQueryOne(query: object) {
         const user = await db('users').where(query).first();
         return user;
@@ -57,16 +110,11 @@ export class AuthService extends BaseService<User> {
         const user = await db('users').where({ id: id }).first();
         return user;
     }
-    async hashPassword(password: string): Promise<string> {
-        return await bycrypt.hash(password, this.saltRounds);
-    }
+
     async comparePassword(password: string, hash: string): Promise<boolean> {
         return await bycrypt.compare(password, hash);
     }
-    async findRoleByName(name: string): Promise<Role> {
-        const role = await db('roles').where({ name }).first();
-        return role as Role;
-    }
+
     async findUserWithRole(id: string): Promise<(User & { role: string }) | null> {
         const joinData = await db('users')
             .join('roles', 'users.role_id', 'roles.id')

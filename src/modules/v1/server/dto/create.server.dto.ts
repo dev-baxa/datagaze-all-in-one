@@ -1,27 +1,36 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLength } from "class-validator";
+import {
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsString,
+    Max,
+    MaxLength,
+    Min,
+    MinLength,
+} from 'class-validator';
 
-export class CreateServerDTO{
+export class CreateServerDTO {
     @IsString()
     @IsNotEmpty()
-    name:string ;
+    name: string;
 
     @IsString()
     @IsNotEmpty()
-    username:string;
+    username: string;
 
     @IsOptional()
     @IsString()
     @IsNotEmpty()
-    password?:string;
+    password?: string;
 
     @IsOptional()
     @IsString()
     @IsNotEmpty()
-    private_key?:string;
+    private_key?: string;
 
     @IsString()
     @IsNotEmpty()
-    ip_address:string;
+    ip_address: string;
 
     @IsNumber()
     @IsNotEmpty()
@@ -32,6 +41,5 @@ export class CreateServerDTO{
     @IsOptional()
     @IsString()
     @IsNotEmpty()
-    os_type?:string
-
+    os_type?: string;
 }

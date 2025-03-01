@@ -1,137 +1,68 @@
 import {
-    BadRequestException,
     Body,
     Controller,
     HttpCode,
     HttpStatus,
-    NotFoundException,
     Post,
     Put,
     Request,
-    UnauthorizedException,
     UseFilters,
     UseGuards,
     ValidationPipe,
 } from '@nestjs/common';
-import { log } from 'console';
-import { Roles } from 'src/common/decorators/roles.decorators';
 import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
-import { UpdatePasswordDTO } from './dto/update-password.dto';
+import { UpdatePasswordDTOauth } from './dto/updata_password.dto';
 import { UpdateProfileDTO } from './dto/update-profile.dto';
-import { User } from './entities/user.interface';
 // import { Request } from 'express';
 
 @Controller('auth')
 @UseFilters(HttpExceptionFilter)
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
-    @Post('register')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('superAdmin')
-    async register(@Body(new ValidationPipe()) dto: CreateUserDto) {
-        // throw new ReferenceError();
-        const anotherUserWithUsername = await this.authService.findByQuery({
-            username: dto.username,
-        });
-        if (anotherUserWithUsername[0])
-            throw new BadRequestException('This username Already register');
-        const anotherUser = await this.authService.findByQuery({ email: dto.email });
-        if (anotherUser[0]) throw new BadRequestException('This email already register');
-
-        dto.password = await this.authService.hashPassword(dto.password);
-
-        const role = await this.authService.findRoleByName('admin');
-
-        dto.role_id = role.id;
-
-        const user: User[] = await this.authService.register(dto);
-
-        return { id: user[0].id, message: 'User registered successfully' };
-    }
 
     @Post('login')
     @HttpCode(HttpStatus.OK)
     async login(@Body(new ValidationPipe()) dto: LoginUserDto) {
-        const user = await this.authService.findByQuery({ username: dto.username });
-        if (!user[0]) throw new NotFoundException('User not found');        
-
-        const isPasswordMatch = await this.authService.comparePassword(
-            dto.password,
-            user[0].password,
-        );
-
-        if (!isPasswordMatch) throw new UnauthorizedException('Password is incorrect');
-
-        const userWithRole = await this.authService.findUserWithRole(user[0].id);
-
-        if (!userWithRole) {
-            throw new NotFoundException('User role not found');
-        }
-        console.log(user, 11);
-
-        const token = await this.authService.generateTokenEncryptedJwt({
-            id: user[0].id,
-            username: userWithRole.username,
-            role: userWithRole.role,
-            email: userWithRole.email,
-        });
-
+        const token = await this.authService.createToken(dto);
         return {
             status: 'success',
             token,
         };
-        // console.log(token , 'token'  , userWithRole
     }
     @Put('update-password')
     @UseGuards(JwtAuthGuard)
-    async updatePassword(@Body(new ValidationPipe()) dto: UpdatePasswordDTO, @Request() Request) {
+    async updatePassword(
+        @Body(new ValidationPipe()) dto: UpdatePasswordDTOauth,
+        @Request() Request,
+    ) {
         const user = Request.user;
-        if (dto.old_password) {
-            const userWithPassword = await this.authService.findByQueryOne({
-                username: user.username,
-            });
 
-            const isPasswordMatch = await this.authService.comparePassword(
-                dto.old_password,
-                userWithPassword.password,
-            );
-            if (!isPasswordMatch) {
-                throw new UnauthorizedException('Password is incorrect');
-            }
+        await this.authService.updatePassword(dto, user);
 
-            dto.new_password = await this.authService.hashPassword(dto.new_password);
+        return {
+            status: 'success',
+            message: 'Password updated successfully.',
+        };
+        // } else if (dto.user_id) {
+        //     if (user.role !== 'superAdmin') {
+        //         throw new UnauthorizedException('Only superadmins can update passwords');
+        //     }
 
-            const result = await this.authService.updatePassword(
-                userWithPassword.id,
-                dto.new_password,
-            );
+        //     // dto.new_password = await this.authService.hashPassword(dto.new_password);
 
-            log(result, 'result');
-            return {
-                status: 'success',
-                message: 'Password updated successfully.',
-            };
-        } else if (dto.user_id) {
-            if (user.role !== 'superAdmin') {
-                throw new UnauthorizedException('Only superadmins can update passwords');
-            }
+        //     await this.authService.update(dto.user_id, { password: dto.new_password });
 
-            dto.new_password = await this.authService.hashPassword(dto.new_password);
-
-            await this.authService.update(dto.user_id, { password: dto.new_password });
-
-            return {
-                status: 'success',
-                message: 'Password updated successfully. Provide it physically to the user.',
-            };
-        } else {
-            throw new BadRequestException('Bad request body');
-        }
+        //     return {
+        //         status: 'success',
+        //         message: 'Password updated successfully. Provide it physically to the user.',
+        //     };
+        // } else {
+        //     throw new BadRequestException('Bad request body');
+        // }
     }
 
     @Put('update-profile')
@@ -140,27 +71,7 @@ export class AuthController {
         const user = Request.user;
 
         // Check if username is being changed and validate uniqueness
-        if (dto.username && dto.username !== user.username) {
-            const existingUsername = await this.authService.findByQuery({
-                username: dto.username,
-            });
-            if (existingUsername[0]) {
-                throw new BadRequestException('Username already taken');
-            }
-        }
-
-        // Check if email is being changed and validate uniqueness
-        if (dto.email && dto.email !== user.email) {
-            const existingEmail = await this.authService.findByQuery({
-                email: dto.email,
-            });
-            if (existingEmail[0]) {
-                throw new BadRequestException('Email already registered');
-            }
-        }
-
-        // Update user profile
-        await this.authService.update(user.id, dto);
+        await this.authService.updateProfil(dto, user);
 
         return {
             status: 'success',

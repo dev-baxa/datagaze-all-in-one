@@ -8,22 +8,28 @@ import {
     MinLength,
 } from 'class-validator';
 
-export class UpdatePasswordDTO {
-    @IsOptional()
+export class UpdateProfilDtoForSuperAdmin {
     @IsUUID()
-    user_id?: string;
+    @IsNotEmpty()
+    id: string;
 
     @IsOptional()
-    old_password?: string;
-
     @IsString()
+    @IsNotEmpty()
+    username?: string;
+
+    @IsOptional()
+    @IsString()
+    @IsNotEmpty()
+    email?: string;
+
+    @IsOptional()
     @IsNotEmpty()
     @MinLength(6)
     @MaxLength(32)
-    // @IsStrongPassword()
     @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$/, {
         message:
             'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
     })
-    new_password: string;
+    password?: string;
 }

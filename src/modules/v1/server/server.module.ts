@@ -1,12 +1,10 @@
-import { Module } from "@nestjs/common";
-import { ServerController } from "./server.controller";
-import { ServerService } from "./server.service";
-
+import { Module } from '@nestjs/common';
+import { ServerController } from './server.controller';
+import { ServerService } from './server.service';
 
 @Module({
     controllers: [ServerController],
     providers: [ServerService],
-    exports: [ServerService]
+    exports: [ServerService],
 })
-
-export class ServerModule{}
+export class ServerModule {}

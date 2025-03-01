@@ -7,7 +7,6 @@ import {
     NotFoundException,
     Param,
     ParseUUIDPipe,
-    Patch,
     Post,
     UploadedFile,
     UseGuards,
@@ -15,7 +14,6 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UUID } from 'crypto';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { fileUploadDir } from 'src/common/constants';
@@ -25,7 +23,6 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { ServerService } from '../server/server.service';
 import { CreateProfilDTO } from './dto/create.product.dto';
 import { ProductService } from './product.service';
-import { Product } from './entities/product.interface';
 
 @Controller('product')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -84,9 +81,8 @@ export class ProductController {
     async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
         const result: any = await this.productService.findByOne(id);
 
-
         if (!result) throw new NotFoundException('Product not found');
-        console.log(result.scripts)
+        console.log(result.scripts);
         return result;
     }
 
@@ -103,5 +99,4 @@ export class ProductController {
 
     // @Post('install')
     // async install(@Body(new ValidationPipe()) dto : ProductInstallDTO)
-    
 }
