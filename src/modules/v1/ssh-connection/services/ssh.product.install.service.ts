@@ -27,18 +27,18 @@ export class SshProductInstallService {
     async installProduct(data: installDto, user: User): Promise<object> {
         return new Promise(async (resolve, reject) => {
             // const execAsync = promisify(exec)
-          const product: Product = await db('products').where({ id: data.productId }).first();
-          
-          const productPath = product.path[`${data.os_type}.v-${data.version}`]
+            const product: Product = await db('products').where({ id: data.productId }).first();
 
-          console.log(productPath , 121212);
-          
+            const productPath = product.path[`${data.os_type}.v-${data.version}`];
 
+            console.log(productPath, 121212);
 
-          if(!productPath) reject( new NotFoundException(
-              'The product that matches the os type and version you selected is not yet installed. Please first install the product.',
-          ))
-        
+            if (!productPath)
+                reject(
+                    new NotFoundException(
+                        'The product that matches the os type and version you selected is not yet installed. Please first install the product.',
+                    ),
+                );
 
             const conn = new ssh.Client();
             const connectionConfig: ConnectConfigInterface = {
@@ -81,7 +81,9 @@ export class SshProductInstallService {
                         return reject(err);
                     }
                     console.log("FAylni ko'chirish boshlandi !!!!");
-                    const remoteFilePath = path.basename(product.path[`${data.os_type}.v-${data.version}`]);
+                    const remoteFilePath = path.basename(
+                        product.path[`${data.os_type}.v-${data.version}`],
+                    );
                     const localFilePath = product.path[`${data.os_type}.v-${data.version}`];
                     console.log(localFilePath, 'local');
                     console.log(remoteFilePath, 'remote');
@@ -100,79 +102,81 @@ export class SshProductInstallService {
                         }
                         console.log("Fayl muvaffaqiiyatli ko'chirildi !");
 
-                        conn.exec(`sudo dpkg -i ${remoteFilePath} `, async (err, stream) => {
-                            if (err) {
-                                conn.end();
-                                console.log(err, 22);
-
-                                return reject(
-                                    new InternalServerErrorException(
-                                        `Buyruq bajarishda xatolik : ${err.message}`,
-                                    ),
-                                );
-                            }
-
-                            let errorOutPut = '',
-                                outPut = '';
-
-                            stream.on('data', data => {
-                                outPut += data.toString();
-                            });
-
-                            stream.stderr.on('data', data => {
-                                errorOutPut += data.toString();
-                            });
-
-                            stream.on('close', async code => {
-                                if (code !== 0) {
-                                    conn.end();
+                        conn.exec(
+                            `echo ${connectionConfig.password} | sudo -S dpkg -i ${remoteFilePath} `,
+                            async (err, stream) => {
+                                if (err) {
                                     console.log(err);
+                                    conn.end();
+
                                     return reject(
                                         new InternalServerErrorException(
-                                            `Dasturni o'rnatishdagi xatolik ,  chiqish kodi ${code} : ${errorOutPut}  ${outPut}`,
+                                            `Buyruq bajarishda xatolik : ${err.message}`,
                                         ),
                                     );
                                 }
-                                const server: ServerInterface = (
-                                    await db('servers')
-                                        .insert({
-                                            name: 'string',
-                                            ip_address: data.ip,
-                                            port: data.port,
-                                            password: data.password,
-                                            private_key: data.private_key,
-                                            username: data.username,
-                                            os_type: 'linux',
-                                        })
-                                        .returning('*')
-                                )[0];
 
-                                await db('ssh_logs')
-                                    .where({ id: Log.id })
-                                    .update({ status: 'succes', server_id: server.id });
+                                let errorOutPut = '',
+                                    outPut = '';
 
-                                await db('installed_products').insert({
-                                    product_id: product.id,
-                                    server_id: server.id,
-                                    version: data.version,
-                                    status: 'installed',
-                                    user_id: user.id
+                                stream.on('data', data => {
+                                    outPut += data.toString();
                                 });
 
-                                await db('products')
-                                    .update({ server_id: server.id, is_installed: true })
-                                    .where({ id: product.id });
-
-                                console.log("Ilova o'rnatildi !");
-                                conn.end();
-                                resolve({
-                                    status: 'succes',
-                                    session_id: Log.id,
-                                    message: 'Product installed successfully.',
-                                    server_id: server.id,
+                                stream.stderr.on('data', data => {
+                                    errorOutPut += data.toString();
                                 });
-                            });
-                        });
+
+                                stream.on('close', async code => {
+                                    if (code !== 0) {
+                                        conn.end();
+                                        console.log(err);
+                                        return reject(
+                                            new InternalServerErrorException(
+                                                `Dasturni o'rnatishdagi xatolik ,  chiqish kodi ${code} : ${errorOutPut}  ${outPut}`,
+                                            ),
+                                        );
+                                    }
+                                    const server: ServerInterface = (
+                                        await db('servers')
+                                            .insert({
+                                                name: 'string',
+                                                ip_address: data.ip,
+                                                port: data.port,
+                                                password: data.password,
+                                                private_key: data.private_key,
+                                                username: data.username,
+                                                os_type: 'linux',
+                                            })
+                                            .returning('*')
+                                    )[0];
+
+                                    await db('ssh_logs')
+                                        .where({ id: Log.id })
+                                        .update({ status: 'succes', server_id: server.id });
+
+                                    await db('installed_products').insert({
+                                        product_id: product.id,
+                                        server_id: server.id,
+                                        version: data.version,
+                                        status: 'installed',
+                                    });
+
+                                    await db('products')
+                                        .update({ server_id: server.id, is_installed: true })
+                                        .where({ id: product.id });
+
+                                    console.log("Ilova o'rnatildi !");
+                                    conn.end();
+                                    resolve({
+                                        status: 'succes',
+                                        session_id: Log.id,
+                                        message: 'Product installed successfully.',
+                                        server_id: server.id,
+                                    });
+                                });
+                            },
+                        );
                     });
                 });
             });

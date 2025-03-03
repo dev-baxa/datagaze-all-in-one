@@ -4,9 +4,11 @@ import { ServerModule } from '../server/server.module';
 import { SshController } from './ssh.connection.controller';
 import { SshConnectService } from './ssh.connection.service';
 import { SshProductInstallService } from './services/ssh.product.install.service';
+import { SshExecuteService } from './services/ssh.execute.service';
+import { SshConnectToServer } from './services/ssh.connect.service';
 
 @Module({
-    providers: [SshConnectService , SshProductInstallService],
+    providers: [SshConnectService , SshProductInstallService , SshExecuteService  , SshConnectToServer],
     controllers: [SshController],
     exports: [SshConnectService],
     imports: [AuthModule, ServerModule],
