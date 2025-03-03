@@ -1,9 +1,18 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class installDto {
     @IsUUID()
     @IsNotEmpty()
     productId: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @IsEnum(['linux' ,'windows'])
+    os_type: string;
+
+    @IsString()
+    @IsNotEmpty()
+    version: string;
 
     @IsString()
     @IsNotEmpty()

@@ -6,6 +6,7 @@ export async function up(knex: Knex): Promise<void> {
         table.uuid('product_id').references('id').inTable('products').onDelete('CASCADE');
         table.uuid('server_id').references('id').inTable('servers').onDelete('CASCADE');
         table.string('version').defaultTo('1.0.0');
+        // table.string('user_id').('id').inTable('users').onDelete('CASCADE')
         table.string('status').defaultTo('installed');
         table.timestamp('updated_at').defaultTo(knex.fn.now());
         table.timestamp('created_at').defaultTo(knex.fn.now());

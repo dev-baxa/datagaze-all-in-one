@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import db from 'src/config/database.config';
+import { Product } from '../product/entities/product.interface';
 
 @Injectable()
 export class UploadService {
@@ -10,10 +12,18 @@ export class UploadService {
         this.ensureDirectoryExists(this.baseDir);
     }
 
+    public product: Product;
+
     private ensureDirectoryExists(dir: string) {
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
+    }
+
+    async checkProducdtExists(product_name: string): Promise<void> {
+        const product = await db('products').where({ name: product_name }).first();
+        if (!product) throw new NotFoundException('product not found');
+        this.product = product;
     }
 
     generateUploadPath(product_name: string, os_type: string, version: string) {
@@ -29,9 +39,17 @@ export class UploadService {
         return versionDir;
     }
 
-    saveFile(file: Express.Multer.File, uploadPath: string): string {
-        const filePath = path.join(uploadPath, file.originalname);
+    async saveFile(file: Express.Multer.File, uploadPath: string , os_type:string , version:string): Promise<string> {
+        const filePath = path.join( process.cwd(), uploadPath, file.originalname);
         fs.renameSync(file.path, filePath);
+        let path2 = this.product.path || {}
+
+        path2[`${os_type}.v-${version}`] = filePath
+        
+        await db('products')
+            .where({ id: this.product.id })
+           .update({ path: path2 })
+        
         return filePath;
     }
 }

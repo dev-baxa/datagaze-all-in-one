@@ -1,4 +1,4 @@
-export interface Server {
+export interface ServerInterface{
     id: string;
     name: string;
     os_type: string;

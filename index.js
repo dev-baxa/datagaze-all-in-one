@@ -11,4 +11,4 @@ const dlp_path = {
     
 }
 
-console.log(dlp_path['waf.linux.x64.v-1.0.0.deb'])
+console.log(dlp_path)

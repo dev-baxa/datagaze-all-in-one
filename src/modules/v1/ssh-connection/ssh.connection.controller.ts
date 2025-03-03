@@ -43,11 +43,11 @@ export class SshController {
         return result;
     }
 
-    @Post('install2')
-    @HttpCode(HttpStatus.OK)
-    async install2(@Body(new ValidationPipe()) body: installDto, @Req() req) {
-        const user: User = req.user;
-        const result = await this.sshService.installProductInServer2(body, user);
-        return result;
-    }
+    // @Post('install2')
+    // @HttpCode(HttpStatus.OK)
+    // async install2(@Body(new ValidationPipe()) body: installDto, @Req() req) {
+    //     const user: User = req.user;
+    //     const result = await this.sshService.installProductInServer2(body, user);
+    //     return result;
+    // }
 }

@@ -8,7 +8,7 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 import { CreateServerDTO } from './dto/create.server.dto';
-import { Server } from './entities/server.interface';
+import { ServerInterface } from './entities/server.interface';
 import { ServerService } from './server.service';
 
 @Controller('server')
@@ -17,13 +17,13 @@ export class ServerController {
 
     @Post('create')
     async create(@Body(new ValidationPipe()) dto: CreateServerDTO) {
-        const server: Server = await this.serverService.create(dto);
+        const server: ServerInterface = await this.serverService.create(dto);
         return { id: server.id, message: 'Server created successfully' };
     }
 
     @Get('find-one/:id')
     async findOneById(@Param('id') id: string) {
-        const server: Server | null = await this.serverService.findById(id);
+        const server: ServerInterface | null = await this.serverService.findById(id);
         if (server === null) throw new NotFoundException('This Serrver not found');
         return { sercces: true, server: server };
     }

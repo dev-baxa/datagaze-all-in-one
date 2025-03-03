@@ -26,6 +26,7 @@ export class ProductService extends BaseService<Product> {
             .leftJoin('servers', 'products.server_id', 'servers.id')
             .select(
                 'products.id',
+                'products.name',
                 'products.os_type',
                 'products.description',
                 'products.min_requirements',
