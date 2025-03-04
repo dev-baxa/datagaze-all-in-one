@@ -1,5 +1,5 @@
 import {
-  ConnectedSocket,
+    ConnectedSocket,
     MessageBody,
     OnGatewayConnection,
     OnGatewayDisconnect,
@@ -10,20 +10,15 @@ import {
 import { Server, Socket } from 'socket.io';
 import db from 'src/config/database.config';
 import * as ssh from 'ssh2';
-import { Product } from '../../product/entities/product.interface';
 import { ServerInterface } from '../../server/entities/server.interface';
-import { ExecuteDto } from '../dto/exescute.connection.dto';
 import { ConnectConfigInterface } from '../entities/connect.config.interface';
 
 @WebSocketGateway({ cors: true })
 export class SshGateway implements OnGatewayConnection, OnGatewayDisconnect {
-    constructor() {
-        console.log('SshGateway initialized');
-    }
-
     @WebSocketServer()
     server: Server;
 
+    private sshConnections: Map<string, ssh.Client> = new Map();
     async handleConnection(client: Socket) {
         console.log(`Client connected: ${client.id}`);
         client.emit('message', 'WebSocket connection established');
@@ -31,22 +26,26 @@ export class SshGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     async handleDisconnect(client: Socket) {
         console.log(`Client diconnected: ${client.id}`);
+        const conn = this.sshConnections.get(client.id);
+        if (conn) {
+            conn.end();
+            this.sshConnections.delete(client.id);
+        }
     }
 
-    @SubscribeMessage('executeCommand')
-    async executeCommand(
+    @SubscribeMessage('connectToServer')
+    async connectToServer(
         @ConnectedSocket() client: Socket,
-        @MessageBody() payload: { event: string; body: ExecuteDto },
+        @MessageBody() payload: { productId: string },
     ) {
-        const productId = payload.body.productId;
-        const command = payload.body.command;
+        const productId = payload.productId;
 
-      console.log(client.id)
-
-        const product: Product = await db('products').where({ id: productId }).first();
-        const server: ServerInterface = await db('servers')
-            .where({ id: product.server_id })
+        const server: ServerInterface = await db('products')
+            .join('servers', 'products.server_id', 'servers.id')
+            .where('products.id', productId)
+            .select('servers.*')
             .first();
+
         const connectConfig: ConnectConfigInterface = {
             host: server.ip_address,
             port: server.port,
@@ -54,39 +53,51 @@ export class SshGateway implements OnGatewayConnection, OnGatewayDisconnect {
             password: server.password ? server.password : '',
             privateKey: server.private_key ? server.private_key : '',
         };
-        client.emit('commandStarted', 'Command execution started');
+
         const conn = new ssh.Client();
 
         conn.on('ready', () => {
-            conn.exec(command, (err, stream) => {
-                if (err) {
-                    console.log(err , 111);
-                    conn.end();
-                    client.emit('commandError', err.message);
-                }
+            console.log('SSH Connection Established');
+            this.sshConnections.set(client.id, conn);
+            client.emit('sshStatus', 'Connected');
+        })
+            .on('error', err => {
+                console.log(err, 121);
+                client.emit('CommandError', err.message);
+            })
+            .connect(connectConfig);
+    }
 
-              stream.on('data', chunk => {
-                    client.emit('commandOutput', chunk.toString());
-                });
+    @SubscribeMessage('runCommand')
+    async handleRunCommand(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() payload: { command: string },
+    ) {
+        const conn = this.sshConnections.get(client.id);
 
-                stream.stderr.on('data', chunk => {
-                    client.emit('commandError', chunk.toString());
-                });
+        if (!conn) {
+            client.emit('commandError', 'SSH connection not established');
+            return;
+        }
 
-                stream.on('close', () => {
-                    console.log(err ,11);
+        conn.exec(payload.command, (err, stream) => {
+            if (err) {
+                console.log(err, 111);
+                conn.end();
+                client.emit('commandError', err.message);
+            }
 
-                    conn.end();
-                    client.emit('commandCompleted', 'Command execution finished');
-                });
+            stream.on('data', chunk => {
+                client.emit('commandOutput', chunk.toString());
+            });
+
+            stream.stderr.on('data', chunk => {
+                client.emit('commandError', chunk.toString());
+            });
+
+            stream.on('close', () => {
+                client.emit('sshStatus', 'Command Done');
             });
         });
-        conn.on('error', err => {
-            console.log(err , 121);
-
-            client.emit('CommandError', err.message);
-        });
-
-        conn.connect(connectConfig);
     }
 }
