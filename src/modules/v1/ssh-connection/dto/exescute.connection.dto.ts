@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
-export class executeDto {
+export class ExecuteDto {
     @IsUUID()
     @IsNotEmpty()
     productId: string;

@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
 import { User } from '../auth/entities/user.interface';
-import { executeDto } from './dto/exescute.connection.dto';
+import { ExecuteDto } from './dto/exescute.connection.dto';
 import { installDto } from './dto/product.install.dto';
 import { ConnectionDTO } from './dto/ssh.connection.dto';
 import { SshConnectService } from './ssh.connection.service';
@@ -31,7 +31,7 @@ export class SshController {
 
     @Post('execute')
     @HttpCode(HttpStatus.OK)
-    async execute(@Body(new ValidationPipe()) body: executeDto) {
+    async execute(@Body(new ValidationPipe()) body: ExecuteDto) {
         await this.sshService.loadServerConfig(body.productId);
         return await this.sshService.executeInServer(body.command);
     }
