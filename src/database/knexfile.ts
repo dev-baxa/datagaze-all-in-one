@@ -1,13 +1,13 @@
 // src/database/knexfile.ts
 import * as dotenv from 'dotenv';
-import type { Knex } from 'knex';
+import knex from 'knex';
 import { join } from 'path';
 
 dotenv.config({
     path: '/home/baxa/Desktop/work/datagaze-all-in-one/.env',
 });
 
-const knexConfig: { [key: string]: Knex.Config } = {
+const knexConfig: { [key: string]: knex.Knex.Config } = {
     development: {
         debug: true,
         client: 'pg',
@@ -26,12 +26,12 @@ const knexConfig: { [key: string]: Knex.Config } = {
             tableName: 'knex_migrations',
             directory: join(__dirname, './migrations/v1'),
             extension: 'ts',
-            loadExtensions: ['.ts'],
+            loadExtensions: [ '.js'],
         },
         seeds: {
             directory: join(__dirname, './seeds/v1'),
             extension: 'ts',
-            loadExtensions: ['.ts'],
+            loadExtensions: ['.js'],
         },
     },
 
@@ -52,12 +52,12 @@ const knexConfig: { [key: string]: Knex.Config } = {
             tableName: 'knex_migrations',
             directory: join(__dirname, './migrations/v1'),
             extension: 'ts',
-            loadExtensions: ['.ts'],
+            loadExtensions: [ '.js'],
         },
         seeds: {
             directory: join(__dirname, './seeds/v1'),
             extension: 'ts',
-            loadExtensions: ['.ts'],
+            loadExtensions: ['.js'],
         },
     },
 };

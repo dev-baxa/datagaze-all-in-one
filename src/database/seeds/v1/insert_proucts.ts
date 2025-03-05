@@ -11,7 +11,7 @@ export async function seed(knex: Knex): Promise<void> {
             name: 'DLP',
             os_type: 'linux',
             icon_path: path.join(__dirname, '../../../../uploads/icons/dlp.png'),
-            path: path.join(__dirname, '../../../../uploads/products/dlp.deb'),
+            // path: path.join(__dirname, '../../../../uploads/products/dlp.deb'),
             min_requirements:
                 'CPU-8 core , RAM 16 GB , storage 500 GB SSD, Network 1 Gbps Enthernet port',
             description:
@@ -25,7 +25,7 @@ export async function seed(knex: Knex): Promise<void> {
             name: 'WAF',
             os_type: 'linux',
             icon_path: path.join(__dirname, '../../../../uploads/icons/waf.png'),
-            path: path.join(__dirname, '../../../../uploads/products/waf.deb'),
+            // path: path.join(__dirname, '../../../../uploads/products/waf.deb'),
             min_requirements:
                 'CPU-8 core , RAM 16 GB , storage 500 GB SSD, Network 1 Gbps Enthernet port',
             description:
@@ -39,7 +39,7 @@ export async function seed(knex: Knex): Promise<void> {
             name: 'SIEM',
             os_type: 'linux',
             icon_path: path.join(__dirname, '../../../../uploads/icons/siem.png'),
-            path: path.join(__dirname, '../../../../uploads/products/siem.deb'),
+            // path: path.join(__dirname, '../../../../uploads/products/siem.deb'),
             min_requirements:
                 'CPU-8 core , RAM 16 GB , storage 500 GB SSD, Network 1 Gbps Enthernet port',
             description:
@@ -53,7 +53,7 @@ export async function seed(knex: Knex): Promise<void> {
             name: 'SOC',
             os_type: 'linux',
             icon_path: path.join(__dirname, '../../../../uploads/icons/soc.png'),
-            path: path.join(__dirname, '../../../../uploads/products/soc.deb'),
+            // path: path.join(__dirname, '../../../../uploads/products/soc.deb'),
             min_requirements:
                 'CPU-8 core , RAM 16 GB , storage 500 GB SSD, Network 1 Gbps Enthernet port',
             description:
@@ -67,7 +67,7 @@ export async function seed(knex: Knex): Promise<void> {
             name: 'ZOOM',
             os_type: 'linux',
             icon_path: path.join(__dirname, '../../../../uploads/icons/zoom.png'),
-            path: path.join(__dirname, '../../../../uploads/products/zoom.deb'),
+            // path: path.join(__dirname, '../../../../uploads/products/zoom.deb'),
             min_requirements:
                 'CPU-8 core , RAM 16 GB , storage 500 GB SSD, Network 1 Gbps Enthernet port',
             description:
