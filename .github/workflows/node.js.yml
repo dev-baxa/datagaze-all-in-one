@@ -26,7 +26,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci
     - run: |
         touch .env
         echo "${secrets.PRODUCT_ENV_FILE}"> .env
