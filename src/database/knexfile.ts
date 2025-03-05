@@ -3,8 +3,9 @@ import * as dotenv from 'dotenv';
 import knex from 'knex';
 import { join } from 'path';
 
+
 dotenv.config({
-    path: '/home/baxa/Desktop/work/datagaze-all-in-one/.env',
+    path:  join(__dirname, '../../../.env'),
 });
 
 const knexConfig: { [key: string]: knex.Knex.Config } = {
