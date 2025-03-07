@@ -5,9 +5,10 @@ import { ServerModule } from './modules/v1/server/server.module';
 import { SshModule } from './modules/v1/ssh-connection/ssh.connection.module';
 import { UploadModule } from './modules/v1/upload/upload.module';
 import { UserModule } from './modules/v1/user/user.module';
+import { ComputerModule } from './modules/v1/computer/computer.module';
 
 @Module({
-    imports: [AuthModule, UserModule, ServerModule, SshModule, UploadModule, ProductModule],
+    imports: [AuthModule, UserModule, ServerModule, SshModule, UploadModule, ProductModule , ComputerModule],
     // controllers: [AppController],
     // providers: [AppService],
 })

@@ -21,7 +21,6 @@
         "test:e2e": "jest --config ./test/jest-e2e.json",
         "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "migration:run": "knex migrate:latest --knexfile dist/src/database/knexfile.js",
-
         "migration:rollback": "knex migrate:rollback --knexfile dist/src/database/knexfile.js",
         "seed:run": "knex seed:run --knexfile dist/src/database/knexfile.js"
     },

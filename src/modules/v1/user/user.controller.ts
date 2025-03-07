@@ -19,6 +19,7 @@ import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { UpdateProfilDtoForSuperAdmin } from './dto/update.profil.for.superadmin.dto';
 import { UpdatePasswordDTOForSuperAdmin } from './dto/update_password.dto.forSuperAdmin';
 import { UserService } from './user.service';
+import { User } from '../auth/entities/user.interface';
 
 @Controller('user')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -48,8 +49,12 @@ export class UserController {
     @Post('register')
     @Roles('superAdmin')
     async register(@Body(new ValidationPipe()) dto: CreateUserDto) {
-        const user = this.userService.register(dto);
-        return user;
+        const user = await this.userService.register(dto);
+        return {
+            status: 'success',
+            id:user.id,
+            message:'User created successfully'
+        };
     }
 
     @Put('update-password')
