@@ -1,19 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import * as jose from 'jose';
 import { BaseService } from 'src/common/utils/base.service';
 import db from 'src/config/database.config';
 import { ENV } from 'src/config/env';
 import { CreateComputerDTO } from './dto/create.computer.dto';
-import { Computer } from './entity/computer.interface';
+import { UpdateApplicationsDTO } from './dto/update.application.dto';
+import { ComputerInterface } from './entity/computer.interface';
+import { ComputerAuthService } from './service/computer.auth.service';
 
 @Injectable()
-export class ComputerService extends BaseService<Computer> {
-    constructor() {
+export class ComputerService extends BaseService<ComputerInterface> {
+    constructor(private readonly authService: ComputerAuthService) {
         super('computers');
     }
     private secretKey = ENV.JWT_PRIVAT_KEY || '';
 
-    async createComputer(data: CreateComputerDTO): Promise<Computer> {
+    async createComputerAndReturnToken(data: CreateComputerDTO): Promise<string> {
         const result = await db('computers')
             .insert(data)
             .onConflict('mac_address')
@@ -25,15 +26,22 @@ export class ComputerService extends BaseService<Computer> {
                 storage: data.storage,
             })
             .returning('*');
-        return result[0];
+
+        return await this.authService.generateToken(result[0]);
     }
 
-    async gerateToken(data: CreateComputerDTO): Promise<string> {
-        const secret = await jose.importPKCS8(this.secretKey, 'RSA-OAEP');
-        const token = await new jose.EncryptJWT({ ...data })
-            .setProtectedHeader({ alg: 'RSA-OAEP', enc: 'A256GCM' })
-            // .setExpirationTime(Math.floor(Date.now() / 1000) + (60 * 60)*24)
-            .encrypt(secret);
-        return token;
+    async updateApplications(
+        data: UpdateApplicationsDTO[],
+        computer: ComputerInterface,
+    ): Promise<void> {
+        console.log(computer);
+        
+        await db('apps').delete().where('computer_id', computer.id);
+
+        data.forEach((item: { computer_id: string } & UpdateApplicationsDTO) => {
+            item.computer_id = computer.id;
+        });
+        
+        await db('apps').insert(data);
     }
 }
