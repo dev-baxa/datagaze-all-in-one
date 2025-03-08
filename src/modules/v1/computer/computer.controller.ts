@@ -12,9 +12,7 @@ export class ComputerController {
     async createComputer(@Body(new ValidationPipe()) body: CreateComputerDTO) {
         const token = await this.computerService.createComputerAndReturnToken(body);
 
-        return {
-            token: token,
-        };
+        return token
     }
 
     @Put('applications')
