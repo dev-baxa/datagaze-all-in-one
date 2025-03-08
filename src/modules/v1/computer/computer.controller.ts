@@ -1,22 +1,34 @@
-import { Body, Controller, Post, ValidationPipe } from "@nestjs/common";
-import { ComputerService } from "./computer.service";
-import { CreateComputerDTO } from "./dto/create.computer.dto";
+import { Body, Controller, Post, Put, Req, UseGuards, ValidationPipe } from '@nestjs/common';
+import { JwtAuthForComputersGuard } from 'src/common/guards/jwt.auth.for.computers.guard';
+import { ComputerService } from './computer.service';
+import { CreateComputerDTO } from './dto/create.computer.dto';
+import { UpdateApplicationsDTO } from './dto/update.application.dto';
 
-
-@Controller("computers")
+@Controller('computers')
 export class ComputerController {
-  constructor(private readonly computerService: ComputerService) {
-    
-  }
+    constructor(private readonly computerService: ComputerService) {}
 
-  @Post('create')
-  async createComputer(@Body(new ValidationPipe()) body: CreateComputerDTO) {
-    const result = await this.computerService.createComputer(body);
-    
-    return {
-      status: "success",
-      token: await this.computerService.gerateToken(result)
+    @Post('create')
+    async createComputer(@Body(new ValidationPipe()) body: CreateComputerDTO) {
+        const token = await this.computerService.createComputerAndReturnToken(body);
+
+        return {
+            token: token,
+        };
     }
-  }
 
+    @Put('applications')
+    @UseGuards(JwtAuthForComputersGuard)
+    async updateApplications(
+        @Body(new ValidationPipe())
+        body: UpdateApplicationsDTO[],
+        @Req() req,
+    ) {
+      await this.computerService.updateApplications(body, req.computer);
+      
+      return {
+        status: 'success',
+        message: 'Applications updated successfully',
+      };
+    }
 }

@@ -1,4 +1,4 @@
-export interface Computer {
+export interface ComputerInterface {
   id: string;
   username: string;
   computer_name: string;
