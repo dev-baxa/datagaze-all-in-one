@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Put, Req, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Req, UseGuards, ValidationPipe } from '@nestjs/common';
 import { JwtAuthForComputersGuard } from 'src/common/guards/jwt.auth.for.computers.guard';
 import { ComputerService } from './computer.service';
 import { CreateComputerDTO } from './dto/create.computer.dto';
@@ -29,4 +29,10 @@ export class ComputerController {
         message: 'Applications updated successfully',
       };
     }
+  @Get('applications')
+  async getApplications() {
+    const result = await this.computerService.getApplications()
+    return result
+
+  }
 }

@@ -44,4 +44,8 @@ export class ComputerService extends BaseService<ComputerInterface> {
         
         await db('apps').insert(data);
     }
+
+    async getApplications(): Promise<UpdateApplicationsDTO[]> {
+        return await db('apps').select('*');
+    }
 }

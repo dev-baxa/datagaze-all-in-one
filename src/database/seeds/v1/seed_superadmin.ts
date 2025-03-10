@@ -7,7 +7,7 @@ export async function seed(knex: Knex): Promise<void> {
     await knex('users').del();
 
     const role: Role = await knex('roles').where({ name: 'superAdmin' }).first();
-    const password: string = await bcrypt.hash('supperAdmin', 10);
+    const password: string = await bcrypt.hash('superAdmin', 10);
 
     // Inserts seed entries
     await knex('users').insert([
