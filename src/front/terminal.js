@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 import 'xterm/css/xterm.css';
 
 // WebSocketga ulanamiz
-const socket = io('http://localhost:3000');
+const socket = io('ws://localhost:4000');
 
 const term = new Terminal({ cursorBlink: true });
 const fitAddon = new FitAddon();
