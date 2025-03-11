@@ -1,5 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as bodyParser from 'body-parser';
+import { urlencoded } from 'body-parser';
 import { AppModule } from './app.module';
 import { AllExcetionsFilter } from './common/filters/all-exception.filter';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -9,6 +11,9 @@ async function bootstrap() {
     // console.log(ENV);
 
     const app = await NestFactory.create(AppModule);
+    app.use(bodyParser.json({ limit: '10mb' }));
+    app.use(urlencoded({ limit: '10mb', extended: true }));
+
     const config = new DocumentBuilder()
         .setTitle('API Documentation')
         .setDescription('The API description')
