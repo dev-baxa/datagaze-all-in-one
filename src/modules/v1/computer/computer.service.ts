@@ -38,11 +38,12 @@ export class ComputerService extends BaseService<ComputerInterface> {
         
         await db('apps').delete().where('computer_id', computer.id);
 
-        data.forEach((item: { computer_id: string } & UpdateApplicationsDTO) => {
+        data.forEach(async(item: { computer_id: string } & UpdateApplicationsDTO) => {
             item.computer_id = computer.id;
+            await db('apps').insert(item);
         });
         
-        await db('apps').insert(data);
+        // await db('apps').insert(data);
     }
 
     async getApplications(): Promise<UpdateApplicationsDTO[]> {
