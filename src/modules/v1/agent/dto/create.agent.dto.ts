@@ -34,7 +34,7 @@ export class DiskDto {
     total_size: number;
 
     @IsNumber()
-    available_space: number;
+    free_size: number;
 }
 
 export class CreateAgentDto {
