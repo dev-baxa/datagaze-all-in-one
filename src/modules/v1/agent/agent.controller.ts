@@ -10,7 +10,7 @@ export class AgentController {
     constructor(private readonly computerService: AgentService) {}
 
     @Post('create')
-    async createAgent(@Body(new ValidationPipe()) body: CreateAgentDto , @Res() res: Response) {
+    async createAgent(@Body() body: CreateAgentDto , @Res() res: Response) {
         const result = await this.computerService.createComputerAndReturnToken(body);
 
       return res.status(result.statusCode).json({
@@ -23,7 +23,7 @@ export class AgentController {
     @Put('applications')
     @UseGuards(JwtAuthForComputersGuard)
     async updateApplications(
-        @Body(new ValidationPipe())
+        @Body()
         body: UpdateApplicationsDTO[],
         @Req() req,
     ) {
