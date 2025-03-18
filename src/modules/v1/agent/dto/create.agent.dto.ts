@@ -29,8 +29,6 @@ export class DiskDto {
     @IsNotEmpty()
     drive_name: string;
 
-    @IsString()
-    drive_type: string;
 
     @IsNumber()
     total_size: number;
