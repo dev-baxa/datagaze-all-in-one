@@ -7,6 +7,7 @@ dotenv.config({
 
 interface EnvConfig {
     PORT: string | undefined;
+    PORT_FOR_AGENT: string | undefined
     HOST: string | undefined;
     DB_HOST: string | undefined;
     DB_PORT: string | undefined;
@@ -19,6 +20,7 @@ interface EnvConfig {
 
 export const ENV: EnvConfig = {
     PORT: process.env.PORT,
+    PORT_FOR_AGENT: process.env.PORT_FOR_AGENT,
     HOST: process.env.HOST,
     DB_HOST: process.env.DB_HOST,
     DB_PORT: process.env.DB_PORT,

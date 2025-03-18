@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import * as jose from 'jose';
 import { ENV } from 'src/config/env';
-import { CreateComputerDTO } from '../dto/create.computer.dto';
-import {  ComputerInterface } from '../entity/computer.interface';
+import { ComputerInterface } from '../entity/computer.interface';
 
 @Injectable()
-export class ComputerAuthService {
+export class AgentAuthService {
     constructor() {}
     private secretKey = ENV.JWT_PRIVAT_KEY || '';
 
-    async generateToken(data: CreateComputerDTO): Promise<string> {
+    async generateToken(data): Promise<string> {
         const secret = await jose.importPKCS8(this.secretKey, 'RSA-OAEP');
         const token = await new jose.EncryptJWT({ ...data })
             .setProtectedHeader({ alg: 'RSA-OAEP', enc: 'A256GCM' })

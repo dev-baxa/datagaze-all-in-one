@@ -1,4 +1,3 @@
-import { ValidationPipe } from '@nestjs/common';
 import {
     ConnectedSocket,
     MessageBody,
@@ -7,7 +6,6 @@ import {
     SubscribeMessage,
     WebSocketGateway,
     WebSocketServer,
-    WsResponse,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import db from 'src/config/database.config';
@@ -21,7 +19,7 @@ export class SshGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer()
     server: Server;
 
-    private sshSessions: Map<string, {client : ssh.Client , shell : ssh.Channel}> = new Map();
+    private sshSessions: Map<string, { client: ssh.Client; shell: ssh.Channel }> = new Map();
     async handleConnection(client: Socket) {
         console.log(`Client connected: ${client.id}`);
         client.emit('message', 'WebSocket connection established');
@@ -31,8 +29,9 @@ export class SshGateway implements OnGatewayConnection, OnGatewayDisconnect {
         console.log(`Client diconnected: ${client.id}`);
         const session = this.sshSessions.get(client.id);
         if (session) {
-            session.shell.end()
-            session.client.end()
+            session.shell.end();
+            session.client.end();
+
             this.sshSessions.delete(client.id);
         }
     }
@@ -60,45 +59,42 @@ export class SshGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const conn = new ssh.Client();
 
         conn.on('ready', () => {
-            console.log('SSH ulanish muvaffaqiyatli o\'rnatildi');
+            console.log("SSH ulanish muvaffaqiyatli o'rnatildi");
             conn.shell((err, stream) => {
                 if (err) {
-                    client.emit('ssh_error', "Shell mode error:" + err.message)
-                    return
+                    client.emit('ssh_error', 'Shell mode error:' + err.message);
+                    return;
                 }
 
-                this.sshSessions.set(client.id, { client: conn, shell: stream })
+                this.sshSessions.set(client.id, { client: conn, shell: stream });
 
-                stream.on('data', (data) => {
+                stream.on('data', data => {
                     client.emit('ssh_output', data.toString());
                 });
 
-                stream.stderr.on('data', (data) => {
+                stream.stderr.on('data', data => {
                     client.emit('ssh_error', data.toString());
                 });
 
                 client.emit('ssh_status', 'connected');
-            })
-        })
-        conn.on('error', (err) => {
-            client.emit('ssh_error', err.message)
-            
-        })
-        conn.connect(connectConfig)
-
-
+            });
+        });
+        conn.on('error', err => {
+            client.emit('ssh_error', err.message);
+        });
+        conn.connect(connectConfig);
     }
     @SubscribeMessage('runCommand')
     async handleRunCommand(
-        @ConnectedSocket() client: Socket, 
-        @MessageBody() payload : { command:string}
+        @ConnectedSocket() client: Socket,
+        @MessageBody() payload: { command: string },
     ) {
-        const session  = this.sshSessions.get(client.id)
+        const session = this.sshSessions.get(client.id);
         if (!session) {
-            client.emit('ssh_error', 'Not connected to SSH server')
-            return
+            client.emit('ssh_error', 'Not connected to SSH server');
+            return;
         }
 
-        session.shell.write(payload.command + '\n')
+        session.shell.write(payload.command + '\n');
     }
 }

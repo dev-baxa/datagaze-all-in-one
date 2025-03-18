@@ -142,7 +142,6 @@ export class SshProductInstallService {
                             message: 'Product installed successfully.',
                             server_id: server.id,
                         });
-                        
                     });
                 });
             });
