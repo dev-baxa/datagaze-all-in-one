@@ -1,7 +1,9 @@
 
 export class UpdateApplicationsDTO {
   name: string;
-  executable_path: string;
-  file_size: number;
-  date_time: Date;
+  computer_id?: string;
+  version: string;
+  installed_date: Date;
+  type: string;
+  size:number
 }

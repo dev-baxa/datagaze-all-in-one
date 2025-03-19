@@ -20,7 +20,7 @@ export class AgentController {
       });
     }
 
-    @Put('applications')
+    @Post('applications')
     @UseGuards(JwtAuthForComputersGuard)
     async updateApplications(
         @Body()
@@ -28,7 +28,8 @@ export class AgentController {
         @Req() req,
     ) {
         await this.computerService.updateApplications(body, req.computer);
-
+        console.log(req.computer , 11112);
+        
         return {
             status: 'success',
             message: 'Applications updated successfully',
