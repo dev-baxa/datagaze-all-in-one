@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as jose from 'jose';
 import { ENV } from 'src/config/env';
-import { ComputerInterface } from '../entity/computer.interface';
+import { ComputerInterface, ComputerPayloadInterface } from '../entity/computer.interface';
 
 @Injectable()
 export class AgentAuthService {
@@ -17,11 +17,11 @@ export class AgentAuthService {
         return token;
     }
 
-    async verifyToken(token: string): Promise<object> {
+    async verifyToken(token: string): Promise<ComputerPayloadInterface> {
         const secret = await jose.importPKCS8(this.secretKey, 'RSA-OAEP');
 
         const { payload } = await jose.jwtDecrypt(token, secret);
 
-        return payload as unknown as ComputerInterface;
+        return payload as unknown as ComputerPayloadInterface;
     }
 }

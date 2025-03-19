@@ -15,3 +15,11 @@ export interface ComputerInterface {
     network_adapters: NetworkAdapterDto[];
     disks: DiskDto[];
 }
+
+export interface ComputerPayloadInterface {
+    id: string;
+    hostname: string;
+    operation_system:string;
+    platform: string;
+    unicall_key: string;
+}
