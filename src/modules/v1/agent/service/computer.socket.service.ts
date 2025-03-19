@@ -46,12 +46,12 @@ export class ComputerWebSocketGatewat implements OnGatewayConnection, OnGatewayD
 
         if (connectionType === 'user') {
             this.logger.log('User connected');
-          this.userConnections.set(id, client);
-            client.emit('connection_success', 'User connected' );
+            this.userConnections.set(id, client);
+            client.emit('connection_success', 'User connected');
         } else if (connectionType === 'computer') {
             this.logger.log('Computer connected');
-          this.computerConnections.set(id, client);
-            client.emit('connection_success', 'Computer connected' );
+            this.computerConnections.set(id, client);
+            client.emit('connection_success', 'Computer connected');
         } else {
             this.logger.error('Invalid connection type');
             client.disconnect();
@@ -85,15 +85,14 @@ export class ComputerWebSocketGatewat implements OnGatewayConnection, OnGatewayD
 
         this.logger.log(`User (${client.id}) to computer message: ${JSON.stringify(message)}`);
 
-      const computerConnection = this.computerConnections.get(computerId);
+        const computerConnection = this.computerConnections.get(computerId);
 
-      const userId = client.handshake.query.id as string;
-      
+        const userId = client.handshake.query.id as string;
 
         if (computerConnection) {
             computerConnection.emit('command', {
                 from: userId,
-                command : message,
+                command: message,
                 timestamp: new Date().toISOString(),
             });
         } else {
@@ -110,9 +109,9 @@ export class ComputerWebSocketGatewat implements OnGatewayConnection, OnGatewayD
 
         this.logger.log(`Computer (${client.id}) to user message: ${JSON.stringify(response)}`);
 
-      const userConnection = this.userConnections.get(userId);
-      
-      const clientId = client.handshake.query.id as string;
+        const userConnection = this.userConnections.get(userId);
+
+        const clientId = client.handshake.query.id as string;
 
         if (userConnection) {
             userConnection.emit('response', {

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UseFilters } from '@nestjs/common';
 import {
     OnGatewayConnection,
     OnGatewayDisconnect,
@@ -8,8 +8,10 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AgentAuthService } from './agent.auth.service';
+import { WebsocketExceptionFilter } from 'src/common/filters/websocket.exception.filter';
 
 @Injectable()
+@UseFilters( new WebsocketExceptionFilter())
 @WebSocketGateway(3501, {  cors: {origin : '*'} })
 export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly logger = new Logger(AgentWebSocketGateway.name);
