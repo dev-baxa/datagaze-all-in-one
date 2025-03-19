@@ -6,7 +6,6 @@ import { CreateAgentDto } from './dto/create.agent.dto';
 import { UpdateApplicationsDTO } from './dto/update.application.dto';
 import { ComputerInterface } from './entity/computer.interface';
 import { AgentAuthService } from './service/agent.auth.service';
-import { UUID } from 'crypto';
 
 @Injectable()
 export class AgentService extends BaseService<ComputerInterface> {
@@ -21,10 +20,15 @@ export class AgentService extends BaseService<ComputerInterface> {
         const unical_key: string =
             data.build_number + data.network_adapters.map(item => item.mac_address).join('');
         data.unical_key = unical_key;
-        const isValidComp = await db('computers')
-            .select('*')
+        const isValidComp = (await db('computers')
             .where('unical_key', unical_key)
-            .first();
+            .update({
+                ...data,
+                disks: JSON.stringify(data.disks),
+                network_adapters: JSON.stringify(data.network_adapters),
+            })
+            .returning('*'))[0]; 
+
 
         let statusCode: number;
         let result: ComputerInterface;
@@ -84,15 +88,13 @@ export class AgentService extends BaseService<ComputerInterface> {
         data: UpdateApplicationsDTO[],
         computer: ComputerInterface,
     ): Promise<void> {
-
-        console.log(computer , data);
+        console.log(computer, data);
         await db('apps').delete().where('computer_id', computer.id);
-        
+
         for (const item of data) {
             item.computer_id = computer.id; // UUID ekanligini tekshiring
             await db('apps').insert(item);
         }
-        
     }
 
     async getApplications(): Promise<UpdateApplicationsDTO[]> {

@@ -5,6 +5,7 @@ import { urlencoded } from 'body-parser';
 import { AppModule } from './app.module';
 import { AllExcetionsFilter } from './common/filters/all-exception.filter';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { WebsocketExceptionFilter } from './common/filters/websocket.exception.filter';
 import { ENV } from './config/env';
 
 async function bootstrap() {
@@ -23,8 +24,10 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
 
-    app.useGlobalFilters(new AllExcetionsFilter());
-    app.useGlobalFilters(new HttpExceptionFilter());
+    app.useGlobalFilters(
+        new AllExcetionsFilter(),
+        new HttpExceptionFilter(),
+    );
     app.enableCors();
     // app.useWebSocketAdapter(new IoAdapter(app))
 
