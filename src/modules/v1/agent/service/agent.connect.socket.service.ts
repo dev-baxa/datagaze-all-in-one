@@ -67,7 +67,7 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
         }
 
         this.logger.log(`Sending delete command to agent ${agentId} for app: ${appName}`);
-        agentSocket.emit('deleteApp', { appName });
+        agentSocket.emit('deleteApp', { name : appName });
 
         // Agentdan javobni kutish
         agentSocket.once('deleteAppResult', (result: { success: boolean; message?: string }) => {
