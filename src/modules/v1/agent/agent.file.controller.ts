@@ -22,7 +22,9 @@ export class FileController {
     @UseGuards(JwtAuthForComputersGuard)
     @Header('Content-Type', 'application/octet-stream')
     async getFile(@Param('filename') filename: string, @Res() res: Response, @Req() req: Request) {
-        const filePath = join(process.cwd(), 'uploads', 'agents', filename , '.exe');
+        const filePath = join(process.cwd(), 'uploads', 'agents', filename + '.exe');
+        console.log(filePath);
+        
 
         if (!existsSync(filePath)) {
             throw new NotFoundException('File not found');
