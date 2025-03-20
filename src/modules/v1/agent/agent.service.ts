@@ -20,15 +20,16 @@ export class AgentService extends BaseService<ComputerInterface> {
         const unical_key: string =
             data.build_number + data.network_adapters.map(item => item.mac_address).join('');
         data.unical_key = unical_key;
-        const isValidComp = (await db('computers')
-            .where('unical_key', unical_key)
-            .update({
-                ...data,
-                disks: JSON.stringify(data.disks),
-                network_adapters: JSON.stringify(data.network_adapters),
-            })
-            .returning('*'))[0]; 
-
+        const isValidComp = (
+            await db('computers')
+                .where('unical_key', unical_key)
+                .update({
+                    ...data,
+                    disks: JSON.stringify(data.disks),
+                    network_adapters: JSON.stringify(data.network_adapters),
+                })
+                .returning('*')
+        )[0];
 
         let statusCode: number;
         let result: ComputerInterface;

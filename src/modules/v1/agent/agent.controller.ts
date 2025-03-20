@@ -1,26 +1,24 @@
-import { Body, Controller, Get, Post, Put, Req, Res, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Response } from 'express';
 import { JwtAuthForComputersGuard } from 'src/common/guards/jwt.auth.for.computers.guard';
 import { AgentService } from './agent.service';
 import { CreateAgentDto } from './dto/create.agent.dto';
 import { UpdateApplicationsDTO } from './dto/update.application.dto';
-import { Response } from 'express';
 
-@Controller('agent')
+@Controller('v1/agent')
 export class AgentController {
     constructor(private readonly computerService: AgentService) {}
 
     @Post('create')
-    async createAgent(@Body() body: CreateAgentDto , @Res() res: Response) {
+    async createAgent(@Body() body: CreateAgentDto, @Res() res: Response) {
         const result = await this.computerService.createComputerAndReturnToken(body);
 
-      return res.status(result.statusCode).json({
-
-        token: result.token,
-        // statusCode : result.statusCode
-      });
+        return res.status(result.statusCode).json({
+            token: result.token,
+        });
     }
 
-    @Post('applications')
+    @Post('v1/applications')
     @UseGuards(JwtAuthForComputersGuard)
     async updateApplications(
         @Body()
@@ -28,8 +26,7 @@ export class AgentController {
         @Req() req,
     ) {
         await this.computerService.updateApplications(body, req.computer);
-        console.log(req.computer , 11112);
-        
+
         return {
             status: 'success',
             message: 'Applications updated successfully',

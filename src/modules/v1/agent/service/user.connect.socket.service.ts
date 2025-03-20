@@ -28,14 +28,12 @@ export class UIWebSocketGateway implements OnGatewayConnection, OnGatewayDisconn
 
     async handleConnection(client: Socket) {
         const token = client.handshake.headers.authorization?.split(' ')[1];
-
         if (!token) {
             client.disconnect();
             throw new WsException('Unauthorized');
         }
 
         const payload = await this.authService.verifyToken(token);
-
         if (!payload) {
             client.disconnect();
             throw new WsException('Unauthorized');
@@ -60,10 +58,7 @@ export class UIWebSocketGateway implements OnGatewayConnection, OnGatewayDisconn
     @SubscribeMessage('delete_app')
     handleDeleteApp(client: Socket, payload: { computerId: string; appName: string }) {
         this.logger.log(`Delete app request received: ${JSON.stringify(payload)}`);
-
-        // Forward the delete command to the specific agent
         this.agentGateway.deleteAppOnAgent(payload.computerId, payload.appName, client);
-
         return { success: true, message: 'Delete command sent to agent' };
     }
 }

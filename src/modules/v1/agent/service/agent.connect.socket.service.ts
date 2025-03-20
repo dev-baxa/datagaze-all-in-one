@@ -2,10 +2,8 @@ import { Injectable, Logger, UseFilters } from '@nestjs/common';
 import {
     OnGatewayConnection,
     OnGatewayDisconnect,
-    SubscribeMessage,
     WebSocketGateway,
     WebSocketServer,
-    WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { WebsocketExceptionFilter } from 'src/common/filters/websocket.exception.filter';
@@ -27,14 +25,13 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
     async handleConnection(client: Socket) {
         const token = client.handshake.headers.authorization?.split(' ')[1] as string;
         if (!token) {
-            this.logger.error(`No token provided:   ${client.id}`);
+            this.logger.error(`No token provided: ${client.id}`);
             client.disconnect();
-            return
+            return;
         }
         const payload = await this.authService.verifyToken(token);
-
         if (!payload) {
-            this.logger.error(`No Payload:   ${client.id}`);
+            this.logger.error(`No Payload: ${client.id}`);
             client.disconnect();
             return;
         }
@@ -46,8 +43,6 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
     }
 
     async handleDisconnect(client: Socket) {
-        // this.logger.log(`Agent disconnected: ${client.id}`);
-
         for (const [id, socket] of this.agentConnections.entries()) {
             if (socket.id === client.id) {
                 this.agentConnections.delete(id);
@@ -62,7 +57,6 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
 
         if (!agentSocket) {
             this.logger.error(`Agent not found: ${agentId}`);
-
             uiClient.emit('deleteAppResult', {
                 success: false,
                 message: 'Agent not connected',
@@ -71,35 +65,18 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
             });
             return;
         }
+
         this.logger.log(`Sending delete command to agent ${agentId} for app: ${appName}`);
         agentSocket.emit('deleteApp', { appName });
-    }
 
-    @SubscribeMessage('deleteAppResult')
-    handleDeleteAppResult(
-        client: Socket,
-        payload: { success: boolean; appName: string; message?: string },
-    ) {
-        this.logger.log(`Delete result received from agent: ${JSON.stringify(payload)}`);
-
-        // Find the agent ID associated with this socket
-        let agentId: string | undefined;
-        for (const [id, socket] of this.agentConnections.entries()) {
-            if (socket.id === client.id) {
-                agentId = id;
-                break;
-            }
-        }
-
-        if (!agentId) {
-            this.logger.error('Could not identify agent ID for deletion result');
-            return;
-        }
-
-        // Broadcast to UI clients (you might want to make this more targeted)
-        this.server.of('computer').emit('deleteAppResult', {
-            ...payload,
-            agentId,
+        // Agentdan javobni kutish
+        agentSocket.once('deleteAppResult', (result: { success: boolean; message?: string }) => {
+            this.logger.log(`Delete result from agent ${agentId}: ${JSON.stringify(result)}`);
+            uiClient.emit('deleteAppResult', {
+                ...result,
+                agentId,
+                appName,
+            });
         });
     }
 }
