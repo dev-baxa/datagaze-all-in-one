@@ -18,7 +18,7 @@ export class AgentController {
         });
     }
 
-    @Post('v1/applications')
+    @Post('applications')
     @UseGuards(JwtAuthForComputersGuard)
     async updateApplications(
         @Body()

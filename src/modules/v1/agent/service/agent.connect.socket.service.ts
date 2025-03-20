@@ -67,7 +67,7 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
         }
 
         this.logger.log(`Sending delete command to agent ${agentId} for app: ${appName}`);
-        agentSocket.emit('deleteApp', { name : appName });
+        agentSocket.emit('delete_app', { name : appName });
 
         // Agentdan javobni kutish
         agentSocket.once('deleted_app', ( command: string, status: string, name:string ) => {
@@ -78,6 +78,37 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
                 name,
                 agentId,
                 appName,
+            });
+        });
+    }
+
+    async installAppOnAgent(agentId: string, appName: string, uiClient: Socket) {
+        const agentSocket = this.agentConnections.get(agentId);
+
+        if (!agentSocket) {
+            this.logger.error(`Agent not found: ${agentId}`);
+            uiClient.emit('installAppResult', {
+                success: false,
+                message: 'Agent not connected',
+                appName,
+                agentId,
+            });
+            return;
+        }
+
+        this.logger.log(`Sending install command to agent ${agentId} for app: ${appName}`);
+        agentSocket.emit('install_app', { name : appName });    
+
+        // Agentdan javobni kutish
+        agentSocket.once('installed_app', (command: string, status: string, name: string) => {
+            console.log(command)
+            this.logger.log(`Install result from agent ${agentId}: ${JSON.stringify({ command, status, name })}`);
+            uiClient.emit('installAppResult', {
+                command,
+                // status,
+                // name,
+                // agentId,
+                // appName,
             });
         });
     }

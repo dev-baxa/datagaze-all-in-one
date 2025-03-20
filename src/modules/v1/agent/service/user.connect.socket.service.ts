@@ -61,4 +61,11 @@ export class UIWebSocketGateway implements OnGatewayConnection, OnGatewayDisconn
         this.agentGateway.deleteAppOnAgent(payload.computerId, payload.appName, client);
         return { success: true, message: 'Delete command sent to agent' };
     }
+
+    @SubscribeMessage('install_app')
+    handleInstallApp(client: Socket, payload: { computerId: string; appName: string }) {
+        this.logger.log(`Install app request received: ${JSON.stringify(payload)}`);
+        this.agentGateway.installAppOnAgent(payload.computerId, payload.appName, client);
+        return { success: true, message: 'Install command sent to agent' };
+    }
 }
