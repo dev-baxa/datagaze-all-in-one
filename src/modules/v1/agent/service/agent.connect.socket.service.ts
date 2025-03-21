@@ -52,64 +52,45 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
         }
     }
 
-    async deleteAppOnAgent(agentId: string, appName: string, uiClient: Socket) {
+    private async executeCommandOnAgent(
+        agentId: string,
+        appName: string,
+        command: string,
+        responseEvent: string,
+        uiClient: Socket,
+    ) {
         const agentSocket = this.agentConnections.get(agentId);
-
         if (!agentSocket) {
             this.logger.error(`Agent not found: ${agentId}`);
-            uiClient.emit('deleteAppResult', {
+            return uiClient.emit(responseEvent, {
                 success: false,
                 message: 'Agent not connected',
                 appName,
                 agentId,
             });
-            return;
         }
 
-        this.logger.log(`Sending delete command to agent ${agentId} for app: ${appName}`);
-        agentSocket.emit('delete_app', { name : appName });
+        this.logger.log(`Sending ${command} command to agent ${agentId} for app: ${appName}`);
+        agentSocket.emit(command, { name: appName });
 
-        // Agentdan javobni kutish
-        agentSocket.once('deleted_app', ( command: string, status: string, name:string ) => {
-            this.logger.log(`Delete result from agent ${agentId}: ${JSON.stringify({ command, status, name })}`);
-            uiClient.emit('deleteAppResult', {
-                command,
-                status,
-                name,
-                agentId,
-                appName,
-            });
-        });
+        agentSocket.once(
+            responseEvent,
+            (data: { command: string; status: string; name: string }) => {
+                this.logger.log(`Response from agent ${agentId}: ${JSON.stringify(data)}`);
+                uiClient.emit(responseEvent, { ...data, agentId, appName });
+            },
+        );
     }
-
     async installAppOnAgent(agentId: string, appName: string, uiClient: Socket) {
-        const agentSocket = this.agentConnections.get(agentId);
-
-        if (!agentSocket) {
-            this.logger.error(`Agent not found: ${agentId}`);
-            uiClient.emit('installAppResult', {
-                success: false,
-                message: 'Agent not connected',
-                appName,
-                agentId,
-            });
-            return;
-        }
-
-        this.logger.log(`Sending install command to agent ${agentId} for app: ${appName}`);
-        agentSocket.emit('install_app', { name : appName });    
-
-        // Agentdan javobni kutish
-        agentSocket.once('installed_app', (command: string, status: string, name: string) => {
-            console.log(command)
-            this.logger.log(`Install result from agent ${agentId}: ${JSON.stringify({ command, status, name })}`);
-            uiClient.emit('installAppResult', {
-                command,
-                // status,
-                // name,
-                // agentId,
-                // appName,
-            });
-        });
+        await this.executeCommandOnAgent(agentId, appName, 'install_app', 'installed_app', uiClient);
     }
+    async deleteAppOnAgent(agentId: string, appName: string, uiClient: Socket) {
+        await this.executeCommandOnAgent(agentId, appName, 'delete_app', 'deleted_app', uiClient);
+    }
+
+    async updateAppOnAgent(agentId: string, appName: string, uiClient: Socket) {
+        await this.executeCommandOnAgent(agentId, appName, 'update_app', 'updated_app', uiClient);
+    }
+
+    
 }
