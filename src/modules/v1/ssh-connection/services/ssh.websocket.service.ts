@@ -20,21 +20,22 @@ export class SshGateway implements OnGatewayConnection, OnGatewayDisconnect {
     server: Server;
 
     private sshSessions: Map<string, { client: ssh.Client; shell: ssh.Channel }> = new Map();
+
     async handleConnection(client: Socket) {
         console.log(`Client connected: ${client.id}`);
         client.emit('message', 'WebSocket connection established');
     }
 
     async handleDisconnect(client: Socket) {
-        console.log(`Client diconnected: ${client.id}`);
+        console.log(`Client disconnected: ${client.id}`);
         const session = this.sshSessions.get(client.id);
         if (session) {
             session.shell.end();
             session.client.end();
-
             this.sshSessions.delete(client.id);
         }
     }
+
     @SubscribeMessage('connectToServer')
     async connectToServer(
         @ConnectedSocket() client: Socket,
@@ -79,15 +80,18 @@ export class SshGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 client.emit('ssh_status', 'connected');
             });
         });
+
         conn.on('error', err => {
             client.emit('ssh_error', err.message);
         });
+
         conn.connect(connectConfig);
     }
-    @SubscribeMessage('runCommand')
-    async handleRunCommand(
+
+    @SubscribeMessage('terminalData')
+    async handleTerminalData(
         @ConnectedSocket() client: Socket,
-        @MessageBody() payload: { command: string },
+        @MessageBody() payload: { data: string },
     ) {
         const session = this.sshSessions.get(client.id);
         if (!session) {
@@ -95,6 +99,6 @@ export class SshGateway implements OnGatewayConnection, OnGatewayDisconnect {
             return;
         }
 
-        session.shell.write(payload.command + '\n');
+        session.shell.write(payload.data); // Terminaldan kelgan ma'lumotlarni SSH orqali yuborish
     }
 }

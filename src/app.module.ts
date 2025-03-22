@@ -10,6 +10,7 @@ import { AgentWebSocketGateway } from './modules/v1/agent/service/agent.connect.
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AuthMiddleware } from './common/middlewares/computer.auth.middleware';
+import { SshModule1 } from './modules/v1/auto-install/ssh.module';
 
 @Module({
     imports: [
@@ -20,6 +21,7 @@ import { AuthMiddleware } from './common/middlewares/computer.auth.middleware';
         UploadModule,
         ProductModule,
         ComputerModule,
+        SshModule1
         
     ],
     // controllers: [AppController],

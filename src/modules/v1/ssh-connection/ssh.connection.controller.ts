@@ -19,7 +19,7 @@ import { SshConnectService } from './ssh.connection.service';
 @Controller('ssh')
 @UseGuards(JwtAuthGuard)
 export class SshController {
-    constructor(private readonly sshService: SshConnectService) {}
+    constructor(private readonly sshService: SshConnectService) { }
     @Post('connect')
     @UsePipes(new ValidationPipe({ whitelist: true }))
     async connect(@Body() connectionData: ConnectionDTO, @Req() req) {
@@ -42,12 +42,4 @@ export class SshController {
         const result = await this.sshService.installProductInServer(body, user);
         return result;
     }
-
-    // @Post('install2')
-    // @HttpCode(HttpStatus.OK)
-    // async install2(@Body(new ValidationPipe()) body: installDto, @Req() req) {
-    //     const user: User = req.user;
-    //     const result = await this.sshService.installProductInServer2(body, user);
-    //     return result;
-    // }
 }

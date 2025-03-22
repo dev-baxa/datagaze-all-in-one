@@ -1,44 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSH Terminal</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="xterm.css">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>SSH Terminal</h1>
-        </header>
-        
-        <div class="product-selection">
-            <div class="form-group">
-                <label for="productId">Product ID:</label>
-                <input type="text" id="productId" placeholder="Enter Product ID">
-                <button id="connectButton">Connect</button>
-            </div>
-            <div id="productInfo" class="info-panel"></div>
-            <div id="serverInfo" class="info-panel"></div>
-        </div>
-        
-        <div class="terminal-container">
-            <div id="terminal"></div>
-        </div>
-        
-        <div class="command-input">
-            <input type="text" id="commandInput" placeholder="Enter command...">
-            <button id="sendCommand">Send</button>
-        </div>
-    </div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>SSH Terminal</title>
+        <link rel="stylesheet" href="./syles.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.1.0/css/xterm.css" />
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1 style="text-align: center">SSH Terminal</h1>
+            </header>
 
-    <!-- CDN orqali kutubxonalarni ulash -->
-    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xterm@5.1.0/lib/xterm.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.7.0/lib/xterm-addon-fit.js"></script>
-    
-    <!-- Asosiy JavaScript -->
-    <script src="main.js"></script>
-</body>
+            <div class="product-selection">
+                <div class="form-group">
+                    <label  for="productId">Product ID:</label>
+                    <input type="text" id="productId" placeholder="Enter Product ID" />
+                    <button id="connectButton">Connect</button>
+                </div>
+                <div id="productInfo" class="info-panel"></div>
+                <div id="serverInfo" class="info-panel"></div>
+            </div>
+
+            <div class="terminal-container">
+                <div id="terminal"></div>
+            </div>
+        </div>
+
+        <!-- Kutubxonalarni ulash -->
+        <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/xterm@5.1.0/lib/xterm.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.7.0/lib/xterm-addon-fit.js"></script>
+
+        <!-- Asosiy JavaScript -->
+        <script src="main.js"></script>
+    </body>
 </html>

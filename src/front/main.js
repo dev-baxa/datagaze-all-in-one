@@ -1,10 +1,8 @@
 // DOM Elements
-const connectButton = document.getElementById('connectButton');
-const productIdInput = document.getElementById('productId');
-const productInfoPanel = document.getElementById('productInfo');
-const serverInfoPanel = document.getElementById('serverInfo');
-const commandInput = document.getElementById('commandInput');
-const sendCommandButton = document.getElementById('sendCommand');
+let connectButton;
+let productIdInput;
+let productInfoPanel;
+let serverInfoPanel;
 
 // Terminal variables
 let terminal;
@@ -15,15 +13,15 @@ let connected = false;
 function initTerminal() {
     // Create terminal
     terminal = new Terminal({
-        cursorBlink: true,
+        cursorBlink: true, // Kursor miltillashi
+        fontFamily: '"Fira Code", "JetBrains Mono", monospace',
+        fontSize: 14, // Shrfit o‘lchami
+        letterSpacing: 1, // Harflar orasidagi masofa
+        lineHeight: 1.2, // Qatorlar orasidagi balandlik
         theme: {
-            background: '#000000',
-            foreground: '#ffffff',
+            background: '#000000', // Orqa fon rangi
+            foreground: '#ffffff', // Matn rangi
         },
-        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
-        fontSize: 14,
-        lineHeight: 1.2,
-        scrollback: 1000,
     });
 
     // Load FitAddon for terminal sizing
@@ -43,7 +41,25 @@ function initTerminal() {
     terminal.writeln('Welcome to Remote Server Terminal');
     terminal.writeln('Enter a Product ID and click "Connect" to start');
     terminal.writeln('');
+
+    // Handle terminal input
+    terminal.onData(data => {
+        if (connected) {
+            // Send data to server
+            socket.emit('terminalData', { data });
+        }
+    });
+
+    // Handle Enter key for command submission
+    terminal.onKey(e => {
+        if (e.key === '\r') {
+            // Enter key
+            terminal.write('\r'); // Yangi qatorga o'tish
+        }
+    });
 }
+
+
 
 // Initialize Socket.IO connection
 function initSocketConnection() {
@@ -84,7 +100,9 @@ function initSocketConnection() {
 
     // Handle command output from server
     socket.on('ssh_output', data => {
-        terminal.write(data);
+        console.log(data);
+        
+        terminal.write(data); // Serverdan kelgan ma'lumotlarni terminalda ko'rsatish
     });
 
     // Handle SSH connection status
@@ -93,12 +111,8 @@ function initSocketConnection() {
             connected = true;
             terminal.writeln('\r\nSSH connection established to server');
 
-            // Enable command input
-            commandInput.disabled = false;
-            sendCommandButton.disabled = false;
-
-            // Update UI
-            connectButton.disabled = false;
+            // Enable terminal input
+            terminal.focus();
         }
     });
 
@@ -128,41 +142,32 @@ function connectToServer() {
 
     terminal.writeln(`\r\nAttempting to connect using Product ID: ${productId}...`);
 
-    // Send connect request to the server - Backend SubscribeMessage decoratordagi event nomi
+    // Send connect request to the server
     socket.emit('connectToServer', { productId });
     console.log('Sent connectToServer with productId:', productId);
-}
-
-// Send command to the server
-function sendCommand() {
-    const command = commandInput.value.trim();
-
-    if (!command) return;
-
-    if (!connected) {
-        terminal.writeln('Not connected to any server');
-        return;
-    }
-
-    // Send command to server - Backend SubscribeMessage decoratordagi event nomi
-    socket.emit('runCommand', { command });
-    console.log('Sent command:', command);
-
-    // Clear command input
-    commandInput.value = '';
 }
 
 // Reset connection state
 function resetConnection() {
     connected = false;
     connectButton.disabled = false;
-    commandInput.disabled = true;
-    sendCommandButton.disabled = true;
 }
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing app...');
+
+    // DOM elementlarini tanlash
+    connectButton = document.getElementById('connectButton');
+    productIdInput = document.getElementById('productId');
+    productInfoPanel = document.getElementById('productInfo');
+    serverInfoPanel = document.getElementById('serverInfo');
+
+    // DOM elementlari mavjudligini tekshirish
+    if (!connectButton || !productIdInput || !productInfoPanel || !serverInfoPanel) {
+        console.error('One or more DOM elements not found');
+        return;
+    }
 
     // Initialize terminal
     initTerminal();
@@ -170,20 +175,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize socket connection
     initSocketConnection();
 
-    // Disable command input until connected
-    commandInput.disabled = true;
-    sendCommandButton.disabled = true;
-
     // Add event listeners
     connectButton.addEventListener('click', connectToServer);
-    sendCommandButton.addEventListener('click', sendCommand);
-
-    // Allow pressing Enter in command input
-    commandInput.addEventListener('keydown', event => {
-        if (event.key === 'Enter') {
-            sendCommand();
-        }
-    });
 
     // Allow pressing Enter in product ID input
     productIdInput.addEventListener('keydown', event => {
