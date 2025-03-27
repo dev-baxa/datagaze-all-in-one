@@ -1,75 +1,99 @@
-import { Injectable } from '@nestjs/common';
-import { Server, Socket } from 'socket.io';
-import { Client } from 'ssh2';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Socket } from 'socket.io';
+import db from 'src/config/database.config';
+import { Channel, Client } from 'ssh2';
+import { Product } from '../product/entities/product.interface';
+import { ServerInterface } from '../ssh-connection/entities/server.interface';
+import { ConnectConfigInterface } from '../ssh-connection/entities/connect.config.interface';
 
 @Injectable()
 export class SshService {
-    private sshClient: Client;
-    private socket: Socket;
+    private readonly logger = new Logger(SshService.name);
+    private product: Product;
+    private sshSessions: Map<string, { client: Client; shell: Channel }> = new Map();
 
-    connectSSH(socket: Socket, host: string, username: string, password: string) {
-        this.socket = socket;
-        this.sshClient = new Client();
-
-        this.sshClient.on('ready', () => {
-            this.socket.emit('ssh_status', 'connected');
-            this.runCommand('whoami'); // Example command
-        });
-
-        this.sshClient.on('error', err => {
-            this.socket.emit('ssh_error', err.message);
-        });
-
-        this.sshClient.connect({
-            host,
-            username,
-            password,
-        });
+    handleConnection(socket: Socket) {
+        socket.emit('message', 'WebSocket connection established');
     }
 
-    runCommand(command: string) {
-        this.sshClient.exec(command, (err, stream) => {
-            if (err) {
-                this.socket.emit('ssh_output', `Error: ${err.message}`);
-                return;
-            }
+    handleDisconnect(socket: Socket) {
+        console.log(`Client disconnected: ${socket.id}`);
+        const session = this.sshSessions.get(socket.id);
+        if (session) {
+            session.shell.end();
+            session.client.end();
+            this.sshSessions.delete(socket.id);
+        }
+    }
 
-            stream.on('data', data => {
-                this.socket.emit('ssh_output', data.toString());
+    async connectSSH(socket: Socket, productId: string) {
+        const product: Product = await db('products').where({ id: productId }).first();
+        if (!product) throw new NotFoundException('This product is not found');
 
-                if (data.toString().includes('password:')) {
-                    this.socket.emit('ssh_prompt', 'Enter password:');
+        this.product = product;
+
+        const server: ServerInterface = await db('products')
+            .join('servers', 'products.server_id', 'servers.id')
+            .where('products.id', productId)
+            .select('servers.*')
+            .first();
+
+        const connectConfig: ConnectConfigInterface = {
+            host: server.ip_address,
+            port: server.port,
+            username: server.username,
+            password: server.password ? server.password : '',
+            privateKey: server.private_key ? server.private_key : '',
+        };
+
+        const conn = new Client();
+
+        conn.on('ready', () => {
+            console.log("SSH ulanish muvaffaqiyatli o'rnatildi");
+            conn.shell((err, stream) => {
+                if (err) {
+                    socket.emit('ssh_error', 'Shell mode error:' + err.message);
+                    return;
                 }
-            });
 
-            stream.stderr.on('data', data => {
-                this.socket.emit('ssh_output', `Error: ${data.toString()}`);
-            });
+                this.sshSessions.set(socket.id, {
+                    client: conn,
+                    shell: stream,
+                });
 
-            stream.on('close', () => {
-                this.socket.emit('ssh_output', '\nCommand finished.');
+                stream.on('data', data => {
+                    socket.emit('ssh_output', data.toString());
+                    console.log(data.toString());
+                    
+                });
+
+                stream.stderr.on('data', data => {
+                    socket.emit('ssh_error', data.toString());
+                });
+
+                socket.emit('ssh_status', 'connected');
             });
         });
+
+        conn.on('error', err => {
+            socket.emit('ssh_error', err.message);
+        });
+
+        conn.connect(connectConfig);
     }
 
-    handleUserInput(input: string) {
-        this.sshClient.exec(input, (err, stream) => {
-            if (err) {
-                this.socket.emit('ssh_output', `Error: ${err.message}`);
-                return;
-            }
+    async runCommand(socket: Socket, input: string) {
+        const session = this.sshSessions.get(socket.id);
+        if (!session) {
+            socket.emit('ssh_error', 'Not connected to SSH server');
+            return;
+        }
 
-            stream.on('data', data => {
-                this.socket.emit('ssh_output', data.toString());
-            });
+        session.shell.write(input);
+    }
 
-            stream.stderr.on('data', data => {
-                this.socket.emit('ssh_output', `Error: ${data.toString()}`);
-            });
-
-            stream.on('close', () => {
-                this.socket.emit('ssh_output', '\nCommand finished.');
-            });
-        });
+    async getInstallScript(id: string): Promise<string> {
+        const product: Product = await db('products').where({ id: id }).first();
+        return product.install_scripts;
     }
 }

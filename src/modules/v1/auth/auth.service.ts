@@ -50,28 +50,7 @@ export class AuthService extends BaseService<User> {
         return token;
     }
 
-    async updateProfil(dto: UpdateProfileDTO, user: Payload): Promise<void> {
-        if (dto.username && dto.username !== user.username) {
-            const existingUsername = await this.findByQuery({
-                username: dto.username,
-            });
-            if (existingUsername[0]) {
-                throw new BadRequestException('Username already taken');
-            }
-        }
 
-        if (dto.email && dto.email !== user.email) {
-            const existingEmail = await this.findByQuery({
-                email: dto.email,
-            });
-            if (existingEmail[0]) {
-                throw new BadRequestException('Email already registered');
-            }
-        }
-
-        // Update user profile
-        await this.update(user.id, dto);
-    }
 
     async generateTokenEncryptedJwt(payload: Payload): Promise<string> {
         const secret = await jose.importPKCS8(this.privateKey, 'RSA-OAEP');

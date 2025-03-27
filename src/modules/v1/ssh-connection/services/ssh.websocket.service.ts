@@ -10,7 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import db from 'src/config/database.config';
 import * as ssh from 'ssh2';
-import { ServerInterface } from '../../server/entities/server.interface';
+import { ServerInterface } from '../entities/server.interface';
 import { ConnectToServerDto } from '../dto/connect.to.server.dto';
 import { ConnectConfigInterface } from '../entities/connect.config.interface';
 

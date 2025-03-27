@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     Body,
     Controller,
     Delete,
@@ -9,69 +8,85 @@ import {
     ParseUUIDPipe,
     Post,
     UploadedFile,
+    UploadedFiles,
     UseGuards,
     UseInterceptors,
     ValidationPipe,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { fileUploadDir } from 'src/common/constants';
+import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles.decorators';
 import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
-import { ServerService } from '../server/server.service';
-import { CreateProfilDTO } from './dto/create.product.dto';
+import {
+    ApiBadRequestResponse,
+    ApiInternalServerErrorResponse,
+    ApiUnauthorizedResponse,
+} from 'src/common/swagger/common.errors';
+import { fileFieldsConfig } from 'src/config/file.fields.config';
+import { iconConfig } from 'src/config/icon.config';
+import { CreateProductDTO } from './dto/create.product.dto';
 import { ProductService } from './product.service';
 
-@Controller('product')
+@Controller('v1/product')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBadRequestResponse()
+@ApiUnauthorizedResponse()
+    @ApiBearerAuth()
+    @ApiTags('Product')
+@ApiInternalServerErrorResponse('Internal Server Error')
 export class ProductController {
-    constructor(
-        private readonly productService: ProductService,
-        private readonly serverService: ServerService,
-    ) {}
+    constructor(private readonly productService: ProductService) {}
 
     @Post('create')
     @Roles('superAdmin')
-    async create(@Body(new ValidationPipe()) dto: CreateProfilDTO) {
-        const result = await this.productService.create(dto);
+    @ApiOperation({ summary: 'Upload file' })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                },
+            },
+        },
+    })
+    @UseInterceptors(FileInterceptor('file', iconConfig()))
+    async create(
+        @UploadedFile() file: Express.Multer.File,
+        @Body(new ValidationPipe()) dto: CreateProductDTO,
+    ) {
+        const result = await this.productService.createProduct(file, dto);
         return {
-            id: result.id,
-            message: 'Product created successfully',
+            succes: true,
+            id: result,
         };
     }
 
-    @Post('upload')
+    @Post(':id/files')
+    @Roles('superAdmin')
     @UseInterceptors(
-        FileInterceptor('file', {
-            storage: diskStorage({
-                destination: fileUploadDir,
-                filename: (req, file, callback) => {
-                    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-                    const ext = extname(file.originalname); // Fayl kengaytmasini olish
-                    callback(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-                },
-            }),
-            fileFilter: (req, file, callback) => {
-                const allowedFileTypes = ['zip', 'rar', 'exe', 'deb'];
-                if (!allowedFileTypes.includes(file.mimetype.split('/')[1])) {
-                    return callback(new BadRequestException('Unsupported file type'), false);
-                }
-                callback(null, true);
-            },
-            limits: {
-                fileSize: 1024 * 1024 * 10,
-            },
-        }),
+        FileFieldsInterceptor(
+            [
+                { name: 'server', maxCount: 1 },
+                { name: 'agent', maxCount: 1 },
+            ],
+            fileFieldsConfig(),
+        ),
     )
-    async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    async uploadFiles(
+        @Param('id') productId: string,
+        @UploadedFiles() files: { server?: Express.Multer.File; agent?: Express.Multer.File },
+    ) {
+        this.productService.uploadFiles(productId, files);
         return {
-            message: 'File successfully upload',
-            fileName: file.filename,
-            path: fileUploadDir + '/' + file.filename,
+            message: 'succes',
+            id: productId,
         };
     }
+
     @Get('all')
     async findAll() {
         return await this.productService.getAllProducts();
@@ -96,7 +111,4 @@ export class ProductController {
             message: 'Product deleted successfully',
         };
     }
-
-    // @Post('install')
-    // async install(@Body(new ValidationPipe()) dto : ProductInstallDTO)
 }

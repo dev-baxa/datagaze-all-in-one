@@ -4,6 +4,7 @@ export class UpdateProfileDTO {
     @IsOptional()
     @IsString()
     @IsNotEmpty()
+        
     username?: string;
 
     @IsOptional()

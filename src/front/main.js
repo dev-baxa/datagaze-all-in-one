@@ -3,6 +3,8 @@ let connectButton;
 let productIdInput;
 let productInfoPanel;
 let serverInfoPanel;
+let productInputSection;
+let terminalSection;
 
 // Terminal variables
 let terminal;
@@ -15,7 +17,7 @@ function initTerminal() {
     terminal = new Terminal({
         cursorBlink: true, // Kursor miltillashi
         fontFamily: '"Fira Code", "JetBrains Mono", monospace',
-        fontSize: 14, // Shrfit o‘lchami
+        fontSize: 14, // Shrift o‘lchami
         letterSpacing: 1, // Harflar orasidagi masofa
         lineHeight: 1.2, // Qatorlar orasidagi balandlik
         theme: {
@@ -39,12 +41,12 @@ function initTerminal() {
 
     // Welcome message
     terminal.writeln('Welcome to Remote Server Terminal');
-    terminal.writeln('Enter a Product ID and click "Connect" to start');
     terminal.writeln('');
 
     // Handle terminal input
     terminal.onData(data => {
         if (connected) {
+            
             // Send data to server
             socket.emit('terminalData', { data });
         }
@@ -58,8 +60,6 @@ function initTerminal() {
         }
     });
 }
-
-
 
 // Initialize Socket.IO connection
 function initSocketConnection() {
@@ -101,7 +101,6 @@ function initSocketConnection() {
     // Handle command output from server
     socket.on('ssh_output', data => {
         console.log(data);
-        
         terminal.write(data); // Serverdan kelgan ma'lumotlarni terminalda ko'rsatish
     });
 
@@ -129,7 +128,7 @@ function connectToServer() {
     const productId = productIdInput.value.trim();
 
     if (!productId) {
-        terminal.writeln('Please enter a Product ID');
+        alert('Please enter a Product ID');
         return;
     }
 
@@ -139,6 +138,10 @@ function connectToServer() {
 
     // Disable connect button during connection
     connectButton.disabled = true;
+
+    // Hide product input section and show terminal section
+    productInputSection.style.display = 'none';
+    terminalSection.style.display = 'block';
 
     terminal.writeln(`\r\nAttempting to connect using Product ID: ${productId}...`);
 
@@ -162,9 +165,18 @@ document.addEventListener('DOMContentLoaded', () => {
     productIdInput = document.getElementById('productId');
     productInfoPanel = document.getElementById('productInfo');
     serverInfoPanel = document.getElementById('serverInfo');
+    productInputSection = document.getElementById('productInputSection');
+    terminalSection = document.getElementById('terminalSection');
 
     // DOM elementlari mavjudligini tekshirish
-    if (!connectButton || !productIdInput || !productInfoPanel || !serverInfoPanel) {
+    if (
+        !connectButton ||
+        !productIdInput ||
+        !productInfoPanel ||
+        !serverInfoPanel ||
+        !productInputSection ||
+        !terminalSection
+    ) {
         console.error('One or more DOM elements not found');
         return;
     }

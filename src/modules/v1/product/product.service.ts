@@ -1,12 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { BaseService } from 'src/common/utils/base.service';
 import db from 'src/config/database.config';
+import { CreateProductDTO } from './dto/create.product.dto';
 import { Product } from './entities/product.interface';
+import { CryptoService } from './services/crypto.service';
 
 @Injectable()
 export class ProductService extends BaseService<Product> {
-    constructor() {
+    constructor(private readonly crypetoService: CryptoService) {
         super('products');
+    }
+
+    async createProduct(file: Express.Multer.File, dto: CreateProductDTO): Promise<string> {
+        const product = await db('products')
+            .insert({
+                ...dto,
+                icon_path: file.path,
+            })
+            .returning('*');
+
+        return product[0].id;
+    }
+
+    async uploadFiles(
+        productId: string,
+        files: { agent?: Express.Multer.File; server?: Express.Multer.File },
+    ): Promise<void> {
+        if (!files.server || !files.agent) {
+            throw new BadRequestException('Server and agent files are required');
+        }
+        console.log(files);
+        
+
+        await db('products').where({ id: productId }).update({
+            agent_path: files.agent[0].path,
+            server_path: files.server[0].path,
+        });
     }
 
     async findByOne(id: string) {
@@ -27,11 +56,12 @@ export class ProductService extends BaseService<Product> {
             .select(
                 'products.id',
                 'products.name',
-                'products.os_type',
                 'products.description',
                 'products.min_requirements',
-                'products.path',
-                'products.scripts',
+                'products.agent_path',
+                'products.server_path',
+                'products.icon_path',
+                'products.install_scripts',
                 db.raw(
                     'CASE WHEN products.server_id IS NULL THEN NULL ELSE servers.ip_address END AS ip',
                 ),

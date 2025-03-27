@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
     IsNotEmpty,
     IsOptional,
@@ -11,16 +12,19 @@ import {
 export class UpdateProfilDtoForSuperAdmin {
     @IsUUID()
     @IsNotEmpty()
+    @ApiProperty({ description: 'id', example: 'uuid' })
     id: string;
 
     @IsOptional()
     @IsString()
     @IsNotEmpty()
+    @ApiProperty({ description: 'username', example: 'superAdmin', required: false })
     username?: string;
 
     @IsOptional()
     @IsString()
     @IsNotEmpty()
+    @ApiProperty({ description: 'email', example: 'example@gmail.com', required: false })
     email?: string;
 
     @IsOptional()
@@ -31,5 +35,6 @@ export class UpdateProfilDtoForSuperAdmin {
         message:
             'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
     })
+    @ApiProperty({ description: 'password', example: 'strongPassword', required: false })
     password?: string;
 }

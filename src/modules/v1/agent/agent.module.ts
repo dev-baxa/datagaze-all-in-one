@@ -28,7 +28,7 @@ import { AuthMiddleware } from 'src/common/middlewares/computer.auth.middleware'
     exports: [AgentService, AgentAuthService, AgentWebSocketGateway],
     controllers: [AgentController, FileController],
 })
-export class ComputerModule implements NestModule {
+export class AgentModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
         consumer.apply(AuthMiddleware).forRoutes('/agents/');
     }

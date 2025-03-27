@@ -4,4 +4,6 @@ export interface ConnectConfigInterface {
     username: string;
     password?: string;
     privateKey?: string;
+    tryKeyboard?: boolean;
+    keepaliveInterval?: number; // Added to support interactive prompts
 }

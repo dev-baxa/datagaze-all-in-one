@@ -34,7 +34,7 @@ export class AgentController {
     }
     @Get('applications')
     async getApplications() {
-        const result = await this.computerService.getApplications();
-        return result;
+        
+        return this.computerService.getApplications();
     }
 }

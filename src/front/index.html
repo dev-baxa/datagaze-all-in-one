@@ -8,25 +8,27 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.1.0/css/xterm.css" />
     </head>
     <body>
-        <div class="container">
-            <header>
-                <h1 style="text-align: center">SSH Terminal</h1>
-            </header>
+       <div class="container">
+    <header>
+        <h1 style="text-align: center">SSH Terminal</h1>
+    </header>
 
-            <div class="product-selection">
-                <div class="form-group">
-                    <label  for="productId">Product ID:</label>
-                    <input type="text" id="productId" placeholder="Enter Product ID" />
-                    <button id="connectButton">Connect</button>
-                </div>
-                <div id="productInfo" class="info-panel"></div>
-                <div id="serverInfo" class="info-panel"></div>
-            </div>
-
-            <div class="terminal-container">
-                <div id="terminal"></div>
-            </div>
+    <!-- Product ID kiritish qismi -->
+    <div id="productInputSection" class="product-selection">
+        <div class="form-group">
+            <label for="productId">Product ID:</label>
+            <input type="text" id="productId" placeholder="Enter Product ID" />
+            <button id="connectButton">Connect</button>
         </div>
+        <div id="productInfo" class="info-panel"></div>
+        <div id="serverInfo" class="info-panel"></div>
+    </div>
+
+    <!-- Terminal qismi (dastlab yashirin) -->
+    <div id="terminalSection" class="terminal-container" style="display: none;">
+        <div id="terminal"></div>
+    </div>
+</div>
 
         <!-- Kutubxonalarni ulash -->
         <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
