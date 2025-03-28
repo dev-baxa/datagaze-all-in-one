@@ -9,6 +9,7 @@ import {
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
 import { User } from '../auth/entities/user.interface';
 import { ExecuteDto } from './dto/exescute.connection.dto';
@@ -17,6 +18,7 @@ import { ConnectionDTO } from './dto/ssh.connection.dto';
 import { SshConnectService } from './ssh.connection.service';
 
 @Controller('ssh')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 export class SshController {
     constructor(private readonly sshService: SshConnectService) {}
@@ -40,14 +42,7 @@ export class SshController {
     async install(@Body(new ValidationPipe()) body: installDto, @Req() req) {
         const user: User = req.user;
         const result = await this.sshService.installProductInServer(body, user);
+
         return result;
     }
-
-    // @Post('install2')
-    // @HttpCode(HttpStatus.OK)
-    // async install2(@Body(new ValidationPipe()) body: installDto, @Req() req) {
-    //     const user: User = req.user;
-    //     const result = await this.sshService.installProductInServer2(body, user);
-    //     return result;
-    // }
 }

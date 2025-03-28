@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Mahsulot O'rnatish Paneli</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+            rel="stylesheet"
+        />
+        <link href="xterm.css" rel="stylesheet" />
+        <style>
+            body {
+                background-color: #121212;
+                color: #ffffff;
+            }
+        </style>
+    </head>
+    <body class="bg-gray-900">
+        <div id="app" class="container mx-auto p-4">
+            <h1 class="text-2xl font-bold text-white mb-4">Mahsulot O'rnatish Paneli</h1>
+
+            <div class="bg-gray-800 rounded-lg p-4">
+                <div id="terminal" class="w-full h-[500px] bg-black rounded"></div>
+
+                <div id="prompt-container" class="mt-4 hidden">
+                    <div id="prompt-message" class="text-white mb-2"></div>
+                    <input
+                        id="prompt-input"
+                        type="text"
+                        class="w-full p-2 bg-gray-700 text-white rounded"
+                        placeholder="Javobni kiriting"
+                    />
+                </div>
+
+                <button id="start-btn" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded">
+                    O'rnatishni Boshlash
+                </button>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.1.0/xterm.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.1.0/addons/xterm-addon-fit/xterm-addon-fit.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.1.0/css/xterm.css" />
+        <script src="https://cdn.jsdelivr.net/npm/xterm@5.1.0/lib/xterm.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+
+        <script>
+            // Frontend JavaScript
+            let socket;
+
+            document.addEventListener('DOMContentLoaded', () => {
+                socket = io('ws://localhost:4000/product-install', {
+                    transports: ['websocket', 'polling'],
+                    reconnection: true,
+                    reconnectionAttempts: 5,
+                    reconnectionDelay: 1000,
+                });
+
+                socket.on('connect', () => {
+                    console.log('✅ Ulandi! ID:', socket.id);
+                });
+
+                socket.on('script_output', output => {
+                    console.log('📜 Script output:', output);
+                    terminal.write(output);
+                });
+
+                socket.on('installation_complete', () => {
+                    console.log("✅ O'rnatish tugadi!");
+                    terminal.write("\n✅ O'rnatish muvaffaqiyatli yakunlandi!\n");
+                    startBtn.disabled = false;
+                });
+
+                socket.on('installation_error', error => {
+                    console.error('❌ Xatolik:', error);
+                    terminal.write(`\n❌ Xatolik: ${error}\n`);
+                    startBtn.disabled = false;
+                });
+
+                const terminal = new Terminal({
+                    convertEol: true,
+                    fontFamily: 'monospace',
+                    fontSize: 14,
+                    theme: {
+                        background: '#1e1e1e',
+                        foreground: '#d4d4d4',
+                    },
+                });
+
+                const fitAddon = new FitAddon.FitAddon();
+                terminal.loadAddon(fitAddon);
+                terminal.open(document.getElementById('terminal'));
+                fitAddon.fit();
+
+                const startBtn = document.getElementById('start-btn');
+                const promptContainer = document.getElementById('prompt-container');
+                const promptInput = document.getElementById('prompt-input');
+                const promptMessage = document.getElementById('prompt-message');
+
+                startBtn.addEventListener('click', () => {
+                    socket.emit('start_product_installation', {
+                        productId: '0dcc5c09-efbf-4b47-b5b2-f01c4d4e9732',
+                    });
+                    startBtn.disabled = true;
+                });
+
+                socket.on('script_prompt', prompt => {
+                    promptContainer.classList.remove('hidden');
+                    promptMessage.textContent = prompt.message;
+                    promptInput.type = prompt.type === 'password' ? 'password' : 'text';
+                    promptInput.focus();
+                });
+
+                promptInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') {
+                        socket.emit('script_interaction_response', {
+                            response: promptInput.value,
+                        });
+                        promptContainer.classList.add('hidden');
+                        promptInput.value = '';
+                    }
+                });
+            });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+    </body>
+</html>

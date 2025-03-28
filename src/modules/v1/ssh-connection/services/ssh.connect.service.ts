@@ -2,7 +2,7 @@ import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nes
 import db from 'src/config/database.config';
 import * as ssh from 'ssh2';
 import { User } from '../../auth/entities/user.interface';
-import { ServerInterface } from '../../server/entities/server.interface';
+import { ServerInterface } from '../entities/server.interface';
 import { ConnectionDTO } from '../dto/ssh.connection.dto';
 import { ConnectConfigInterface } from '../entities/connect.config.interface';
 

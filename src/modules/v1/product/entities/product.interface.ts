@@ -1,13 +1,18 @@
-export interface Product {
+export interface Product{
     id: string;
     name: string;
-    server_id?: string;
-    os_type: string;
+    server_id: string;
     description: string;
     min_requirements: string;
-    version?: string;
-    path: string;
-    scripts: JSON;
+    publisher: string;
+    server_version: string;
+    agent_vesion: string;
+    server_path: string;
+    agent_path: string;
+    icon_path: string;
+    install_scripts: string;
+    update_scripts: string;
+    delete_scripts: string;
     created_at?: Date;
     updated_at?: Date;
 }

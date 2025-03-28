@@ -1,29 +1,46 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
 
-export class CreateProfilDTO {
-    @IsOptional()
+export class CreateProductDTO {
     @IsString()
-    @IsUUID()
-    server_id?: string;
-
-    @IsString()
-    @IsEnum(['linux', 'windows'])
-    @IsOptional()
-    os_type?: string;
+    @IsNotEmpty()
+        @ApiProperty({description:"name" , example:'DLP'})
+    name: string;
 
     @IsString()
     @IsNotEmpty()
+        @ApiProperty({description:"publisher" , example:'DATAGAZE'})
+    publisher: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty({description:"server_version" , example:'1.0.0'})
+    server_version: string;
+
+    @IsString()
+    @IsNotEmpty()
+        @ApiProperty({description:"agent_version" , example:'1.0.0'})
+    agent_version: string;
+
+    @IsString()
+    @IsNotEmpty()
+        @ApiProperty({description:"install_scripts" , example:'echo "hello world"'})
+    install_scripts: string;
+
+    @IsString()
+    @IsNotEmpty()
+    update_scripts: string;
+
+    @IsString()
+    @IsNotEmpty()
+    delete_scripts: string;
+
+    @IsOptional()
+    @IsString()
     description: string;
 
     @IsString()
     @IsNotEmpty()
     min_requirements: string;
 
-    @IsString()
-    @IsNotEmpty()
-    path: string;
-
-    @IsObject()
-    @IsNotEmpty()
-    scripts: JSON;
 }

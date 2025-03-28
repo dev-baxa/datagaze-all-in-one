@@ -1,9 +1,9 @@
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { ComputerAuthService } from 'src/modules/v1/computer/service/computer.auth.service';
+import { AgentAuthService } from 'src/modules/v1/agent/service/agent.auth.service';
 
 @Injectable()
 export class JwtAuthForComputersGuard {
-    constructor(private readonly authService: ComputerAuthService) {}
+    constructor(private readonly authService: AgentAuthService) {}
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request);

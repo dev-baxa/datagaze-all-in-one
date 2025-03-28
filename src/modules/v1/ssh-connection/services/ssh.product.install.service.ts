@@ -11,7 +11,7 @@ import db from 'src/config/database.config';
 import * as ssh from 'ssh2';
 import { User } from '../../auth/entities/user.interface';
 import { Product } from '../../product/entities/product.interface';
-import { ServerInterface } from '../../server/entities/server.interface';
+import { ServerInterface } from '../entities/server.interface';
 import { installDto } from '../dto/product.install.dto';
 import { ConnectConfigInterface } from '../entities/connect.config.interface';
 
@@ -29,12 +29,11 @@ export class SshProductInstallService {
             // const execAsync = promisify(exec)
             const product: Product = await db('products').where({ id: data.productId }).first();
 
-            if (product.path === null || !product.path)
+            if (product.server_path === null || !product.server_path)
                 reject(new NotFoundException('Product path not found'));
 
-            const productPath = product.path[`${data.os_type}.v-${data.version}`];
+            const productPath = product.server_path[`${data.os_type}.v-${data.version}`];
 
-            console.log(productPath, 121212);
 
             if (!productPath)
                 reject(
@@ -85,9 +84,9 @@ export class SshProductInstallService {
                     }
                     console.log("FAylni ko'chirish boshlandi !!!!");
                     const remoteFilePath = path.basename(
-                        product.path[`${data.os_type}.v-${data.version}`],
+                        product.server_path[`${data.os_type}.v-${data.version}`],
                     );
-                    const localFilePath = product.path[`${data.os_type}.v-${data.version}`];
+                    const localFilePath = product.server_path[`${data.os_type}.v-${data.version}`];
                     console.log(localFilePath, 'local');
                     console.log(remoteFilePath, 'remote');
 
@@ -142,7 +141,6 @@ export class SshProductInstallService {
                             message: 'Product installed successfully.',
                             server_id: server.id,
                         });
-                        
                     });
                 });
             });

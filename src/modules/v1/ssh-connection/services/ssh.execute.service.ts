@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import db from 'src/config/database.config';
 import * as ssh from 'ssh2';
 import { Product } from '../../product/entities/product.interface';
-import { ServerInterface } from '../../server/entities/server.interface';
+import { ServerInterface } from '../entities/server.interface';
 import { ConnectConfigInterface } from '../entities/connect.config.interface';
 
 @Injectable()
