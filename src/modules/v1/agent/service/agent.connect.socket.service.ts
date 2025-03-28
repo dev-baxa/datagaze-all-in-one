@@ -52,17 +52,16 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
         }
     }
 
-    private async executeCommandOnAgent(
+    async executeCommandOnAgent(
         agentId: string,
         appName: string,
         command: string,
-        responseEvent: string,
         uiClient: Socket,
     ) {
         const agentSocket = this.agentConnections.get(agentId);
         if (!agentSocket) {
             this.logger.error(`Agent not found: ${agentId}`);
-            return uiClient.emit(responseEvent, {
+            return uiClient.emit('response', {
                 success: false,
                 message: 'Agent not connected',
                 appName,
@@ -71,26 +70,11 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
         }
 
         this.logger.log(`Sending ${command} command to agent ${agentId} for app: ${appName}`);
-        agentSocket.emit(command, { name: appName });
+        agentSocket.emit('command', { command: command, name: appName });
 
-        agentSocket.once(
-            responseEvent,
-            (data: { command: string; status: string; name: string }) => {
-                this.logger.log(`Response from agent ${agentId}: ${JSON.stringify(data)}`);
-                uiClient.emit(responseEvent, { ...data, agentId, appName });
-            },
-        );
+        agentSocket.once('response', (data: { command: string; status: string; name: string }) => {
+            this.logger.log(`Response from agent ${agentId}: ${JSON.stringify(data)}`);
+            uiClient.emit('response', { ...data, agentId, appName });
+        });
     }
-    async installAppOnAgent(agentId: string, appName: string, uiClient: Socket) {
-        await this.executeCommandOnAgent(agentId, appName, 'install_app', 'installed_app', uiClient);
-    }
-    async deleteAppOnAgent(agentId: string, appName: string, uiClient: Socket) {
-        await this.executeCommandOnAgent(agentId, appName, 'delete_app', 'deleted_app', uiClient);
-    }
-
-    async updateAppOnAgent(agentId: string, appName: string, uiClient: Socket) {
-        await this.executeCommandOnAgent(agentId, appName, 'update_app', 'updated_app', uiClient);
-    }
-
-    
 }

@@ -6,6 +6,7 @@ import { ProductModule } from './modules/v1/product/product.module';
 import { SshModule } from './modules/v1/ssh-connection/ssh.connection.module';
 import { UserModule } from './modules/v1/user/user.module';
 import { ComputerModule } from './modules/v1/computer/comp.module';
+import { WebSocketModule } from './modules/v1/websocket/ws.module';
 
 @Module({
     imports: [
@@ -16,6 +17,7 @@ import { ComputerModule } from './modules/v1/computer/comp.module';
         AgentModule,
         ComputerModule,
         SshModule1,
+        WebSocketModule
     ]
 })
 export class AppModule {}

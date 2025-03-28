@@ -8,7 +8,7 @@ import { SshConnectToServer } from './services/ssh.connect.service';
 import { SshGateway } from './services/ssh.websocket.service';
 
 @Module({
-    providers: [SshConnectService , SshProductInstallService , SshExecuteService  , SshConnectToServer , SshGateway],
+    providers: [SshConnectService , SshProductInstallService , SshExecuteService  , SshConnectToServer , /* SshGateway */],
     controllers: [SshController],
     exports: [SshConnectService],
     imports: [AuthModule],

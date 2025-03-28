@@ -64,7 +64,7 @@ function initTerminal() {
 // Initialize Socket.IO connection
 function initSocketConnection() {
     // Backend URL - Bu qismni o'z backendingiz URL manziliga o'zgartiring
-    const backendUrl = 'http://localhost:4000'; // O'z backendingiz manzilini ko'rsating
+    const backendUrl = 'http://localhost:4000/terminal'; // O'z backendingiz manzilini ko'rsating
 
     // Connect to the backend server
     socket = io(backendUrl, {
