@@ -53,7 +53,8 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
 
     async handleDisconnect(client: Socket) {
         for (const [id, socket] of this.agentConnections.entries()) {
-            if (socket.id === client.id) {
+            if (socket.id === client.id) { 
+                
                 this.agentConnections.delete(id);
                 this.logger.log(`Agent disconnected: ${id}`);
                 break;
