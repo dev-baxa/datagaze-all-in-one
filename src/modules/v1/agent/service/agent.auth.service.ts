@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import * as jose from 'jose';
+import db from 'src/config/database.config';
 import { ENV } from 'src/config/env';
 import { ComputerPayloadInterface } from '../entity/computer.interface';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class AgentAuthService {
@@ -13,7 +15,7 @@ export class AgentAuthService {
         const token = await new jose.EncryptJWT({ ...data })
             .setProtectedHeader({ alg: 'RSA-OAEP', enc: 'A256GCM' })
             .encrypt(secret);
-        
+
         return token;
     }
 
@@ -21,6 +23,9 @@ export class AgentAuthService {
         const secret = await jose.importPKCS8(this.secretKey, 'RSA-OAEP');
 
         const { payload } = await jose.jwtDecrypt(token, secret);
+
+        console.log(payload);
+        
 
         return payload as unknown as ComputerPayloadInterface;
     }

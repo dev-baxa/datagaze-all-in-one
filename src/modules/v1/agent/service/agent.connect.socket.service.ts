@@ -29,18 +29,14 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
             client.disconnect();
             return;
         }
+        
         const payload = await this.authService.verifyToken(token);
         if (!payload) {
             this.logger.error(`No Payload: ${client.id}`);
             client.disconnect();
             return;
         }
-
-        console.log(payload);
         
-        console.log(`Payload: ${JSON.stringify(payload)}`);
-        
-
         const agentId = payload.id;
         this.agentConnections.set(agentId, client);
         this.logger.log(`Agent connected: ${agentId}`);
@@ -79,7 +75,7 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
 
         agentSocket.once('response', (data: { status: string; name: string }) => {
             this.logger.log(`Response from agent ${agentId}: ${JSON.stringify(data)}`);
-            uiClient.emit('response', { ...data, agentId });
+            uiClient.emit('response', { ...data, agentId  , command});
         });
     }
 
