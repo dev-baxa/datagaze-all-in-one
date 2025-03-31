@@ -24,9 +24,6 @@ export class AgentAuthService {
 
         const { payload } = await jose.jwtDecrypt(token, secret);
 
-        console.log(payload);
-        
-
         return payload as unknown as ComputerPayloadInterface;
     }
 }

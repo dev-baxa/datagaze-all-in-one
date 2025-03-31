@@ -8,6 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { WebsocketExceptionFilter } from 'src/common/filters/websocket.exception.filter';
 import { AgentAuthService } from './agent.auth.service';
+import db from 'src/config/database.config';
 
 @Injectable()
 @UseFilters(new WebsocketExceptionFilter())
@@ -33,6 +34,13 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
         const payload = await this.authService.verifyToken(token);
         if (!payload) {
             this.logger.error(`No Payload: ${client.id}`);
+            client.disconnect();
+            return;
+        }
+
+        const isValidAgent = await db('computers').where('id', payload.id).first();
+        if (!isValidAgent) {
+            this.logger.error(`Invalid agent , agent not found: ${client.id}`);
             client.disconnect();
             return;
         }
@@ -93,7 +101,7 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
         this.logger.log(`Sending delete command to agent ${agentId}`);
         agentSocket.emit('delete_agent');
 
-        agentSocket.once('delete_agent', (data: { message: string; status: string }) => {
+        agentSocket.on('delete_agent', (data: { message: string; status: string }) => {
             this.logger.log(`Response from agent ${agentId}: ${JSON.stringify(data)}`);
             uiClient.emit('response', { ...data, agentId });
         });
