@@ -73,7 +73,7 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
         this.logger.log(`Sending ${command} command to agent ${agentId} for app: ${appName}`);
         agentSocket.emit('command', { command: command, name: appName });
 
-        agentSocket.once('response', (data: { status: string; name: string }) => {
+        agentSocket.on('response', (data: { status: string; name: string }) => {
             this.logger.log(`Response from agent ${agentId}: ${JSON.stringify(data)}`);
             uiClient.emit('response', { ...data, agentId  , command});
         });
