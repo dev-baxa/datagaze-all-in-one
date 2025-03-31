@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as jose from 'jose';
 import { ENV } from 'src/config/env';
-import { ComputerInterface, ComputerPayloadInterface } from '../entity/computer.interface';
+import { ComputerPayloadInterface } from '../entity/computer.interface';
 
 @Injectable()
 export class AgentAuthService {

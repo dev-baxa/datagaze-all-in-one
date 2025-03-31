@@ -77,4 +77,24 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
             uiClient.emit('response', { ...data, agentId, appName });
         });
     }
+
+    async deleteAgent(agentId: string, uiClient: Socket) { 
+        const agentSocket = this.agentConnections.get(agentId);
+        if (!agentSocket) {
+            this.logger.error(`Agent not found: ${agentId}`);
+            return uiClient.emit('response', {
+                success: false,
+                message: 'Agent not connected',
+                agentId,
+            });
+        }
+
+        this.logger.log(`Sending delete command to agent ${agentId}`);
+        agentSocket.emit('delete_agent');
+
+        agentSocket.once('delete_agent', (data: { message: string; status: string }) => {
+            this.logger.log(`Response from agent ${agentId}: ${JSON.stringify(data)}`);
+            uiClient.emit('response', { ...data, agentId });
+        });
+    }
 }
