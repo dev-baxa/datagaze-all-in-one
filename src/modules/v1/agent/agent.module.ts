@@ -1,7 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { WebsocketExceptionFilter } from 'src/common/filters/websocket.exception.filter';
 import { AgentController } from './agent.controller';
-import { FileController } from './agent.file.controller';
 import { AgentService } from './agent.service';
 import { AgentAuthService } from './service/agent.auth.service';
 import { AgentWebSocketGateway } from './service/agent.connect.socket.service';
@@ -26,7 +25,7 @@ import { AuthMiddleware } from 'src/common/middlewares/computer.auth.middleware'
         
     ],
     exports: [AgentService, AgentAuthService, AgentWebSocketGateway],
-    controllers: [AgentController, FileController],
+    controllers: [AgentController],
 })
 export class AgentModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
