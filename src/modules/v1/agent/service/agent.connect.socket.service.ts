@@ -24,8 +24,6 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
 
     async handleConnection(client: Socket) {
         const token = client.handshake.headers.authorization?.split(' ')[1] as string;
-        console.log(token);
-        
         if (!token) {
             this.logger.error(`No token provided: ${client.id}`);
             client.disconnect();
@@ -79,9 +77,9 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
         this.logger.log(`Sending ${command} command to agent ${agentId} for app: ${appName}`);
         agentSocket.emit('command', { command: command, name: appName });
 
-        agentSocket.once('response', (data: { command: string; status: string; name: string }) => {
+        agentSocket.once('response', (data: { status: string; name: string }) => {
             this.logger.log(`Response from agent ${agentId}: ${JSON.stringify(data)}`);
-            uiClient.emit('response', { ...data, agentId, appName });
+            uiClient.emit('response', { ...data, agentId });
         });
     }
 

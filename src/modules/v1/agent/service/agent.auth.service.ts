@@ -13,7 +13,6 @@ export class AgentAuthService {
         const token = await new jose.EncryptJWT({ ...data })
             .setProtectedHeader({ alg: 'RSA-OAEP', enc: 'A256GCM' })
             .encrypt(secret);
-        console.log(`Token: in generate token ${token}`);
         
         return token;
     }
