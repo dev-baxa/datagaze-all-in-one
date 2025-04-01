@@ -14,7 +14,14 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiBody,
+    ApiConsumes,
+    ApiOperation,
+    ApiParam,
+    ApiTags,
+} from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles.decorators';
 import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -32,23 +39,54 @@ import { ProductService } from './product.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBadRequestResponse()
 @ApiUnauthorizedResponse()
-    @ApiBearerAuth()
-    @ApiTags('Product')
+@ApiBearerAuth()
+@ApiTags('Product')
 @ApiInternalServerErrorResponse('Internal Server Error')
 export class ProductController {
     constructor(private readonly productService: ProductService) {}
 
     @Post('create')
     @Roles('superAdmin')
-    @ApiOperation({ summary: 'Upload file' })
+    @ApiOperation({ summary: 'Create a product with file upload' })
     @ApiConsumes('multipart/form-data')
     @ApiBody({
+        description: 'Create product with file upload',
         schema: {
             type: 'object',
             properties: {
                 file: {
                     type: 'string',
                     format: 'binary',
+                    description: 'Product icon file',
+                },
+                name: { type: 'string', example: 'DLP', description: 'Product name' },
+                publisher: { type: 'string', example: 'DATAGAZE', description: 'Publisher name' },
+                server_version: { type: 'string', example: '1.0.0', description: 'Server version' },
+                agent_version: { type: 'string', example: '1.0.0', description: 'Agent version' },
+                install_scripts: {
+                    type: 'string',
+                    example: 'echo "hello world"',
+                    description: 'Install scripts',
+                },
+                update_scripts: {
+                    type: 'string',
+                    example: 'echo "update script"',
+                    description: 'Update scripts',
+                },
+                delete_scripts: {
+                    type: 'string',
+                    example: 'echo "delete script"',
+                    description: 'Delete scripts',
+                },
+                description: {
+                    type: 'string',
+                    example: 'This is a product description',
+                    description: 'Product description',
+                },
+                min_requirements: {
+                    type: 'string',
+                    example: '4GB RAM, 2 CPUs',
+                    description: 'Minimum requirements',
                 },
             },
         },
@@ -60,11 +98,31 @@ export class ProductController {
     ) {
         const result = await this.productService.createProduct(file, dto);
         return {
-            succes: true,
+            success: true,
             id: result,
         };
     }
 
+    @ApiParam({ name: 'id', description: 'Product ID', type: 'string' })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        description: 'Agent and server files upload',
+        schema: {
+            type: 'object',
+            properties: {
+                server: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'Server file',
+                },
+                agent: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'Agent file',
+                },
+            },
+        },
+    })
     @Post(':id/files')
     @Roles('superAdmin')
     @UseInterceptors(
