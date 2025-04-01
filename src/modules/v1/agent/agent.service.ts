@@ -98,7 +98,5 @@ export class AgentService extends BaseService<ComputerInterface> {
         }
     }
 
-    async getApplications(): Promise<UpdateApplicationsDTO[]> {
-        return await db('apps').select('*');
-    }
+
 }
