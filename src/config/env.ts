@@ -16,6 +16,7 @@ interface EnvConfig {
     DB_NAME: string | undefined;
     JWT_PRIVAT_KEY: string | undefined;
     NODE_ENV: string | undefined;
+    JWT_PUBLIC_KEY: string | undefined;
 }
 
 export const ENV: EnvConfig = {
@@ -29,4 +30,5 @@ export const ENV: EnvConfig = {
     DB_NAME: process.env.DB_NAME,
     JWT_PRIVAT_KEY: process.env.JWT_PRIVATE_KEY,
     NODE_ENV: process.env.NODE_ENV,
+    JWT_PUBLIC_KEY: process.env.JWT_PUBLIC_KEY,
 };

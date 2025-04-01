@@ -7,12 +7,12 @@ import { AgentWebSocketGateway } from './service/agent.connect.socket.service';
 import { UIWebSocketGateway } from './service/user.connect.socket.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { AuthMiddleware } from 'src/common/middlewares/computer.auth.middleware';
+import { AgentAuthMiddleware } from 'src/common/middlewares/computer.auth.middleware';
 
 @Module({
     imports: [
         ServeStaticModule.forRoot({
-                    rootPath: join(process.cwd(), 'uploads', 'agents'),
+                    rootPath: join(process.cwd(), 'uploads', 'applications'),
                     serveRoot:"/agents"
                 })
     ],
@@ -29,6 +29,6 @@ import { AuthMiddleware } from 'src/common/middlewares/computer.auth.middleware'
 })
 export class AgentModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(AuthMiddleware).forRoutes('/agents/');
+        consumer.apply(AgentAuthMiddleware).forRoutes('/agents/');
     }
 }

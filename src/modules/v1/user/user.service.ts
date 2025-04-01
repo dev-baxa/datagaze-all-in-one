@@ -31,14 +31,7 @@ export class UserService extends BaseService<User> {
 
         return user;
     }
-    async updatePassword(dto: UpdatePasswordDTOForSuperAdmin): Promise<void> {
-        const fullUser = await this.findByQueryOne({ id: dto.user_id });
-        if (!fullUser) throw new NotFoundException('User not found');
 
-        await this.update(dto.user_id, {
-            password: await generateHashedPassword(dto.new_password),
-        });
-    }
 
     async updateProfil(dto: UpdateProfilDtoForSuperAdmin): Promise<void> {
         const user = await this.findById(dto.id);

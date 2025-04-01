@@ -12,7 +12,7 @@ export const ApiUnauthorizedResponse = () =>
                 success: { type: 'boolean', example: false },
                 statusCode: { type: 'number', example: 401 },
                 status: { type: 'string', example: 'error' },
-                message: { type: 'string', example: 'Unauthorized access' },
+                message: { type: 'string', example: 'Unauthorized' },
                 timestamp: { type: 'string', example: new Date().toISOString() },
             },
         },
@@ -29,7 +29,7 @@ export const ApiNotFoundResponse = (entity: string, exampleId?: string) =>
                 statusCode: { type: 'number', example: 404 },
                 message: {
                     type: 'string',
-                    example: `${entity} with ID ${exampleId || 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'} not found`,
+                    example: `${entity} not found`,
                 },
                 error: { type: 'string', example: 'Not Found' },
                 timestamp: { type: 'string', example: new Date().toISOString() },
@@ -37,30 +37,30 @@ export const ApiNotFoundResponse = (entity: string, exampleId?: string) =>
         },
     });
 
-export const ApiBadRequestResponse = (message: string = 'Bad Request' , exampleId?: string) =>
+export const ApiBadRequestResponse = (message: string = 'Bad Request', exampleId?: string) =>
     ApiResponse({
         status: 400,
-        description: 'Bad Request',
+        description: message,
         schema: {
             type: 'object',
             properties: {
-                status: { type: 'boolean', example: false },
+                succes: { type: 'boolean', example: false },
                 statusCode: { type: 'number', example: 400 },
-                message: { type: 'string', example: `${message || 'Bad Request'}` },
+                message: { type: 'string', example: `${message}` },
                 error: { type: 'string', example: 'Bad Request' },
                 timestamp: { type: 'string', example: new Date().toISOString() },
             },
         },
     });
 
-export const ApiInternalServerErrorResponse = (message: string) =>
+export const ApiInternalServerErrorResponse = (message: string = 'Internal Server Error') =>
     ApiResponse({
         status: 500,
         description: 'Internal Server Error',
         schema: {
             type: 'object',
             properties: {
-                status: { type: 'boolean', example: false },
+                succes: { type: 'boolean', example: false },
                 statusCode: { type: 'number', example: 500 },
                 message: { type: 'string', example: message },
                 error: { type: 'string', example: 'Internal Server Error' },
@@ -69,5 +69,48 @@ export const ApiInternalServerErrorResponse = (message: string) =>
         },
     });
 
-// Common security decorator
-export const ApiAuth = () => applyDecorators(ApiBearerAuth('JWT'), ApiUnauthorizedResponse());
+export const ApiSuccessResponse = (key , value) =>
+    ApiResponse({
+        status: 200,
+        description: 'Success',
+        schema: {
+            type: 'object',
+            properties: {
+                succes: { type: 'boolean', example: true },
+                [key]: { type: 'string', example: value },
+            },
+        },
+    });
+export const ApiCreatedResponse = (message: string = 'Created') =>
+    ApiResponse({
+        status: 201,
+        description: 'Created',
+        schema: {
+            type: 'object',
+            properties: {
+                succes: { type: 'boolean', example: true },
+                statusCode: { type: 'number', example: 201 },
+                message: { type: 'string', example: message },
+                data: { type: 'object' },
+                timestamp: { type: 'string', example: new Date().toISOString() },
+            },
+        },
+    });
+
+    export const ApiForbiddenResponse = (message: string = 'You do not have permittion') =>
+    ApiResponse({
+        status: 403,
+        description: 'Forbidden',
+        schema: {
+            type: 'object',
+            properties: {
+                succes: { type: 'boolean', example: false },
+                statusCode: { type: 'number', example: 403 },
+                message: { type: 'string', example: message },
+                error: { type: 'string', example: 'Forbidden' },
+                timestamp: { type: 'string', example: new Date().toISOString() },
+            },
+        },
+    });
+
+// export const ApiAuth = () => applyDecorators(ApiBearerAuth('JWT'), ApiUnauthorizedResponse());

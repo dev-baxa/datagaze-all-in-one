@@ -7,20 +7,22 @@ import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class AgentAuthService {
-    constructor() {}
-    private secretKey = ENV.JWT_PRIVAT_KEY || '';
+    constructor() { }
+    private publicKey = ENV.JWT_PUBLIC_KEY || '';
+    private privateKey = ENV.JWT_PRIVAT_KEY || '';
 
     async generateToken(data): Promise<string> {
-        const secret = await jose.importPKCS8(this.secretKey, 'RSA-OAEP');
+        const secret = await jose.importSPKI(this.publicKey, 'RSA-OAEP');
         const token = await new jose.EncryptJWT({ ...data })
             .setProtectedHeader({ alg: 'RSA-OAEP', enc: 'A256GCM' })
+            .setExpirationTime(Math.floor(Date.now() / 1000) + 60 * 60 * 24)
             .encrypt(secret);
 
         return token;
     }
 
     async verifyToken(token: string): Promise<ComputerPayloadInterface> {
-        const secret = await jose.importPKCS8(this.secretKey, 'RSA-OAEP');
+        const secret = await jose.importPKCS8(this.privateKey, 'RSA-OAEP');
 
         const { payload } = await jose.jwtDecrypt(token, secret);
 

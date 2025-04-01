@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import knex, { Knex } from 'knex';
 
 dotenv.config({
-    path: join(__dirname, '../../../.env'),
+    path: join(process.cwd(), '.env'),
 });
 
 const config: Knex.Config = {
