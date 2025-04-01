@@ -1,11 +1,14 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { JwtAuthForComputersGuard } from 'src/common/guards/jwt.auth.for.computers.guard';
 import { AgentService } from './agent.service';
 import { CreateAgentDto } from './dto/create.agent.dto';
 import { UpdateApplicationsDTO } from './dto/update.application.dto';
 
+@ApiBearerAuth()
 @Controller('v1/agent')
+@ApiTags('Agent')
 export class AgentController {
     constructor(private readonly computerService: AgentService) {}
 
@@ -31,10 +34,5 @@ export class AgentController {
             status: 'success',
             message: 'Applications updated successfully',
         };
-    }
-    @Get('applications')
-    async getApplications() {
-        
-        return this.computerService.getApplications();
     }
 }

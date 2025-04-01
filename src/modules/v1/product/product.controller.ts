@@ -7,13 +7,12 @@ import {
     Param,
     ParseUUIDPipe,
     Post,
-    UploadedFile,
     UploadedFiles,
     UseGuards,
     UseInterceptors,
     ValidationPipe,
 } from '@nestjs/common';
-import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
     ApiBearerAuth,
     ApiBody,
@@ -31,7 +30,6 @@ import {
     ApiUnauthorizedResponse,
 } from 'src/common/swagger/common.errors';
 import { fileFieldsConfig } from 'src/config/file.fields.config';
-import { iconConfig } from 'src/config/icon.config';
 import { CreateProductDTO } from './dto/create.product.dto';
 import { ProductService } from './product.service';
 
@@ -52,12 +50,23 @@ export class ProductController {
     @ApiBody({
         description: 'Create product with file upload',
         schema: {
+            required: ['icon', 'server', 'agent'],
             type: 'object',
             properties: {
-                file: {
+                icon: {
                     type: 'string',
                     format: 'binary',
                     description: 'Product icon file',
+                },
+                server: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'Server file',
+                },
+                agent: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'Agent file',
                 },
                 name: { type: 'string', example: 'DLP', description: 'Product name' },
                 publisher: { type: 'string', example: 'DATAGAZE', description: 'Publisher name' },
@@ -91,12 +100,26 @@ export class ProductController {
             },
         },
     })
-    @UseInterceptors(FileInterceptor('file', iconConfig()))
+    @UseInterceptors(
+        FileFieldsInterceptor(
+            [
+                { name: 'icon', maxCount: 1 },
+                { name: 'server', maxCount: 1 },
+                { name: 'agent', maxCount: 1 },
+            ],
+            fileFieldsConfig(),
+        ),
+    )
     async create(
-        @UploadedFile() file: Express.Multer.File,
+        @UploadedFiles()
+        files: {
+            icon: Express.Multer.File;
+            server: Express.Multer.File;
+            agent: Express.Multer.File;
+        },
         @Body(new ValidationPipe()) dto: CreateProductDTO,
     ) {
-        const result = await this.productService.createProduct(file, dto);
+        const result = await this.productService.createProduct(files, dto);
         return {
             success: true,
             id: result,

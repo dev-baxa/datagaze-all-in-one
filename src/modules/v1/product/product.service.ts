@@ -11,11 +11,22 @@ export class ProductService extends BaseService<Product> {
         super('products');
     }
 
-    async createProduct(file: Express.Multer.File, dto: CreateProductDTO): Promise<string> {
+    async createProduct(
+        files: {
+            icon: Express.Multer.File;
+            server: Express.Multer.File;
+            agent: Express.Multer.File;
+        },
+        dto: CreateProductDTO,
+    ): Promise<string> {
+        console.log(files);
+
         const product = await db('products')
             .insert({
                 ...dto,
-                icon_path: file.path,
+                icon_path: files.icon[0].path,
+                server_path: files.server[0].path,
+                agent_path: files.agent[0].path,
             })
             .returning('*');
 
@@ -30,7 +41,6 @@ export class ProductService extends BaseService<Product> {
             throw new BadRequestException('Server and agent files are required');
         }
         console.log(files);
-        
 
         await db('products').where({ id: productId }).update({
             agent_path: files.agent[0].path,
@@ -67,14 +77,6 @@ export class ProductService extends BaseService<Product> {
                 ),
             );
 
-        //     .select(
-        //     'id',
-        //     'server_id',
-        //     'os_type',
-        //     'description',
-        //     'min_requirements',
-        //     'path',
-        //     'scripts',
-        // );
+      
     }
 }
