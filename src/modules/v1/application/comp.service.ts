@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import db from 'src/config/database.config';
 import { AppInterface } from '../agent/entity/app.interface';
 import { ComputerInterface } from '../agent/entity/computer.interface';
@@ -36,9 +36,13 @@ export class ComputerService {
             page,
         };
     }
-    async getComputerById(id: string): Promise<ComputerInterface | null> {
+    async getComputerById(id: string): Promise<{ success: boolean; computer: ComputerInterface }> {
         const computer = await db('computers').where('id', id).first();
-        return computer;
+        if (!computer) throw new NotFoundException('Computer not found');
+        return {
+            success: true,
+            computer
+        };
     }
 
     async getApplicationByComputerId(
@@ -46,6 +50,8 @@ export class ComputerService {
         page: number,
         limit: number,
     ): Promise<{ applications: AppInterface[]; total: number; page: number }> {
+        const computer = await db('computers').where('id', computerId).first();
+        if (!computer) throw new NotFoundException('Computer not found');
         const offset = (page - 1) * limit;
         const total = await db('apps').where('computer_id', computerId).count('id as total');
         const applications = await db('apps')

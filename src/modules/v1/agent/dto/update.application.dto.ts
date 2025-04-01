@@ -1,21 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateApplicationsDTO {
-    @ApiProperty({ description: 'Application ID'  , example: '12345' })
+    @ApiProperty({ description: 'name', example: 'Chrome' })
     name: string;
-  
-    @ApiProperty({ description: 'Computer ID' , example: '67890' })
+
     computer_id?: string;
-  
-    @ApiProperty({ description: 'Application Version' , example: '1.0.0' })
+
+    @ApiProperty({ description: 'version', example: '1.0.0' })
     version: string;
-  
-    @ApiProperty({ description: 'Application Publisher'  , example: 'DATAGAZE' })
+
+    @ApiProperty({ description: 'installed_date', example: '2025-03-08T06:16:27.857Z' })
     installed_date: Date;
-  
-    @ApiProperty({ description: 'Application Publisher' , example: 'DATAGAZE' })
+
+    @ApiProperty({ description: 'type', example: 'User' })
     type: string;
-  
-    @ApiProperty({ description: 'Application Publisher' , example: 'DATAGAZE' })
+
+    @ApiProperty({ description: 'size', example: 5000030 })
     size: number;
 }

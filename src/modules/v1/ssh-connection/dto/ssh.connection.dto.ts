@@ -8,7 +8,10 @@ export class ConnectionDTO {
 
     @IsNotEmpty()
     @IsString()
-    @ApiProperty({ description: 'ip', example: 'ip address or hostname' })
+    @ApiProperty({
+        description: 'ip',
+        example: 'ec2-16-171-135-170.eu-north-1.compute.amazonaws.com',
+    })
     ip: string;
 
     @IsNotEmpty()
@@ -18,18 +21,17 @@ export class ConnectionDTO {
 
     @IsNotEmpty()
     @IsString()
-    @ApiProperty({ description: 'username', example: 'ubuntu' })
+    @ApiProperty({ description: 'username', example: 'user' })
     username: string;
 
     @IsNotEmpty()
     @IsEnum(['password', 'private_key'])
     @ApiProperty({ description: 'auth_type', example: 'password', type: 'string' })
-    @ApiProperty({ description: 'auth_type', example: 'private_key' })
     auth_type: 'password' | 'private_key';
 
     @IsOptional()
     @IsString()
-    @ApiProperty({ description: 'password', example: 'password' })
+    @ApiProperty({ description: 'password', example: 'userNew123' })
     password?: string;
 
     @IsOptional()

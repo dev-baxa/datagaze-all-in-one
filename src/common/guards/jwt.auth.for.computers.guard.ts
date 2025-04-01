@@ -1,4 +1,10 @@
-import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+    ExecutionContext,
+    Injectable,
+    NotFoundException,
+    UnauthorizedException,
+} from '@nestjs/common';
+import db from 'src/config/database.config';
 import { AgentAuthService } from 'src/modules/v1/agent/service/agent.auth.service';
 
 @Injectable()
@@ -13,6 +19,13 @@ export class JwtAuthForComputersGuard {
         }
 
         const payload = await this.authService.verifyToken(token);
+
+        if (!payload) throw new UnauthorizedException('Invalid token');
+
+        
+        const validComputer = await db('computers').where('id', payload.id).first();
+        
+        if (!validComputer) throw new NotFoundException('Computer not found');
 
         request.computer = payload;
         return true;

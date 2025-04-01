@@ -14,8 +14,9 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
 import {
-    ApiInternalServerErrorResponse,
+    ApiBadRequestResponse,
     ApiNotFoundResponse,
+    ApiSuccessResponse,
     ApiUnauthorizedResponse,
 } from 'src/common/swagger/common.errors';
 import { AuthService } from './auth.service';
@@ -25,14 +26,15 @@ import { UpdatePasswordDTOauth } from './dto/updata_password.dto';
 
 @Controller('v1/auth')
 @UseFilters(HttpExceptionFilter)
-@ApiNotFoundResponse('username')
-@ApiInternalServerErrorResponse('Internal Server Error')
 @ApiBearerAuth()
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     @Post('login')
     @HttpCode(HttpStatus.OK)
+    @ApiNotFoundResponse('User')
+    @ApiBadRequestResponse('Invalid username or password')
+    @ApiSuccessResponse('token', 'eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkEyNTZHQ00ifQ...')
     async login(@Body(new ValidationPipe()) dto: LoginUserDto) {
         const token = await this.authService.createToken(dto);
         return {
@@ -43,6 +45,8 @@ export class AuthController {
 
     @Put('update-password')
     @UseGuards(JwtAuthGuard)
+    @ApiSuccessResponse('message', 'Password updated successfully.')
+    @ApiBadRequestResponse('Invalid password')
     @ApiUnauthorizedResponse()
     async updatePassword(
         @Body(new ValidationPipe()) dto: UpdatePasswordDTOauth,
