@@ -89,7 +89,7 @@ export class AgentService extends BaseService<ComputerInterface> {
         data: UpdateApplicationsDTO[],
         computer: ComputerInterface,
     ): Promise<void> {
-        console.log(computer, data);
+        console.log(computer, data , 'this is data');
         await db('apps').delete().where('computer_id', computer.id);
 
         for (const item of data) {
