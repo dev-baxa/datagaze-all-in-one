@@ -19,11 +19,11 @@ export async function seed(knex: Knex): Promise<void> {
             server_version: '1.0.0',
             agent_path: path.join(
                 __dirname,
-                '../../../../uploads/products/agents/dlp-agent-1.0.0-linux.tar.gz',
+                '../../../../uploads/products/agent/dlp-agent-1.0.0-linux.tar.gz',
             ),
             server_path: path.join(
                 __dirname,
-                '../../../../uploads/products/agents/dlp-server-1.0.0-linux.tar.gz',
+                '../../../../uploads/products/server/dlp-server-1.0.0-linux.tar.gz',
             ),
             install_scripts:
                 'sudo timedatectl set-timezone Asia/Tashkent\n' +
@@ -56,11 +56,11 @@ export async function seed(knex: Knex): Promise<void> {
             server_version: '1.0.0',
             agent_path: path.join(
                 __dirname,
-                '../../../../uploads/products/agents/waf-agent-1.0.0-linux.tar.gz',
+                '../../../../uploads/products/agent/waf-agent-1.0.0-linux.tar.gz',
             ),
             server_path: path.join(
                 __dirname,
-                '../../../../uploads/products/agents/waf-server-1.0.0-linux.tar.gz',
+                '../../../../uploads/products/server/waf-server-1.0.0-linux.tar.gz',
             ),
             install_scripts:
                 'sudo timedatectl set-timezone Asia/Tashkent\n' +
@@ -93,11 +93,11 @@ export async function seed(knex: Knex): Promise<void> {
             server_version: '1.0.0',
             agent_path: path.join(
                 __dirname,
-                '../../../../uploads/products/agents/siem-agent-1.0.0-linux.tar.gz',
+                '../../../../uploads/products/agent/siem-agent-1.0.0-linux.tar.gz',
             ),
             server_path: path.join(
                 __dirname,
-                '../../../../uploads/products/agents/siem-server-1.0.0-linux.tar.gz',
+                '../../../../uploads/products/server/siem-server-1.0.0-linux.tar.gz',
             ),
             install_scripts:
                 'sudo timedatectl set-timezone Asia/Tashkent\n' +
@@ -130,11 +130,11 @@ export async function seed(knex: Knex): Promise<void> {
             server_version: '1.0.0',
             agent_path: path.join(
                 __dirname,
-                '../../../../uploads/products/agents/soc_agent-1.0.0-linux.tar.gz',
+                '../../../../uploads/products/agent/soc_agent-1.0.0-linux.tar.gz',
             ),
             server_path: path.join(
                 __dirname,
-                '../../../../uploads/products/agents/soc_server-1.0.0-linux.tar.gz',
+                '../../../../uploads/products/server/soc_server-1.0.0-linux.tar.gz',
             ),
             install_scripts:
                 'sudo timedatectl set-timezone Asia/Tashkent\n' +
@@ -167,11 +167,11 @@ export async function seed(knex: Knex): Promise<void> {
             server_version: '1.0.0',
             agent_path: path.join(
                 __dirname,
-                '../../../../uploads/products/agents/zoom-agent-1.0.0-linux.tar.gz',
+                '../../../../uploads/products/agent/zoom-agent-1.0.0-linux.tar.gz',
             ),
             server_path: path.join(
                 __dirname,
-                '../../../../uploads/products/agents/zoom-server-1.0.0-linux.tar.gz',
+                '../../../../uploads/products/server/zoom-server-1.0.0-linux.tar.gz',
             ),
             install_scripts:
                 'sudo timedatectl set-timezone Asia/Tashkent\n' +

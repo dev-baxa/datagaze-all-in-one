@@ -23,8 +23,8 @@ export class TerminalService {
             host: server.ip_address,
             port: server.port,
             username: server.username,
-            password: server.password ? server.password : '',
-            privateKey: server.private_key ? server.private_key : '',
+            password: payload.password ? payload.password: '',
+            // privateKey: server.private_key ? server.private_key : '',
         };
 
         const conn = new ssh.Client();

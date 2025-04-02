@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>SSH Terminal</title>
-        <link rel="stylesheet" href="./syles.css" />
+        <link rel="stylesheet" href="./syles.css" /> <!-- Note: "syles.css" might be a typo, should be "styles.css" -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.1.0/css/xterm.css" />
     </head>
     <body>
@@ -13,11 +13,13 @@
         <h1 style="text-align: center">SSH Terminal</h1>
     </header>
 
-    <!-- Product ID kiritish qismi -->
+    <!-- Product ID va Password kiritish qismi -->
     <div id="productInputSection" class="product-selection">
         <div class="form-group">
             <label for="productId">Product ID:</label>
             <input type="text" id="productId" placeholder="Enter Product ID" />
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter Password" />
             <button id="connectButton">Connect</button>
         </div>
         <div id="productInfo" class="info-panel"></div>

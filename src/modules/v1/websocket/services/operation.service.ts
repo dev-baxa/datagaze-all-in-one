@@ -11,7 +11,7 @@ export class OperationsService {
 
     async startOperation(
         client: Socket,
-        payload: { productId: string },
+        payload: { productId: string; password: string },
         operationType: OperationType,
     ) {
         try {
@@ -26,11 +26,18 @@ export class OperationsService {
                 )
                 .first();
 
+            // console.log(product, 'product');
+            // console.log(payload, 'payload');
+            
+            
             if (!product) throw new WsException('Mahsulot yoki server topilmadi');
 
             const scriptsField = this.getScriptsForOperation(operationType, product);
 
             if (!scriptsField) throw new Error(`${operationType} uchun skriptlar mavjud emas`);
+
+            // console.log(payload , 1);
+            
 
             const sshConnection = new ssh.Client();
             sshConnection.on('ready', () => {
@@ -67,7 +74,7 @@ export class OperationsService {
                 host: product.ip_address,
                 port: product.port,
                 username: product.username,
-                password: product.password,
+                password: payload.password,
             });
         } catch (error) {
             client.emit(`${operationType}_error`, error.message);

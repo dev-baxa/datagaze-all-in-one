@@ -1,6 +1,7 @@
 // DOM Elements
 let connectButton;
 let productIdInput;
+let passwordInput; // Yangi qo‘shilgan password inputi
 let productInfoPanel;
 let serverInfoPanel;
 let productInputSection;
@@ -13,60 +14,48 @@ let connected = false;
 
 // Initialize xterm.js terminal
 function initTerminal() {
-    // Create terminal
     terminal = new Terminal({
-        cursorBlink: true, // Kursor miltillashi
+        cursorBlink: true,
         fontFamily: '"Fira Code", "JetBrains Mono", monospace',
-        fontSize: 14, // Shrift o‘lchami
-        letterSpacing: 1, // Harflar orasidagi masofa
-        lineHeight: 1.2, // Qatorlar orasidagi balandlik
+        fontSize: 14,
+        letterSpacing: 1,
+        lineHeight: 1.2,
         theme: {
-            background: '#000000', // Orqa fon rangi
-            foreground: '#ffffff', // Matn rangi
+            background: '#000000',
+            foreground: '#ffffff',
         },
     });
 
-    // Load FitAddon for terminal sizing
     const fitAddon = new FitAddon.FitAddon();
     terminal.loadAddon(fitAddon);
 
-    // Open terminal in the container
     terminal.open(document.getElementById('terminal'));
     fitAddon.fit();
 
-    // Handle window resize
     window.addEventListener('resize', () => {
         fitAddon.fit();
     });
 
-    // Welcome message
     terminal.writeln('Welcome to Remote Server Terminal');
     terminal.writeln('');
 
-    // Handle terminal input
     terminal.onData(data => {
         if (connected) {
-            
-            // Send data to server
             socket.emit('terminalData', { data });
         }
     });
 
-    // Handle Enter key for command submission
     terminal.onKey(e => {
         if (e.key === '\r') {
-            // Enter key
-            terminal.write('\r'); // Yangi qatorga o'tish
+            terminal.write('\r');
         }
     });
 }
 
 // Initialize Socket.IO connection
 function initSocketConnection() {
-    // Backend URL - Bu qismni o'z backendingiz URL manziliga o'zgartiring
-    const backendUrl = 'http://localhost:4000/terminal'; // O'z backendingiz manzilini ko'rsating
+    const backendUrl = 'http://localhost:4000/terminal';
 
-    // Connect to the backend server
     socket = io(backendUrl, {
         transports: ['websocket', 'polling'],
         reconnection: true,
@@ -74,48 +63,39 @@ function initSocketConnection() {
         reconnectionDelay: 1000,
     });
 
-    // Socket connection established
     socket.on('connect', () => {
         terminal.writeln('Socket connection established');
         console.log('Socket connected with ID:', socket.id);
     });
 
-    // Socket connection error
     socket.on('connect_error', error => {
         console.error('Connection error:', error);
         terminal.writeln(`Connection error: ${error.message}`);
     });
 
-    // Socket disconnection
     socket.on('disconnect', reason => {
         console.log('Socket disconnected:', reason);
         terminal.writeln(`\r\nDisconnected: ${reason}`);
         resetConnection();
     });
 
-    // Handle server messages
     socket.on('message', data => {
         terminal.writeln(data);
     });
 
-    // Handle command output from server
     socket.on('ssh_output', data => {
         console.log(data);
-        terminal.write(data); // Serverdan kelgan ma'lumotlarni terminalda ko'rsatish
+        terminal.write(data);
     });
 
-    // Handle SSH connection status
     socket.on('ssh_status', status => {
         if (status === 'connected') {
             connected = true;
             terminal.writeln('\r\nSSH connection established to server');
-
-            // Enable terminal input
             terminal.focus();
         }
     });
 
-    // Handle SSH connection errors
     socket.on('ssh_error', error => {
         console.error('SSH Error:', error);
         terminal.writeln(`\r\nSSH Error: ${error}`);
@@ -123,12 +103,14 @@ function initSocketConnection() {
     });
 }
 
-// Connect to a server using product ID
+// Connect to a server using product ID and password
 function connectToServer() {
     const productId = productIdInput.value.trim();
+    const password = passwordInput.value.trim(); // Password qiymatini olish
 
-    if (!productId) {
-        alert('Please enter a Product ID');
+    // Agar Product ID yoki Password kiritilmagan bo‘lsa, ogohlantirish
+    if (!productId || !password) {
+        alert('Please enter both Product ID and Password');
         return;
     }
 
@@ -145,9 +127,9 @@ function connectToServer() {
 
     terminal.writeln(`\r\nAttempting to connect using Product ID: ${productId}...`);
 
-    // Send connect request to the server
-    socket.emit('connectToServer', { productId });
-    console.log('Sent connectToServer with productId:', productId);
+    // Send connect request to the server with both productId and password
+    socket.emit('connectToServer', { productId, password });
+    console.log('Sent connectToServer with productId:', productId, 'and password:', password);
 }
 
 // Reset connection state
@@ -163,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM elementlarini tanlash
     connectButton = document.getElementById('connectButton');
     productIdInput = document.getElementById('productId');
+    passwordInput = document.getElementById('password'); // Password inputini tanlash
     productInfoPanel = document.getElementById('productInfo');
     serverInfoPanel = document.getElementById('serverInfo');
     productInputSection = document.getElementById('productInputSection');
@@ -172,6 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (
         !connectButton ||
         !productIdInput ||
+        !passwordInput || // Password inputini tekshirish qo‘shildi
         !productInfoPanel ||
         !serverInfoPanel ||
         !productInputSection ||
@@ -190,8 +174,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add event listeners
     connectButton.addEventListener('click', connectToServer);
 
-    // Allow pressing Enter in product ID input
+    // Allow pressing Enter in product ID or password input
     productIdInput.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            connectToServer();
+        }
+    });
+
+    passwordInput.addEventListener('keydown', event => {
         if (event.key === 'Enter') {
             connectToServer();
         }

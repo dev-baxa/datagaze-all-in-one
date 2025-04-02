@@ -5,5 +5,9 @@ export class ConnectToServerDto {
   @IsNotEmpty()
   @IsString()
   productId: string
+
+  @IsNotEmpty()
+  @IsString()
+  password:string
   
 }

@@ -40,8 +40,6 @@ export class SshConnectService {
                     .insert({
                         ip_address: data.ip,
                         port: data.port,
-                        password: data.password,
-                        private_key: data.private_key,
                         username: data.username,
                     })
                     .returning('id');

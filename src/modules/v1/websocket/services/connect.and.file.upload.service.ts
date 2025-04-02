@@ -6,7 +6,7 @@ import db from 'src/config/database.config';
 import * as ssh from 'ssh2';
 import { Payload } from '../../auth/entities/token.interface';
 import { Product } from '../../product/entities/product.interface';
-import { installDto } from '../dto/connect.and.upload.dto';
+import { connectDto } from '../dto/connect.and.upload.dto';
 import { ConnectConfigInterface } from '../entity/connect.config.interface';
 import { ServerInterface } from '../entity/server.interface';
 
@@ -21,7 +21,7 @@ export class SshProductInstallService {
     };
 
     async installProduct(
-        data: installDto,
+        data: connectDto,
         user: Payload,
         progressCallback?: (progress: string, percentage: number) => void,
     ): Promise<object> {
@@ -57,8 +57,6 @@ export class SshProductInstallService {
                         {
                             ip_address: data.ip,
                             port: data.port || 22,
-                            password: data.password,
-                            private_key: data.private_key,
                             username: data.username,
                         },
                         log.id,
@@ -154,7 +152,7 @@ export class SshProductInstallService {
         });
     }
 
-    private configureSshConnection(data: installDto): ConnectConfigInterface {
+    private configureSshConnection(data: connectDto): ConnectConfigInterface {
         const config: ConnectConfigInterface = {
             host: data.ip,
             port: data.port || 22,
