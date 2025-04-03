@@ -32,7 +32,6 @@ export class UserService extends BaseService<User> {
         return user;
     }
 
-
     async updateProfil(dto: UpdateProfilDtoForSuperAdmin): Promise<void> {
         const user = await this.findById(dto.id);
         if (!user) throw new NotFoundException('User not found');

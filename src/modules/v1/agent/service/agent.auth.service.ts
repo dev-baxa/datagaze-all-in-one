@@ -7,7 +7,7 @@ import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class AgentAuthService {
-    constructor() { }
+    constructor() {}
     private publicKey = ENV.JWT_PUBLIC_KEY || '';
     private privateKey = ENV.JWT_PRIVAT_KEY || '';
 

@@ -19,7 +19,7 @@ export interface ComputerInterface {
 export interface ComputerPayloadInterface {
     id: string;
     hostname: string;
-    operation_system:string;
+    operation_system: string;
     platform: string;
     unicall_key: string;
 }

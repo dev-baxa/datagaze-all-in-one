@@ -69,7 +69,7 @@ export const ApiInternalServerErrorResponse = (message: string = 'Internal Serve
         },
     });
 
-export const ApiSuccessResponse = (key , value) =>
+export const ApiSuccessResponse = (key, value) =>
     ApiResponse({
         status: 200,
         description: 'Success',
@@ -97,7 +97,7 @@ export const ApiCreatedResponse = (message: string = 'Created') =>
         },
     });
 
-    export const ApiForbiddenResponse = (message: string = 'You do not have permittion') =>
+export const ApiForbiddenResponse = (message: string = 'You do not have permittion') =>
     ApiResponse({
         status: 403,
         description: 'Forbidden',

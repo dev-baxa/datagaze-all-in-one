@@ -7,7 +7,7 @@ dotenv.config({
 
 interface EnvConfig {
     PORT: string | undefined;
-    PORT_FOR_AGENT: string | undefined
+    PORT_FOR_AGENT: string | undefined;
     HOST: string | undefined;
     DB_HOST: string | undefined;
     DB_PORT: string | undefined;

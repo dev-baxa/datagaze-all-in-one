@@ -9,20 +9,20 @@ export class ComputerService {
     async getAllComputers(
         page: number,
         limit: number,
-        agentConnections: Map<string, Socket>
+        agentConnections: Map<string, Socket>,
     ): Promise<{ computers: ComputerInterface[]; total: number; page: number }> {
         const total = await db('computers').count('id as total');
         const offset = (page - 1) * limit;
 
         const computers = await db('computers').select('*').limit(limit).offset(offset);
 
-        const computersWithStatus = computers.map((computer) => { 
-            const isActive = agentConnections.has(computer.id)
+        const computersWithStatus = computers.map(computer => {
+            const isActive = agentConnections.has(computer.id);
             return {
                 ...computer,
                 status: isActive ? 'active' : 'inactive', // Statusni qo'shish
             };
-        })
+        });
 
         computersWithStatus.sort((a, b) => {
             if (a.status === 'active' && b.status === 'inactive') return -1;
@@ -41,7 +41,7 @@ export class ComputerService {
         if (!computer) throw new NotFoundException('Computer not found');
         return {
             success: true,
-            computer
+            computer,
         };
     }
 

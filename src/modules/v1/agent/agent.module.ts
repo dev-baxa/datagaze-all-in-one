@@ -12,9 +12,9 @@ import { AgentAuthMiddleware } from 'src/common/middlewares/computer.auth.middle
 @Module({
     imports: [
         ServeStaticModule.forRoot({
-                    rootPath: join(process.cwd(), 'uploads', 'applications'),
-                    serveRoot:"/agents"
-                })
+            rootPath: join(process.cwd(), 'uploads', 'applications'),
+            serveRoot: '/agents',
+        }),
     ],
     providers: [
         AgentService,
@@ -22,7 +22,6 @@ import { AgentAuthMiddleware } from 'src/common/middlewares/computer.auth.middle
         AgentWebSocketGateway,
         UIWebSocketGateway,
         WebsocketExceptionFilter,
-        
     ],
     exports: [AgentService, AgentAuthService, AgentWebSocketGateway],
     controllers: [AgentController],

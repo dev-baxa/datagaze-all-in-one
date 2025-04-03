@@ -7,7 +7,7 @@ import { CryptoService } from './services/crypto.service';
 
 @Module({
     controllers: [ProductController],
-    providers: [ProductService , CryptoService],
+    providers: [ProductService, CryptoService],
     imports: [AuthModule],
     exports: [ProductService],
 })

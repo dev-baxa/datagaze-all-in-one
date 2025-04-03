@@ -1,9 +1,8 @@
-import { IsNotEmpty, IsString, IsUUID } from "class-validator";
+import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class ConnectToServerDto {
-  @IsUUID()
-  @IsNotEmpty()
-  @IsString()
-  productId: string
-  
+    @IsUUID()
+    @IsNotEmpty()
+    @IsString()
+    productId: string;
 }

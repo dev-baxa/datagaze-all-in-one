@@ -35,7 +35,7 @@ import { UserService } from './user.service';
 @ApiBearerAuth()
 @ApiUnauthorizedResponse()
 @ApiForbiddenResponse()
-export class UserController {           
+export class UserController {
     constructor(private readonly userService: UserService) {}
     @Get('all')
     @Roles('superAdmin')

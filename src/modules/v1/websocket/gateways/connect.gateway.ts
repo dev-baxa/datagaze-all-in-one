@@ -35,7 +35,6 @@ export class SshProductInstallGateway implements OnGatewayConnection, OnGatewayD
     @UseGuards(JwtWsAuthGuard)
     @SubscribeMessage('connectToServer')
     @UseFilters(new WebsocketExceptionFilter())
-
     async connect(
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: connectDto & { user: Payload },

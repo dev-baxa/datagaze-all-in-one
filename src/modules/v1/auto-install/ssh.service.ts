@@ -64,7 +64,6 @@ export class SshService {
                 stream.on('data', data => {
                     socket.emit('ssh_output', data.toString());
                     console.log(data.toString());
-                    
                 });
 
                 stream.stderr.on('data', data => {

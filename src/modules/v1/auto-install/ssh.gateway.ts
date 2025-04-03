@@ -16,11 +16,11 @@ export class SshGateway implements OnGatewayConnection, OnGatewayDisconnect {
     constructor(private readonly sshService: SshService) {}
 
     handleConnection(client: Socket) {
-        this.sshService.handleConnection(client)
+        this.sshService.handleConnection(client);
     }
 
     handleDisconnect(client: Socket) {
-        this.sshService.handleDisconnect(client)
+        this.sshService.handleDisconnect(client);
     }
 
     @SubscribeMessage('connect_ssh')
@@ -29,16 +29,13 @@ export class SshGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     @SubscribeMessage('install')
-    async handleInstalData(client: Socket , payload : { productId: string }) {
+    async handleInstalData(client: Socket, payload: { productId: string }) {
         const install_scripts = await this.sshService.getInstallScript(payload.productId);
-        this.handleTerminalData(client, { data: install_scripts});
+        this.handleTerminalData(client, { data: install_scripts });
     }
-
-
 
     @SubscribeMessage('terminal_data')
     handleTerminalData(client: Socket, payload: { data: string }) {
         this.sshService.runCommand(client, payload.data);
     }
-
 }

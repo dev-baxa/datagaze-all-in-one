@@ -17,7 +17,7 @@ import { WebSocketModule } from './modules/v1/websocket/ws.module';
         AgentModule,
         ComputerModule,
         SshModule1,
-        WebSocketModule
-    ]
+        WebSocketModule,
+    ],
 })
 export class AppModule {}

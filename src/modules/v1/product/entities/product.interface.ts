@@ -1,4 +1,4 @@
-export interface Product{
+export interface Product {
     id: string;
     name: string;
     server_id: string;

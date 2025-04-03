@@ -7,7 +7,7 @@ export class installDto {
 
     @IsString()
     @IsNotEmpty()
-    @IsEnum(['linux' ,'windows'])
+    @IsEnum(['linux', 'windows'])
     os_type: string;
 
     @IsString()

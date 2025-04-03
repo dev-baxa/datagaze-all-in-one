@@ -5,11 +5,11 @@ export class LoginUserDto {
     @IsString()
     @IsNotEmpty({ message: 'Username should not be empty' })
     @MinLength(4, { message: 'Username must be at least 4 characters long' })
-        @ApiProperty({description:"username" , example:'superAdmin'})
+    @ApiProperty({ description: 'username', example: 'superAdmin' })
     username: string;
 
     @IsString()
     @IsNotEmpty()
-        @ApiProperty({description: "password" , example:'superAdmin'})
+    @ApiProperty({ description: 'password', example: 'superAdmin' })
     password: string;
 }

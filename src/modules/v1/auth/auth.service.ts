@@ -25,7 +25,6 @@ export class AuthService extends BaseService<User> {
             .where('users.username', dto.username)
             .select('users.*', 'roles.name as role')
             .first();
-        
 
         if (!user) throw new NotFoundException('User not found');
 

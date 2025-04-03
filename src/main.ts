@@ -1,10 +1,10 @@
+import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExcetionsFilter } from './common/filters/all-exception.filter';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ENV } from './config/env';
-import { VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -28,7 +28,7 @@ async function bootstrap() {
     app.useGlobalFilters(new AllExcetionsFilter(), new HttpExceptionFilter());
     app.enableCors({
         origin: '*',
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+        methods: 'GET,PUT,POST,DELETE',
     });
 
     await app.listen(ENV.PORT ?? 4000, ENV.HOST ?? '0.0.0.0');

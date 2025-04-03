@@ -11,7 +11,7 @@ import { Server, Socket } from 'socket.io';
 import { TerminalService } from '../services/terminal.service';
 import { ConnectToServerDto } from '../dto/connect-to-server.dto';
 
-@WebSocketGateway({ cors: true , namespace: 'terminal' })
+@WebSocketGateway({ cors: true, namespace: 'terminal' })
 export class TerminalGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer()
     server: Server;

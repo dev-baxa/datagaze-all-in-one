@@ -28,8 +28,7 @@ export class OperationsService {
 
             // console.log(product, 'product');
             // console.log(payload, 'payload');
-            
-            
+
             if (!product) throw new WsException('Mahsulot yoki server topilmadi');
 
             const scriptsField = this.getScriptsForOperation(operationType, product);
@@ -37,11 +36,9 @@ export class OperationsService {
             if (!scriptsField) throw new Error(`${operationType} uchun skriptlar mavjud emas`);
 
             // console.log(payload , 1);
-            
 
             const sshConnection = new ssh.Client();
             sshConnection.on('ready', () => {
-
                 sshConnection.shell({ term: 'xterm' }, (err, stream) => {
                     if (err) {
                         client.emit(`${operationType}_error`, err.message);

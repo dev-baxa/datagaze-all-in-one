@@ -27,17 +27,17 @@ export class OperationsGateway implements OnGatewayConnection, OnGatewayDisconne
     @SubscribeMessage('start_product_install')
     async startProductInstallation(
         @ConnectedSocket() client: Socket,
-        @MessageBody() payload: { productId: string , password : string },
+        @MessageBody() payload: { productId: string; password: string },
     ) {
         console.log(payload, 'payload');
-        
+
         await this.operationsService.startOperation(client, payload, OperationType.INSTALL);
     }
 
     @SubscribeMessage('start_product_update')
     async startProductUpdate(
         @ConnectedSocket() client: Socket,
-        @MessageBody() payload: { productId: string  , password : string },
+        @MessageBody() payload: { productId: string; password: string },
     ) {
         await this.operationsService.startOperation(client, payload, OperationType.UPDATE);
     }
@@ -45,7 +45,7 @@ export class OperationsGateway implements OnGatewayConnection, OnGatewayDisconne
     @SubscribeMessage('start_product_delete')
     async startProductDelete(
         @ConnectedSocket() client: Socket,
-        @MessageBody() payload: { productId: string , password : string },
+        @MessageBody() payload: { productId: string; password: string },
     ) {
         await this.operationsService.startOperation(client, payload, OperationType.DELETE);
     }
