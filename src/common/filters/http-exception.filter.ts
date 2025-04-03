@@ -3,7 +3,7 @@ import { Response } from 'express';
 
 @Catch(HttpException)
 export class HttpExceptionFilter {
-    private readonly logger = new Logger(HttpExceptionFilter.name)
+    private readonly logger = new Logger(HttpExceptionFilter.name);
     catch(exception: HttpException, host: ArgumentsHost) {
         this.logger.error(`Exception caught: ${exception.message}`);
         const ctx = host.switchToHttp();
@@ -18,12 +18,18 @@ export class HttpExceptionFilter {
                 ? { message: exeptionResponse }
                 : (exeptionResponse as object);
 
-        
+        // let currentDate = new Date();
+        // currentDate.setHours(currentDate.getUTCHours() + 5);
+        // console.log(currentDate.toISOString());
+        // console.log(Date.now());
+        // ;
+
         response.status(status).json({
             success: false,
-            statusCode: status,
             ...error,
-            timestamp: new Date().toISOString(),
+            timestamp: new Date(Date.now() + 5 * 60 * 60 * 1000)
+                .toISOString()
+                .replace('Z', `+05:00`),
         });
     }
 }

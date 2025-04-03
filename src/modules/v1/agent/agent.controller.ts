@@ -11,7 +11,7 @@ import { AgentService } from './agent.service';
 import { CreateAgentDto } from './dto/create.agent.dto';
 import { UpdateApplicationsDTO } from './dto/update.application.dto';
 
-@Controller('v1/agent')
+@Controller('agent')
 @ApiNotFoundResponse('Agent')
 @ApiTags('Agent')
 export class AgentController {

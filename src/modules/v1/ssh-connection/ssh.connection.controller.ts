@@ -10,7 +10,7 @@ import { User } from '../auth/entities/user.interface';
 import { ConnectionDTO } from './dto/ssh.connection.dto';
 import { SshConnectService } from './ssh.connection.service';
 
-@Controller('v1/ssh')
+@Controller('ssh')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @ApiUnauthorizedResponse()

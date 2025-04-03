@@ -24,7 +24,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { UpdatePasswordDTOauth } from './dto/updata_password.dto';
 // import { Request } from 'express';
 
-@Controller('v1/auth')
+@Controller('auth')
 @UseFilters(HttpExceptionFilter)
 @ApiBearerAuth()
 export class AuthController {
