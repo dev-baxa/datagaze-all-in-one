@@ -1,6 +1,6 @@
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
-export class installDto {
+export class connectDto {
     @IsUUID()
     @IsNotEmpty()
     productId: string;

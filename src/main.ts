@@ -4,9 +4,15 @@ import { AppModule } from './app.module';
 import { AllExcetionsFilter } from './common/filters/all-exception.filter';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ENV } from './config/env';
+import { VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+
+    app.enableVersioning({
+        type: VersioningType.URI,
+        defaultVersion: '1',
+    });
     const config = new DocumentBuilder()
         .setTitle('DATAGAZE ALL IN ONE PLATFORM')
         .setDescription(
@@ -20,7 +26,10 @@ async function bootstrap() {
     SwaggerModule.setup('api', app, document);
 
     app.useGlobalFilters(new AllExcetionsFilter(), new HttpExceptionFilter());
-    app.enableCors();
+    app.enableCors({
+        origin: '*',
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    });
 
     await app.listen(ENV.PORT ?? 4000, ENV.HOST ?? '0.0.0.0');
     console.log(`Application is running on: ${await app.getUrl()}`);

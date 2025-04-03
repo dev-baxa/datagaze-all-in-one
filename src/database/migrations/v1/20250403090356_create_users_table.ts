@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
     return knex.schema.createTable('users', table => {
@@ -6,6 +6,7 @@ export async function up(knex: Knex): Promise<void> {
         table.string('username').notNullable();
         table.string('email').notNullable();
         table.string('password').notNullable();
+        table.string('fullname').notNullable(); // From 20250402025731_update_user
         table.uuid('role_id').references('id').inTable('roles').onDelete('SET NULL');
         table.timestamps(true, true);
     });

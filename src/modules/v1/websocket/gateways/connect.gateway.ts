@@ -13,7 +13,7 @@ import { Server, Socket } from 'socket.io';
 import { WebsocketExceptionFilter } from 'src/common/filters/websocket.exception.filter';
 import { JwtWsAuthGuard } from 'src/common/guards/jwt.ws.auth.guard';
 import { Payload } from '../../auth/entities/token.interface';
-import { installDto } from '../dto/connect.and.upload.dto';
+import { connectDto } from '../dto/connect.and.upload.dto';
 import { SshProductInstallService } from '../services/connect.and.file.upload.service';
 
 @WebSocketGateway({ cors: true, namespace: 'connect-and-upload' })
@@ -38,12 +38,9 @@ export class SshProductInstallGateway implements OnGatewayConnection, OnGatewayD
 
     async connect(
         @ConnectedSocket() client: Socket,
-        @MessageBody() payload: installDto & { user: Payload },
+        @MessageBody() payload: connectDto & { user: Payload },
     ) {
         const user = payload.user;
-        // if (!user) throw new WsException('User is undefined');
-
-        // Progressni real vaqtda yuborish uchun callback
         const progressCallback = (progress: string, percentage: number) => {
             client.emit('progress', { progressBar: progress, percentage });
         };

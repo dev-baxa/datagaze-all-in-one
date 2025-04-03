@@ -18,9 +18,10 @@ export class AllExcetionsFilter implements ExceptionFilter {
 
         response.status(status).json({
             success: false,
-            statusCode: status,
             path: request.url,
-            timestamp: new Date().toISOString(),
+            timestamp: new Date(Date.now() + 5 * 60 * 60 * 1000)
+                .toISOString()
+                .replace('Z', `+05:00`),
             message: exception instanceof Error ? exception.message : 'Unknown error',
         });
     }

@@ -27,7 +27,7 @@ import { CreateProductDTO } from './dto/create.product.dto';
 import { createProductSwagger } from './entities/swagger.document';
 import { ProductService } from './product.service';
 
-@Controller('v1/product')
+@Controller('product')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBadRequestResponse()
 @ApiUnauthorizedResponse()

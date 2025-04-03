@@ -51,7 +51,7 @@
             let socket;
 
             document.addEventListener('DOMContentLoaded', () => {
-                socket = io('ws://localhost:4000/product-install', {
+                socket = io('http://localhost:4000/operation', {
                     transports: ['websocket', 'polling'],
                     reconnection: true,
                     reconnectionAttempts: 5,
@@ -100,8 +100,9 @@
                 const promptMessage = document.getElementById('prompt-message');
 
                 startBtn.addEventListener('click', () => {
-                    socket.emit('start_product_installation', {
-                        productId: '0dcc5c09-efbf-4b47-b5b2-f01c4d4e9732',
+                    socket.emit('start_product_install', {
+                        productId:'4620c065-c9a5-411f-b0f9-003d288c0e26',
+                        password:"ubuntuNew123"
                     });
                     startBtn.disabled = true;
                 });

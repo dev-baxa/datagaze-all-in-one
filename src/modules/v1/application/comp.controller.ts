@@ -10,7 +10,7 @@ import {
 import { AgentWebSocketGateway } from '../agent/service/agent.connect.socket.service';
 import { ComputerService } from './comp.service';
 
-@Controller('v1/application')
+@Controller('application')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiTags('Application')
 @ApiBearerAuth()

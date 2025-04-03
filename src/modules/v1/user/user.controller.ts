@@ -27,12 +27,15 @@ import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { UpdateProfilDtoForSuperAdmin } from './dto/update.profil.for.superadmin.dto';
 import { UserService } from './user.service';
 
-@Controller('v1/user')
+@Controller({
+    path: 'user',
+    version: '1',
+})
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 @ApiUnauthorizedResponse()
 @ApiForbiddenResponse()
-export class UserController {
+export class UserController {           
     constructor(private readonly userService: UserService) {}
     @Get('all')
     @Roles('superAdmin')
@@ -43,7 +46,7 @@ export class UserController {
         const data = await this.userService.getAllUsers(Number(page), Number(limit));
 
         return {
-            status: 'success',
+            succes: true,
             ...data,
         };
     }
@@ -55,7 +58,7 @@ export class UserController {
     async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
         const user = await this.userService.getOneUser(id);
         return {
-            status: 'success',
+            succes: true,
             user,
         };
     }
@@ -66,7 +69,7 @@ export class UserController {
     async register(@Body(new ValidationPipe()) dto: CreateUserDto) {
         const user = await this.userService.register(dto);
         return {
-            status: 'success',
+            succes: true,
             id: user.id,
             message: 'User created successfully',
         };
@@ -80,7 +83,7 @@ export class UserController {
     async update(@Body(new ValidationPipe()) dto: UpdateProfilDtoForSuperAdmin) {
         await this.userService.updateProfil(dto);
         return {
-            status: 'success',
+            succes: true,
             message: 'User updated successfully.',
         };
     }
@@ -94,7 +97,7 @@ export class UserController {
         await this.userService.deleteUser(id);
 
         return {
-            status: 'succes',
+            succes: true,
             message: 'User deleted successfully',
         };
     }
