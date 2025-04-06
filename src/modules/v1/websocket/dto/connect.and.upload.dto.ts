@@ -1,6 +1,6 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
-export class connectDto {
+export class ConnectDto {
     @IsUUID()
     @IsNotEmpty()
     productId: string;

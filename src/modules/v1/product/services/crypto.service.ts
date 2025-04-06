@@ -3,8 +3,8 @@ import * as CryptoJS from 'crypto-js';
 
 @Injectable()
 export class CryptoService {
-  private readonly secretKey: string = 'your-256-bit-secret';
-  constructor() {} // Use a secure key
+    private readonly secretKey: string = 'your-256-bit-secret';
+    constructor() {} // Use a secure key
 
     encrypt(text: string): string {
         const ciphertext = CryptoJS.AES.encrypt(text, this.secretKey).toString();

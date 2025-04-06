@@ -1,7 +1,8 @@
+import { extname, join } from 'path';
+
 import { BadRequestException } from '@nestjs/common';
 import { MulterModuleOptions } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname, join } from 'path';
 
 export function fileFieldsConfig(): MulterModuleOptions {
     return {
@@ -20,7 +21,7 @@ export function fileFieldsConfig(): MulterModuleOptions {
                 cb(null, `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`);
             },
         }),
-        fileFilter: (req, file, cb) => {
+        fileFilter: (req, file, cb):void => {
             if (file.fieldname === 'icon') {
                 const allowedFileTypes = ['png', 'jpg', 'jpeg', 'gif'];
                 if (!allowedFileTypes.includes(file.mimetype.split('/')[1])) {

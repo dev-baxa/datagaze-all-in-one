@@ -2,21 +2,34 @@ import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import prettier from 'eslint-config-prettier';
-import importPlugin from 'eslint-plugin-import'
+import importPlugin from 'eslint-plugin-import';
 
 export default [
     js.configs.recommended, // Standart JS qoidalarini yuklash
     {
+        files: ['{src,apps,libs,test}/**/*.ts'], // Lint qilinadigan fayllarni belgilash
+        ignores: ['node_modules/**', 'dist/**'],
         languageOptions: {
             parser: tsParser,
             parserOptions: {
                 project: './tsconfig.json',
                 tsconfigRootDir: process.cwd(),
             },
+            globals: {
+                // Node.js global o'zgaruvchilarini qo'shish
+                process: 'readonly',
+                __dirname: 'readonly',
+                module: 'readonly',
+                require: 'readonly',
+                exports: 'readonly',
+                setTimeout: 'readonly',
+                Express: 'readonly',
+            },
         },
+
         plugins: {
-          '@typescript-eslint': tseslint,
-          import: importPlugin
+            '@typescript-eslint': tseslint,
+            import: importPlugin,
         },
         rules: {
             ...tseslint.configs.recommended.rules,
@@ -36,12 +49,17 @@ export default [
                 {
                     selector: ['variable', 'function'],
                     format: ['camelCase'],
+                    filter: {
+                        regex: '^(Roles|ApiUnauthorizedResponse|ApiNotFoundResponse|ApiBadRequestResponse|ApiInternalServerErrorResponse|ApiSuccessResponse|ApiCreatedResponse|ApiForbiddenResponse)$',
+                        match: false,
+                    },
                     leadingUnderscore: 'allow',
                 },
-                { selector: ['class', 'decorator'], format: ['PascalCase'] },
+                { selector: 'class', format: ['PascalCase'] },
                 {
                     selector: 'variable',
                     modifiers: ['const', 'global'],
+                    types: ['boolean', 'string', 'number'],
                     format: ['UPPER_CASE'],
                     leadingUnderscore: 'allow',
                 },

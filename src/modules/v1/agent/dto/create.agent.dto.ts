@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
     IsNotEmpty,
     IsString,
@@ -7,8 +9,6 @@ import {
     IsIP,
     Matches,
 } from 'class-validator';
-import { Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class NetworkAdapterDto {
     @ApiProperty({ description: 'nic_name', example: 'Ethernet' })
@@ -20,11 +20,11 @@ export class NetworkAdapterDto {
     @IsIP()
     ip_address: string;
 
-    @ApiProperty({description:"mac_address", example: "00:1A:2B:3C:4D:5E"})
+    @ApiProperty({ description: 'mac_address', example: '00:1A:2B:3C:4D:5E' })
     @Matches(/^([A-Fa-f0-9]{2}:){5}[A-Fa-f0-9]{2}$/, { message: 'Invalid MAC address format' })
     mac_address: string;
 
-    @ApiProperty({description:'available', example:'Up'})
+    @ApiProperty({ description: 'available', example: 'Up' })
     @IsString()
     available: 'Up' | 'Down';
 }

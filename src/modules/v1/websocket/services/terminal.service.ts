@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import * as ssh from 'ssh2';
 import { Socket } from 'socket.io';
 import db from 'src/config/database.config';
-import { ServerInterface } from '../entity/server.interface';
+import * as ssh from 'ssh2';
+
 import { ConnectToServerDto } from '../dto/connect-to-server.dto';
-import { ConnectConfigInterface } from '../entity/connect.config.interface';
+import { IConnectConfig } from '../entity/connect.config.interface';
+import { IServer } from '../entity/server.interface';
 
 @Injectable()
 export class TerminalService {
@@ -13,24 +14,23 @@ export class TerminalService {
     async connectToServer(client: Socket, payload: ConnectToServerDto): Promise<void> {
         const productId = payload.productId;
 
-        const server: ServerInterface = await db('products')
+        const server: IServer = await db('products')
             .join('servers', 'products.server_id', 'servers.id')
             .where('products.id', productId)
             .select('servers.*')
             .first();
 
-        const connectConfig: ConnectConfigInterface = {
+        const connectConfig: IConnectConfig = {
             host: server.ip_address,
             port: server.port,
             username: server.username,
-            password: payload.password ? payload.password: '',
+            password: payload.password ? payload.password : '',
             // privateKey: server.private_key ? server.private_key : '',
         };
 
         const conn = new ssh.Client();
 
         conn.on('ready', () => {
-            console.log("SSH ulanish muvaffaqiyatli o'rnatildi");
             conn.shell((err, stream) => {
                 if (err) {
                     client.emit('ssh_error', 'Shell mode error:' + err.message);

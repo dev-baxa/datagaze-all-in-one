@@ -8,8 +8,8 @@ export async function up(knex: Knex): Promise<void> {
         table.string('version');
         table.timestamp('installed_date');
         table.string('type');
-      table.integer('size');
-      table.timestamps(true, true);
+        table.integer('size');
+        table.timestamps(true, true);
     });
 }
 

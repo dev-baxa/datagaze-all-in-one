@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import * as jose from 'jose';
-import db from 'src/config/database.config';
-import { ENV } from 'src/config/env';
-import { ComputerPayloadInterface } from '../entity/computer.interface';
-import { WsException } from '@nestjs/websockets';
+import { env } from 'src/config/env';
+
+import { IAgentTokenPayloadInterface } from '../entity/agent.token.payload.interface';
+import { IComputerPayload } from '../entity/computer.interface';
 
 @Injectable()
 export class AgentAuthService {
-    constructor() { }
-    private publicKey = ENV.JWT_PUBLIC_KEY || '';
-    private privateKey = ENV.JWT_PRIVAT_KEY || '';
+    constructor() {}
+    private publicKey = env.JWT_PUBLIC_KEY || '';
+    private privateKey = env.JWT_PRIVAT_KEY || '';
 
-    async generateToken(data): Promise<string> {
+    async generateToken(data: IAgentTokenPayloadInterface): Promise<string> {
         const secret = await jose.importSPKI(this.publicKey, 'RSA-OAEP');
         const token = await new jose.EncryptJWT({ ...data })
             .setProtectedHeader({ alg: 'RSA-OAEP', enc: 'A256GCM' })
@@ -21,11 +21,11 @@ export class AgentAuthService {
         return token;
     }
 
-    async verifyToken(token: string): Promise<ComputerPayloadInterface> {
+    async verifyToken(token: string): Promise<IComputerPayload> {
         const secret = await jose.importPKCS8(this.privateKey, 'RSA-OAEP');
 
         const { payload } = await jose.jwtDecrypt(token, secret);
 
-        return payload as unknown as ComputerPayloadInterface;
+        return payload as unknown as IComputerPayload;
     }
 }

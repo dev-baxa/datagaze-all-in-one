@@ -22,9 +22,8 @@ export class JwtAuthForComputersGuard {
 
         if (!payload) throw new UnauthorizedException('Invalid token');
 
-        
         const validComputer = await db('computers').where('id', payload.id).first();
-        
+
         if (!validComputer) throw new NotFoundException('Computer not found');
 
         request.computer = payload;

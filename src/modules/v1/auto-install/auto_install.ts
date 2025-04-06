@@ -17,7 +17,7 @@ enum ScriptPromptType {
     INPUT = 'input',
 }
 
-interface ScriptSession {
+interface IScriptSession {
     ssh: {
         client: ssh.Client;
         shell: ssh.Channel;
@@ -46,13 +46,13 @@ export class ProductInstallGateway implements OnGatewayConnection, OnGatewayDisc
     @WebSocketServer()
     server: Server;
 
-    private sessions: Map<string, ScriptSession> = new Map();
+    private sessions: Map<string, IScriptSession> = new Map();
 
     @SubscribeMessage('start_product_installation')
     async startProductInstallation(
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: { productId: string },
-    ) {
+    ): Promise<void> {
         try {
             // 1. Mahsulot va uning serverini olish
             const product = await db('products')
@@ -76,7 +76,7 @@ export class ProductInstallGateway implements OnGatewayConnection, OnGatewayDisc
                     }
 
                     // 3. Sessiya yaratish
-                    const session: ScriptSession = {
+                    const session: IScriptSession = {
                         ssh: { client: sshConnection, shell: stream },
                         scripts: this.parseScripts(product.install_scripts),
                         currentScriptIndex: 0,
@@ -114,7 +114,7 @@ export class ProductInstallGateway implements OnGatewayConnection, OnGatewayDisc
         payload: {
             response: string;
         },
-    ) {
+    ): void {
         const session = this.sessions.get(client.id);
         if (!session || !session.awaitingPrompt) {
             client.emit('interaction_error', 'Hozirda javob kutilmayapti');
@@ -138,7 +138,7 @@ export class ProductInstallGateway implements OnGatewayConnection, OnGatewayDisc
             .filter(script => script && !script.startsWith('#'));
     }
 
-    private executeNextScript(client: Socket, session: ScriptSession) {
+    private executeNextScript(client: Socket, session: IScriptSession): void {
         if (session.currentScriptIndex >= session.scripts.length) {
             client.emit('installation_complete', 'Barcha skriptlar muvaffaqiyatli bajarildi');
             this.sessions.delete(client.id);
@@ -153,7 +153,7 @@ export class ProductInstallGateway implements OnGatewayConnection, OnGatewayDisc
         session.currentScriptIndex++;
     }
 
-    private processShellOutput(client: Socket, session: ScriptSession, output: string) {
+    private processShellOutput(client: Socket, session: IScriptSession, output: string): void {
         client.emit('script_output', output);
 
         // Sudo parol promti
@@ -196,16 +196,15 @@ export class ProductInstallGateway implements OnGatewayConnection, OnGatewayDisc
         }
     }
 
-    handleConnection(client: Socket) {
-        console.log(`Client connected: ${client.id}`);
+    handleConnection(client: Socket): void {
+        client.emit('connection_status', 'Ulanish muvaffaqiyatli');
     }
 
-    handleDisconnect(client: Socket) {
+    handleDisconnect(client: Socket): void {
         const session = this.sessions.get(client.id);
         if (session) {
             session.ssh.client.end();
             this.sessions.delete(client.id);
         }
-        console.log(`Client disconnected: ${client.id}`);
     }
 }

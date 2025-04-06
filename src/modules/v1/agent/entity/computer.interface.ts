@@ -1,6 +1,6 @@
 import { DiskDto, NetworkAdapterDto } from '../dto/create.agent.dto';
 
-export interface ComputerInterface {
+export interface IComputer {
     id: string;
     hostname: string;
     operation_system: string;
@@ -11,15 +11,15 @@ export interface ComputerInterface {
     cpu: string;
     model: string;
     cores: number;
-    unical_key?: string;
+    unicall_key?: string;
     network_adapters: NetworkAdapterDto[];
     disks: DiskDto[];
 }
 
-export interface ComputerPayloadInterface {
+export interface IComputerPayload {
     id: string;
     hostname: string;
-    operation_system:string;
+    operation_system: string;
     platform: string;
     unicall_key: string;
 }

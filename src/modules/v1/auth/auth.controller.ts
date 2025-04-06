@@ -19,9 +19,11 @@ import {
     ApiSuccessResponse,
     ApiUnauthorizedResponse,
 } from 'src/common/swagger/common.errors';
+
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdatePasswordDTOauth } from './dto/updata_password.dto';
+import { IPayload } from './entities/token.interface';
 // import { Request } from 'express';
 
 @Controller('auth')
@@ -35,12 +37,9 @@ export class AuthController {
     @ApiNotFoundResponse('User')
     @ApiBadRequestResponse('Invalid username or password')
     @ApiSuccessResponse('token', 'eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkEyNTZHQ00ifQ...')
-    async login(@Body(new ValidationPipe()) dto: LoginUserDto) {
+    async login(@Body(new ValidationPipe()) dto: LoginUserDto): Promise<{ token: string }> {
         const token = await this.authService.createToken(dto);
-        return {
-            status: 'success',
-            token,
-        };
+        return { token };
     }
 
     @Put('update-password')
@@ -50,14 +49,13 @@ export class AuthController {
     @ApiUnauthorizedResponse()
     async updatePassword(
         @Body(new ValidationPipe()) dto: UpdatePasswordDTOauth,
-        @Request() Request,
-    ) {
+        @Request() Request: Request & { user: IPayload },
+    ): Promise<{ message: string }> {
         const user = Request.user;
 
         await this.authService.updatePassword(dto, user);
 
         return {
-            status: 'success',
             message: 'Password updated successfully.',
         };
     }

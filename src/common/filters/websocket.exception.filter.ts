@@ -7,7 +7,7 @@ import { Socket } from 'socket.io';
 export class WebsocketExceptionFilter extends BaseWsExceptionFilter {
     private readonly logger = new Logger(WebsocketExceptionFilter.name);
 
-    catch(exception: WsException, host: ArgumentsHost) {
+    catch(exception: WsException, host: ArgumentsHost) :void{
         this.logger.error(`Exception caught: ${exception.message}`);
 
         const client = host.switchToWs().getClient<Socket>();

@@ -7,9 +7,11 @@ import {
     ApiSuccessResponse,
     ApiUnauthorizedResponse,
 } from 'src/common/swagger/common.errors';
+
 import { AgentService } from './agent.service';
 import { CreateAgentDto } from './dto/create.agent.dto';
 import { UpdateApplicationsDTO } from './dto/update.application.dto';
+import { IComputer } from './entity/computer.interface';
 
 @Controller('agent')
 @ApiNotFoundResponse('Agent')
@@ -20,7 +22,7 @@ export class AgentController {
     @Post('create')
     @HttpCode(200 | 201)
     @ApiSuccessResponse('token', 'eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkEyNTZHQ00ifQ...')
-    async createAgent(@Body() body: CreateAgentDto, @Res() res: Response) {
+    async createAgent(@Body() body: CreateAgentDto, @Res() res: Response): Promise<Response> {
         const result = await this.computerService.createComputerAndReturnToken(body);
 
         return res.status(result.statusCode).json({
@@ -40,12 +42,11 @@ export class AgentController {
     async updateApplications(
         @Body()
         body: UpdateApplicationsDTO[],
-        @Req() req,
-    ) {
+        @Req() req: Request & { computer: IComputer },
+    ): Promise<{ message: string }> {
         await this.computerService.updateApplications(body, req.computer);
 
         return {
-            status: 'success',
             message: 'Applications updated successfully',
         };
     }

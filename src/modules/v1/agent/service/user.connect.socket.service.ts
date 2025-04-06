@@ -8,6 +8,7 @@ import {
     WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+
 import { AgentAuthService } from './agent.auth.service';
 import { AgentWebSocketGateway } from './agent.connect.socket.service';
 
@@ -26,7 +27,7 @@ export class UIWebSocketGateway implements OnGatewayConnection, OnGatewayDisconn
 
     private clientConnections: Map<string, Socket> = new Map();
 
-    async handleConnection(client: Socket) {
+    async handleConnection(client: Socket): Promise<void> {
         const token = client.handshake.headers.authorization?.split(' ')[1];
         if (!token) {
             client.disconnect();
@@ -45,7 +46,7 @@ export class UIWebSocketGateway implements OnGatewayConnection, OnGatewayDisconn
         client.emit('connection_success', 'UI client connected');
     }
 
-    async handleDisconnect(client: Socket) {
+    async handleDisconnect(client: Socket): Promise<void> {
         for (const [id, socket] of this.clientConnections.entries()) {
             if (socket.id === client.id) {
                 this.clientConnections.delete(id);
@@ -56,45 +57,41 @@ export class UIWebSocketGateway implements OnGatewayConnection, OnGatewayDisconn
     }
 
     @SubscribeMessage('delete_app')
-    handleDeleteApp(client: Socket, payload: { computerId: string; appName: string }) {
+    async handleDeleteApp(client: Socket, payload: { computerId: string; appName: string }):Promise<void> {
         this.logger.log(`Delete app request received: ${JSON.stringify(payload)}`);
-        this.agentGateway.executeCommandOnAgent(
+        await this.agentGateway.executeCommandOnAgent(
             payload.computerId,
             payload.appName,
             'delete_app',
             client,
         );
-        return { success: true, message: 'Delete command sent to agent' };
     }
 
     @SubscribeMessage('install_app')
-    handleInstallApp(client: Socket, payload: { computerId: string; appName: string }) {
+    async handleInstallApp(client: Socket, payload: { computerId: string; appName: string }):Promise<void> {
         this.logger.log(`Install app request received: ${JSON.stringify(payload)}`);
-        this.agentGateway.executeCommandOnAgent(
+        await this.agentGateway.executeCommandOnAgent(
             payload.computerId,
             payload.appName,
             'install_app',
             client,
         );
-        return { success: true, message: 'Install command sent to agent' };
     }
 
     @SubscribeMessage('update_app')
-    handleUpdateApp(client: Socket, payload: { computerId: string; appName: string }) {
+    async handleUpdateApp(client: Socket, payload: { computerId: string; appName: string }):Promise<void> {
         this.logger.log(`Update app request received: ${JSON.stringify(payload)}`);
-        this.agentGateway.executeCommandOnAgent(
+        await this.agentGateway.executeCommandOnAgent(
             payload.computerId,
             payload.appName,
             'update_app',
             client,
         );
-        return { success: true, message: 'Update command sent to agent' };
     }
 
     @SubscribeMessage('delete_agent')
-    handleDeleteAgent(client: Socket, payload: { computerId: string }) {
+    async handleDeleteAgent(client: Socket, payload: { computerId: string }):Promise<void> {
         this.logger.log(`Delete agent request received: ${JSON.stringify(payload)}`);
-        this.agentGateway.deleteAgent(payload.computerId, client);
-        return { success: true, message: 'Delete command sent to agent' };
+        await this.agentGateway.deleteAgent(payload.computerId, client);
     }
 }

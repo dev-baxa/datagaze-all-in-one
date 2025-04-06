@@ -1,31 +1,30 @@
-import * as jose from 'jose';
-
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import * as jose from 'jose';
 import { BaseService } from 'src/common/utils/base.service';
 import { comparePassword, generateHashedPassword } from 'src/common/utils/bcrypt.functions';
 import db from 'src/config/database.config';
-import { ENV } from 'src/config/env';
+import { env } from 'src/config/env';
+
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdatePasswordDTOauth } from './dto/updata_password.dto';
-import { Payload } from './entities/token.interface';
-import { User } from './entities/user.interface';
+import { IPayload } from './entities/token.interface';
+import { IUser } from './entities/user.interface';
 
 @Injectable()
-export class AuthService extends BaseService<User> {
-    private privateKey = ENV.JWT_PRIVAT_KEY || '';
-    private publicKey = ENV.JWT_PUBLIC_KEY || '';
+export class AuthService extends BaseService<IUser> {
+    private privateKey = env.JWT_PRIVAT_KEY || '';
+    private publicKey = env.JWT_PUBLIC_KEY || '';
 
     constructor() {
         super('users');
     }
 
     async createToken(dto: LoginUserDto): Promise<string> {
-        const user: User & { role: string } = await db('users')
+        const user: IUser & { role: string } = await db('users')
             .join('roles', 'users.role_id', 'roles.id')
             .where('users.username', dto.username)
             .select('users.*', 'roles.name as role')
             .first();
-        
 
         if (!user) throw new NotFoundException('User not found');
 
@@ -43,7 +42,7 @@ export class AuthService extends BaseService<User> {
         return token;
     }
 
-    private async generateTokenEncryptedJwt(payload: Payload): Promise<string> {
+    private async generateTokenEncryptedJwt(payload: IPayload): Promise<string> {
         const secret = await jose.importSPKI(this.publicKey, 'RSA-OAEP');
         const token = await new jose.EncryptJWT({ ...payload })
             .setProtectedHeader({ alg: 'RSA-OAEP', enc: 'A256GCM' })
@@ -52,7 +51,7 @@ export class AuthService extends BaseService<User> {
         return token;
     }
 
-    async updatePassword(dto: UpdatePasswordDTOauth, user: Payload): Promise<void> {
+    async updatePassword(dto: UpdatePasswordDTOauth, user: IPayload): Promise<void> {
         const fullUser = await this.findById(user.id);
 
         if (!fullUser) {
@@ -68,9 +67,9 @@ export class AuthService extends BaseService<User> {
         await this.update(user.id, { password: await generateHashedPassword(dto.new_password) });
     }
 
-    async decryptJWT(encryptedToken: string): Promise<Payload> {
+    async decryptJWT(encryptedToken: string): Promise<IPayload> {
         const secret = await jose.importPKCS8(this.privateKey, 'RSA-OAEP');
-        const { payload } = await jose.jwtDecrypt(encryptedToken, secret);
-        return payload as unknown as Payload;
+        const {payload} = await jose.jwtDecrypt<IPayload>(encryptedToken, secret);
+        return payload ;
     }
 }

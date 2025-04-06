@@ -1,7 +1,8 @@
 // src/database/knexfile.ts
+import { join } from 'path';
+
 import * as dotenv from 'dotenv';
 import knex from 'knex';
-import { join } from 'path';
 
 dotenv.config({
     path: join(__dirname, '../../.env'),

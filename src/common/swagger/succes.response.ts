@@ -1,4 +1,4 @@
-export const userGetAllResponse = {
+export const  userGetAllResponse = {
     users: [
         {
             id: 'string',
@@ -15,8 +15,8 @@ export const userGetAllResponse = {
 };
 
 export const userGetOneResponse = {
-  id: 'string',
-  username: 'string',
-  email: 'string',
-  password: 'string',
-}
+    id: 'string',
+    username: 'string',
+    email: 'string',
+    password: 'string',
+};

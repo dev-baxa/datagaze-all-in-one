@@ -1,28 +1,29 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import db from 'src/config/database.config';
-import { AppInterface } from '../agent/entity/app.interface';
-import { ComputerInterface } from '../agent/entity/computer.interface';
 import { Socket } from 'socket.io';
+import db from 'src/config/database.config';
+
+import { IApp } from '../agent/entity/app.interface';
+import { IComputer } from '../agent/entity/computer.interface';
 
 @Injectable()
 export class ComputerService {
     async getAllComputers(
         page: number,
         limit: number,
-        agentConnections: Map<string, Socket>
-    ): Promise<{ computers: ComputerInterface[]; total: number; page: number }> {
+        agentConnections: Map<string, Socket>,
+    ): Promise<{ computers: IComputer[]; total: number; page: number }> {
         const total = await db('computers').count('id as total');
         const offset = (page - 1) * limit;
 
         const computers = await db('computers').select('*').limit(limit).offset(offset);
 
-        const computersWithStatus = computers.map((computer) => { 
-            const isActive = agentConnections.has(computer.id)
+        const computersWithStatus = computers.map(computer => {
+            const isActive = agentConnections.has(computer.id);
             return {
                 ...computer,
                 status: isActive ? 'active' : 'inactive', // Statusni qo'shish
             };
-        })
+        });
 
         computersWithStatus.sort((a, b) => {
             if (a.status === 'active' && b.status === 'inactive') return -1;
@@ -36,12 +37,11 @@ export class ComputerService {
             page,
         };
     }
-    async getComputerById(id: string): Promise<{ success: boolean; computer: ComputerInterface }> {
+    async getComputerById(id: string): Promise<{ computer: IComputer }> {
         const computer = await db('computers').where('id', id).first();
         if (!computer) throw new NotFoundException('Computer not found');
         return {
-            success: true,
-            computer
+            computer,
         };
     }
 
@@ -49,7 +49,7 @@ export class ComputerService {
         computerId: string,
         page: number,
         limit: number,
-    ): Promise<{ applications: AppInterface[]; total: number; page: number }> {
+    ): Promise<{ applications: IApp[]; total: number; page: number }> {
         const computer = await db('computers').where('id', computerId).first();
         if (!computer) throw new NotFoundException('Computer not found');
         const offset = (page - 1) * limit;

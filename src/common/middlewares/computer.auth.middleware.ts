@@ -6,7 +6,7 @@ import { AgentAuthService } from 'src/modules/v1/agent/service/agent.auth.servic
 @Injectable()
 export class AgentAuthMiddleware implements NestMiddleware {
     constructor(private readonly agentAuthService: AgentAuthService) {}
-    async use(req: Request, res: Response, next: NextFunction) {
+    async use(req: Request, res: Response, next: NextFunction): Promise<void> {
         const token = req.headers['authorization']?.split(' ')[1];
 
         if (!token) {
