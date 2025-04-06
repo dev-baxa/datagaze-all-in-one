@@ -11,7 +11,7 @@ export interface ComputerInterface {
     cpu: string;
     model: string;
     cores: number;
-    unical_key?: string;
+    unicall_key?: string;
     network_adapters: NetworkAdapterDto[];
     disks: DiskDto[];
 }

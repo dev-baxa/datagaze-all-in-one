@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Server, Socket } from 'socket.io';
-import * as ssh from 'ssh2';
-import db from 'src/config/database.config';
-import { OperationType, ScriptPromptType, ScriptSession } from '../entity/operation.types';
 import { WsException } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
+import db from 'src/config/database.config';
+import * as ssh from 'ssh2';
+
+import { OperationType, ScriptPromptType, ScriptSession } from '../entity/operation.types';
 
 @Injectable()
 export class OperationsService {

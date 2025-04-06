@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BaseService } from 'src/common/utils/base.service';
 import db from 'src/config/database.config';
+
 import { CreateProductDTO } from './dto/create.product.dto';
 import { Product } from './entities/product.interface';
 import { CryptoService } from './services/crypto.service';
@@ -19,7 +20,6 @@ export class ProductService extends BaseService<Product> {
         },
         dto: CreateProductDTO,
     ): Promise<string> {
-        console.log(files);
 
         const product = await db('products')
             .insert({
@@ -33,8 +33,8 @@ export class ProductService extends BaseService<Product> {
         return product[0].id;
     }
 
-    async findByOne(id: string) {
-        return await db('products')
+    async findByOne(id: string):Promise<(Product & { ip: string | null })[]> {
+        return  db('products')
             .leftJoin('servers', 'products.server_id', 'servers.id')
             .where('products.id', id)
             .select(
@@ -45,8 +45,8 @@ export class ProductService extends BaseService<Product> {
             );
     }
 
-    async getAllProducts() {
-        return await db('products')
+    async getAllProducts(): Promise<(Partial<Product> & { ip: string | null })[]> {
+        return db('products')
             .leftJoin('servers', 'products.server_id', 'servers.id')
             .select(
                 'products.id',

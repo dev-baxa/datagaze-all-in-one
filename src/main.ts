@@ -1,10 +1,12 @@
 import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
 import { AppModule } from './app.module';
 import { AllExcetionsFilter } from './common/filters/all-exception.filter';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { ENV } from './config/env';
+import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
+import { env } from './config/env';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -25,13 +27,14 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
 
+    app.useGlobalInterceptors(new ResponseTransformInterceptor());
     app.useGlobalFilters(new AllExcetionsFilter(), new HttpExceptionFilter());
     app.enableCors({
         origin: '*',
         methods: 'GET,PUT,POST,DELETE',
     });
 
-    await app.listen(ENV.PORT ?? 4000, ENV.HOST ?? '0.0.0.0');
-    console.log(`Application is running on: ${await app.getUrl()}`);
+    await app.listen(env.PORT ?? 4000, env.HOST ?? '0.0.0.0');
+    // console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

@@ -7,8 +7,9 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { WebsocketExceptionFilter } from 'src/common/filters/websocket.exception.filter';
-import { AgentAuthService } from './agent.auth.service';
 import db from 'src/config/database.config';
+
+import { AgentAuthService } from './agent.auth.service';
 
 @Injectable()
 @UseFilters(new WebsocketExceptionFilter())
@@ -23,7 +24,7 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
 
     private agentConnections: Map<string, Socket> = new Map();
 
-    async handleConnection(client: Socket) {
+    async handleConnection(client: Socket): Promise<void> {
         const token = client.handshake.headers.authorization?.split(' ')[1] as string;
         if (!token) {
             this.logger.error(`No token provided: ${client.id}`);
@@ -51,7 +52,7 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
         client.emit('status', 'Agent connected');
     }
 
-    async handleDisconnect(client: Socket) {
+    async handleDisconnect(client: Socket): Promise<void> {
         for (const [id, socket] of this.agentConnections.entries()) {
             if (socket.id === client.id) {
                 this.agentConnections.delete(id);
@@ -66,16 +67,17 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
         appName: string,
         command: string,
         uiClient: Socket,
-    ) {
+    ): Promise<void> {
         const agentSocket = this.agentConnections.get(agentId);
         if (!agentSocket) {
             this.logger.error(`Agent not found: ${agentId}`);
-            return uiClient.emit('response', {
+            uiClient.emit('response', {
                 success: false,
                 message: 'Agent not connected',
                 appName,
                 agentId,
             });
+            return;
         }
 
         this.logger.log(`Sending ${command} command to agent ${agentId} for app: ${appName}`);
@@ -87,15 +89,16 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
         });
     }
 
-    async deleteAgent(agentId: string, uiClient: Socket) {
+    async deleteAgent(agentId: string, uiClient: Socket): Promise<void> {
         const agentSocket = this.agentConnections.get(agentId);
         if (!agentSocket) {
             this.logger.error(`Agent not found: ${agentId}`);
-            return uiClient.emit('response', {
+            uiClient.emit('response', {
                 success: false,
                 message: 'Agent not connected',
                 agentId,
             });
+            return;
         }
 
         this.logger.log(`Sending delete command to agent ${agentId}`);

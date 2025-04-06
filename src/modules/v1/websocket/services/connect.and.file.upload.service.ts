@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { WsException } from '@nestjs/websockets';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { Injectable } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 import db from 'src/config/database.config';
 import * as ssh from 'ssh2';
+
 import { Payload } from '../../auth/entities/token.interface';
 import { Product } from '../../product/entities/product.interface';
 import { connectDto } from '../dto/connect.and.upload.dto';
@@ -38,7 +40,6 @@ export class SshProductInstallService {
         const conn = new ssh.Client();
         return new Promise((resolve, reject) => {
             conn.on('ready', async () => {
-                console.log(`SSH connection established to ${data.ip}`);
                 conn.sftp(async (err, sftp) => {
                     if (err) {
                         conn.end();

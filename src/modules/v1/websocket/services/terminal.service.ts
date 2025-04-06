@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import * as ssh from 'ssh2';
 import { Socket } from 'socket.io';
 import db from 'src/config/database.config';
-import { ServerInterface } from '../entity/server.interface';
+import * as ssh from 'ssh2';
+
 import { ConnectToServerDto } from '../dto/connect-to-server.dto';
 import { ConnectConfigInterface } from '../entity/connect.config.interface';
+import { ServerInterface } from '../entity/server.interface';
 
 @Injectable()
 export class TerminalService {
@@ -30,7 +31,6 @@ export class TerminalService {
         const conn = new ssh.Client();
 
         conn.on('ready', () => {
-            console.log("SSH ulanish muvaffaqiyatli o'rnatildi");
             conn.shell((err, stream) => {
                 if (err) {
                     client.emit('ssh_error', 'Shell mode error:' + err.message);

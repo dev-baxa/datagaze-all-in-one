@@ -7,6 +7,9 @@ import {
     ApiSuccessResponse,
     ApiUnauthorizedResponse,
 } from 'src/common/swagger/common.errors';
+
+import { AppInterface } from '../agent/entity/app.interface';
+import { ComputerInterface } from '../agent/entity/computer.interface';
 import { AgentWebSocketGateway } from '../agent/service/agent.connect.socket.service';
 import { ComputerService } from './comp.service';
 
@@ -25,7 +28,10 @@ export class ComputerController {
     @ApiQuery({ name: 'page', required: false })
     @ApiQuery({ name: 'limit', required: false })
     @ApiSuccessResponse('data', 'List of computers')
-    async getAllComputers(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
+    async getAllComputers(
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
+    ): Promise<{ computers: ComputerInterface[]; total: number; page: number }> {
         const agentConnections = this.agenGateway['agentConnections'];
         return this.compService.getAllComputers(Number(page), Number(limit), agentConnections);
     }
@@ -33,7 +39,7 @@ export class ComputerController {
     @Get('computer/:id')
     @ApiSuccessResponse('computer', 'Computer details')
     @ApiNotFoundResponse('Computer')
-    async getComputerById(@Param('id') id: string) {
+    async getComputerById(@Param('id') id: string): Promise<{ computer: ComputerInterface }> {
         return this.compService.getComputerById(id);
     }
 
@@ -47,7 +53,7 @@ export class ComputerController {
         @Param('computerId') computerId: string,
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
-    ) {
+    ): Promise<{ applications: AppInterface[]; total: number; page: number }> {
         return this.compService.getApplicationByComputerId(computerId, Number(page), Number(limit));
     }
 }

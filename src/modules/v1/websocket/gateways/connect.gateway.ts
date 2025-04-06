@@ -7,11 +7,11 @@ import {
     SubscribeMessage,
     WebSocketGateway,
     WebSocketServer,
-    WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { WebsocketExceptionFilter } from 'src/common/filters/websocket.exception.filter';
 import { JwtWsAuthGuard } from 'src/common/guards/jwt.ws.auth.guard';
+
 import { Payload } from '../../auth/entities/token.interface';
 import { connectDto } from '../dto/connect.and.upload.dto';
 import { SshProductInstallService } from '../services/connect.and.file.upload.service';
@@ -24,11 +24,11 @@ export class SshProductInstallGateway implements OnGatewayConnection, OnGatewayD
 
     constructor(private readonly sshProductInstallService: SshProductInstallService) {}
 
-    handleConnection(client: Socket) {
+    handleConnection(client: Socket):void {
         this.logger.log(`CLIENT CONNECTED: ${client.id}`);
     }
 
-    handleDisconnect(client: Socket) {
+    handleDisconnect(client: Socket):void {
         this.logger.log(`CLIENT DISCONNECTED: ${client.id}`);
     }
 
@@ -38,9 +38,9 @@ export class SshProductInstallGateway implements OnGatewayConnection, OnGatewayD
     async connect(
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: connectDto & { user: Payload },
-    ) {
+    ) :Promise<void> {
         const user = payload.user;
-        const progressCallback = (progress: string, percentage: number) => {
+        const progressCallback = (progress: string, percentage: number):void => {
             client.emit('progress', { progressBar: progress, percentage });
         };
 

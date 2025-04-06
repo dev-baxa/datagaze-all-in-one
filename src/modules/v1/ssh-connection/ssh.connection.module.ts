@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from '../auth/auth.module';
+
 import { SshController } from './ssh.connection.controller';
 import { SshConnectService } from './ssh.connection.service';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
     providers: [SshConnectService],

@@ -2,9 +2,10 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import db from 'src/config/database.config';
 import { Channel, Client } from 'ssh2';
+
 import { Product } from '../product/entities/product.interface';
-import { ServerInterface } from '../ssh-connection/entities/server.interface';
 import { ConnectConfigInterface } from '../ssh-connection/entities/connect.config.interface';
+import { ServerInterface } from '../ssh-connection/entities/server.interface';
 
 @Injectable()
 export class SshService {
@@ -12,12 +13,12 @@ export class SshService {
     private product: Product;
     private sshSessions: Map<string, { client: Client; shell: Channel }> = new Map();
 
-    handleConnection(socket: Socket) {
+    handleConnection(socket: Socket): void {
         socket.emit('message', 'WebSocket connection established');
     }
 
-    handleDisconnect(socket: Socket) {
-        console.log(`Client disconnected: ${socket.id}`);
+    handleDisconnect(socket: Socket): void {
+        this.logger.log(`Client disconnected: ${socket.id}`);
         const session = this.sshSessions.get(socket.id);
         if (session) {
             session.shell.end();
@@ -26,7 +27,7 @@ export class SshService {
         }
     }
 
-    async connectSSH(socket: Socket, productId: string) {
+    async connectSSH(socket: Socket, productId: string): Promise<void> {
         const product: Product = await db('products').where({ id: productId }).first();
         if (!product) throw new NotFoundException('This product is not found');
 
@@ -49,7 +50,6 @@ export class SshService {
         const conn = new Client();
 
         conn.on('ready', () => {
-            console.log("SSH ulanish muvaffaqiyatli o'rnatildi");
             conn.shell((err, stream) => {
                 if (err) {
                     socket.emit('ssh_error', 'Shell mode error:' + err.message);
@@ -63,7 +63,6 @@ export class SshService {
 
                 stream.on('data', data => {
                     socket.emit('ssh_output', data.toString());
-                    console.log(data.toString());
                 });
 
                 stream.stderr.on('data', data => {
@@ -81,7 +80,7 @@ export class SshService {
         conn.connect(connectConfig);
     }
 
-    async runCommand(socket: Socket, input: string) {
+    async runCommand(socket: Socket, input: string): Promise<void> {
         const session = this.sshSessions.get(socket.id);
         if (!session) {
             socket.emit('ssh_error', 'Not connected to SSH server');

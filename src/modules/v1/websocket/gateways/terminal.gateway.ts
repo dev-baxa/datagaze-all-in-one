@@ -8,8 +8,9 @@ import {
     WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { TerminalService } from '../services/terminal.service';
+
 import { ConnectToServerDto } from '../dto/connect-to-server.dto';
+import { TerminalService } from '../services/terminal.service';
 
 @WebSocketGateway({ cors: true, namespace: 'terminal' })
 export class TerminalGateway implements OnGatewayConnection, OnGatewayDisconnect {

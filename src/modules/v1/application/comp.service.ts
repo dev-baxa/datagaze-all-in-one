@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Socket } from 'socket.io';
 import db from 'src/config/database.config';
+
 import { AppInterface } from '../agent/entity/app.interface';
 import { ComputerInterface } from '../agent/entity/computer.interface';
-import { Socket } from 'socket.io';
 
 @Injectable()
 export class ComputerService {
@@ -36,11 +37,10 @@ export class ComputerService {
             page,
         };
     }
-    async getComputerById(id: string): Promise<{ success: boolean; computer: ComputerInterface }> {
+    async getComputerById(id: string): Promise<{  computer: ComputerInterface }> {
         const computer = await db('computers').where('id', id).first();
         if (!computer) throw new NotFoundException('Computer not found');
         return {
-            success: true,
             computer,
         };
     }

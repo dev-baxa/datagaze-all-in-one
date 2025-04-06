@@ -1,13 +1,17 @@
+import { join } from 'path';
+
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { WebsocketExceptionFilter } from 'src/common/filters/websocket.exception.filter';
+import { AgentAuthMiddleware } from 'src/common/middlewares/computer.auth.middleware';
+
 import { AgentController } from './agent.controller';
 import { AgentService } from './agent.service';
 import { AgentAuthService } from './service/agent.auth.service';
 import { AgentWebSocketGateway } from './service/agent.connect.socket.service';
 import { UIWebSocketGateway } from './service/user.connect.socket.service';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
-import { AgentAuthMiddleware } from 'src/common/middlewares/computer.auth.middleware';
+
+
 
 @Module({
     imports: [
@@ -27,7 +31,7 @@ import { AgentAuthMiddleware } from 'src/common/middlewares/computer.auth.middle
     controllers: [AgentController],
 })
 export class AgentModule implements NestModule {
-    configure(consumer: MiddlewareConsumer) {
+    configure(consumer: MiddlewareConsumer): void {
         consumer.apply(AgentAuthMiddleware).forRoutes('/agents/');
     }
 }

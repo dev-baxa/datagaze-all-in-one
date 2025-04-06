@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
     IsNotEmpty,
     IsString,
@@ -7,8 +9,6 @@ import {
     IsIP,
     Matches,
 } from 'class-validator';
-import { Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class NetworkAdapterDto {
     @ApiProperty({ description: 'nic_name', example: 'Ethernet' })

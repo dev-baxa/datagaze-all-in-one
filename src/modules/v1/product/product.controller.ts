@@ -23,7 +23,9 @@ import {
     ApiUnauthorizedResponse,
 } from 'src/common/swagger/common.errors';
 import { fileFieldsConfig } from 'src/config/file.fields.config';
+
 import { CreateProductDTO } from './dto/create.product.dto';
+import { Product } from './entities/product.interface';
 import { createProductSwagger } from './entities/swagger.document';
 import { ProductService } from './product.service';
 
@@ -60,35 +62,31 @@ export class ProductController {
             agent: Express.Multer.File;
         },
         @Body(new ValidationPipe()) dto: CreateProductDTO,
-    ) {
+    ): Promise<{ id: string }> {
         const result = await this.productService.createProduct(files, dto);
         return {
-            success: true,
             id: result,
         };
     }
 
     @Get('all')
-    async findAll() {
+    async findAll(): Promise<(Partial<Product> & { ip: string | null })[]> {
         return await this.productService.getAllProducts();
     }
 
     @Get(':id')
-    async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
-        const result: any = await this.productService.findByOne(id);
-
-        if (!result) throw new NotFoundException('Product not found');
-        console.log(result.scripts);
-        return result;
+    async findOne(
+        @Param('id', new ParseUUIDPipe()) id: string,
+    ): Promise<(Product & { ip: string | null })[]> {
+        return this.productService.findByOne(id);
     }
 
     @Delete('delete/:id')
-    async remove(@Param('id', new ParseUUIDPipe()) id: string) {
+    async remove(@Param('id', new ParseUUIDPipe()) id: string): Promise<{ message: string }> {
         const product = await this.productService.findById(id);
         if (!product) throw new NotFoundException('This product not found');
         await this.productService.delete(id);
         return {
-            succes: true,
             message: 'Product deleted successfully',
         };
     }

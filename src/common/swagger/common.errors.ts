@@ -1,8 +1,7 @@
-import { applyDecorators } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { ApiResponse } from '@nestjs/swagger';
 
 // Common error responses
-export const ApiUnauthorizedResponse = () =>
+export const ApiUnauthorizedResponse = (): MethodDecorator & ClassDecorator =>
     ApiResponse({
         status: 401,
         description: 'Unauthorized',
@@ -18,7 +17,7 @@ export const ApiUnauthorizedResponse = () =>
         },
     });
 
-export const ApiNotFoundResponse = (entity: string, exampleId?: string) =>
+export const ApiNotFoundResponse = (entity: string): MethodDecorator & ClassDecorator =>
     ApiResponse({
         status: 404,
         description: `${entity} Not Found`,
@@ -37,7 +36,9 @@ export const ApiNotFoundResponse = (entity: string, exampleId?: string) =>
         },
     });
 
-export const ApiBadRequestResponse = (message: string = 'Bad Request', exampleId?: string) =>
+export const ApiBadRequestResponse = (
+    message: string = 'Bad Request',
+): MethodDecorator & ClassDecorator =>
     ApiResponse({
         status: 400,
         description: message,
@@ -53,7 +54,9 @@ export const ApiBadRequestResponse = (message: string = 'Bad Request', exampleId
         },
     });
 
-export const ApiInternalServerErrorResponse = (message: string = 'Internal Server Error') =>
+export const ApiInternalServerErrorResponse = (
+    message: string = 'Internal Server Error',
+): MethodDecorator & ClassDecorator =>
     ApiResponse({
         status: 500,
         description: 'Internal Server Error',
@@ -69,7 +72,10 @@ export const ApiInternalServerErrorResponse = (message: string = 'Internal Serve
         },
     });
 
-export const ApiSuccessResponse = (key, value) =>
+export const ApiSuccessResponse = (
+    key: string,
+    value: string | object,
+): MethodDecorator & ClassDecorator =>
     ApiResponse({
         status: 200,
         description: 'Success',
@@ -81,7 +87,7 @@ export const ApiSuccessResponse = (key, value) =>
             },
         },
     });
-export const ApiCreatedResponse = (message: string = 'Created') =>
+export const ApiCreatedResponse = (message: string = 'Created'): MethodDecorator & ClassDecorator =>
     ApiResponse({
         status: 201,
         description: 'Created',
@@ -97,7 +103,9 @@ export const ApiCreatedResponse = (message: string = 'Created') =>
         },
     });
 
-export const ApiForbiddenResponse = (message: string = 'You do not have permittion') =>
+export const ApiForbiddenResponse = (
+    message: string = 'You do not have permittion',
+): MethodDecorator & ClassDecorator =>
     ApiResponse({
         status: 403,
         description: 'Forbidden',

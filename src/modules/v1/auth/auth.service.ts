@@ -1,10 +1,10 @@
-import * as jose from 'jose';
-
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import * as jose from 'jose';
 import { BaseService } from 'src/common/utils/base.service';
 import { comparePassword, generateHashedPassword } from 'src/common/utils/bcrypt.functions';
 import db from 'src/config/database.config';
-import { ENV } from 'src/config/env';
+import { env } from 'src/config/env';
+
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdatePasswordDTOauth } from './dto/updata_password.dto';
 import { Payload } from './entities/token.interface';
@@ -12,8 +12,8 @@ import { User } from './entities/user.interface';
 
 @Injectable()
 export class AuthService extends BaseService<User> {
-    private privateKey = ENV.JWT_PRIVAT_KEY || '';
-    private publicKey = ENV.JWT_PUBLIC_KEY || '';
+    private privateKey = env.JWT_PRIVAT_KEY || '';
+    private publicKey = env.JWT_PUBLIC_KEY || '';
 
     constructor() {
         super('users');

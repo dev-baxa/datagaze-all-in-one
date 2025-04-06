@@ -1,4 +1,5 @@
 import { join } from 'path';
+
 import * as dotenv from 'dotenv';
 import knex, { Knex } from 'knex';
 

@@ -10,8 +10,9 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { WebsocketExceptionFilter } from 'src/common/filters/websocket.exception.filter';
-import { OperationsService } from '../services/operation.service';
+
 import { OperationType } from '../entity/operation.types';
+import { OperationsService } from '../services/operation.service';
 
 @WebSocketGateway({
     cors: { origin: '*' },
@@ -28,9 +29,7 @@ export class OperationsGateway implements OnGatewayConnection, OnGatewayDisconne
     async startProductInstallation(
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: { productId: string; password: string },
-    ) {
-        console.log(payload, 'payload');
-
+    ):Promise<void> {
         await this.operationsService.startOperation(client, payload, OperationType.INSTALL);
     }
 

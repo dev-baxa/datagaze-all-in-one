@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import db from 'src/config/database.config';
 import * as ssh from 'ssh2';
+
 import { User } from '../auth/entities/user.interface';
 import { ConnectionDTO } from './dto/ssh.connection.dto';
 import { ConnectConfigInterface } from './entities/connect.config.interface';
@@ -8,62 +9,75 @@ import { ConnectConfigInterface } from './entities/connect.config.interface';
 @Injectable()
 export class SshConnectService {
     async connectToServerCheck(data: ConnectionDTO, user: User): Promise<object> {
-        return new Promise(async (resolve, reject) => {
-            const conn = new ssh.Client();
-            const connectionConfig: ConnectConfigInterface = {
-                host: data.ip,
-                port: data.port,
-                username: data.username,
-            };
+        const conn = new ssh.Client();
 
-            if (data.auth_type === 'password' && data.password) {
-                connectionConfig.password = data.password;
-            } else if (data.auth_type === 'private_key' && data.private_key) {
-                connectionConfig.privateKey = data.private_key;
-            } else {
-                reject(new BadRequestException('Invalid authentication method'));
-                return;
-            }
+        const connectionConfig: ConnectConfigInterface = {
+            host: data.ip,
+            port: data.port,
+            username: data.username,
+        };
 
-            //Log yozish
-            const [Log] = await db('ssh_logs')
+        if (data.auth_type === 'password' && data.password) {
+            connectionConfig.password = data.password;
+        } else if (data.auth_type === 'private_key' && data.private_key) {
+            connectionConfig.privateKey = data.private_key;
+        } else {
+            throw new BadRequestException('Invalid authentication method');
+        }
+
+        const connectPromise = new Promise<void>((resolve, reject) => {
+            conn.on('ready', () => {
+                resolve();
+            });
+
+            conn.on('error', err => {
+                reject(err);
+            });
+
+            conn.connect(connectionConfig);
+        });
+
+        try {
+            await connectPromise;
+            const [server] = await db('servers')
                 .insert({
-                    server_id: null,
-                    status: 'pending',
+                    ip_address: data.ip,
+                    port: data.port,
+                    username: data.username,
+                })
+                .returning('id');
+
+            const [log] = await db('ssh_logs')
+                .insert({
+                    server_id: server.id,
+                    status: 'success',
                     error_msg: null,
                     user_id: user.id,
                 })
                 .returning('id');
 
-            conn.on('ready', async () => {
-                const [server] = await db('servers')
-                    .insert({
-                        ip_address: data.ip,
-                        port: data.port,
-                        username: data.username,
-                    })
-                    .returning('id');
+            conn.end();
 
-                await db('ssh_logs')
-                    .where({ id: Log.id })
-                    .update({ status: 'succes', server_id: server.id });
-                conn.end();
+            return {
+                status: 'success',
+                message: 'Connected successfully.',
+                session_id: log.id,
+                server_id: server.id,
+            };
+        } catch (err) {
+            const [log] = await db('ssh_logs')
+                .insert({
+                    server_id: null,
+                    status: 'failed',
+                    error_msg: err.message,
+                    user_id: user.id,
+                })
+                .returning('id');
 
-                resolve({
-                    status: 'succes',
-                    message: 'Connected successfully.',
-                    session_id: Log.id,
-                    server_id: server.id,
-                });
+            throw new BadRequestException({
+                message: err.message,
+                session_id: log.id,
             });
-            conn.on('error', async err => {
-                await db('ssh_logs')
-                    .where({ id: Log.id })
-                    .update({ status: 'failed', error_msg: err.message });
-
-                reject(new BadRequestException({ message: err.message }));
-            });
-            conn.connect(connectionConfig);
-        });
+        }
     }
 }

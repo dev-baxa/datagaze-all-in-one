@@ -1,11 +1,12 @@
-import * as dotenv from 'dotenv';
 import * as path from 'path';
+
+import * as dotenv from 'dotenv';
 
 dotenv.config({
     path: path.join(process.cwd(), '.env'),
 });
 
-interface EnvConfig {
+interface IEnvConfig {
     PORT: string | undefined;
     PORT_FOR_AGENT: string | undefined;
     HOST: string | undefined;
@@ -19,7 +20,7 @@ interface EnvConfig {
     JWT_PUBLIC_KEY: string | undefined;
 }
 
-export const ENV: EnvConfig = {
+export const env: IEnvConfig = {
     PORT: process.env.PORT,
     PORT_FOR_AGENT: process.env.PORT_FOR_AGENT,
     HOST: process.env.HOST,

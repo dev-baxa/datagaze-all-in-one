@@ -2,11 +2,12 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { BaseService } from 'src/common/utils/base.service';
 import { generateHashedPassword } from 'src/common/utils/bcrypt.functions';
 import db from 'src/config/database.config';
+
+import { UpdateProfilDtoForSuperAdmin } from './dto/update.profil.for.superadmin.dto';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { Role } from '../auth/entities/role.interface';
 import { User } from '../auth/entities/user.interface';
-import { UpdateProfilDtoForSuperAdmin } from './dto/update.profil.for.superadmin.dto';
-import { UpdatePasswordDTOForSuperAdmin } from './dto/update_password.dto.forSuperAdmin';
+// import { UpdatePasswordDTOForSuperAdmin } from './dto/update_password.dto.forSuperAdmin';
 
 @Injectable()
 export class UserService extends BaseService<User> {
@@ -14,7 +15,7 @@ export class UserService extends BaseService<User> {
         super('users');
     }
 
-    async register(dto: CreateUserDto): Promise<User> {
+    async register(dto: CreateUserDto): Promise<string> {
         const isValidUsername = await this.findByQueryOne({ username: dto.username });
         if (isValidUsername) throw new BadRequestException('This username already register');
 
@@ -29,7 +30,7 @@ export class UserService extends BaseService<User> {
 
         const user: User = await this.create(dto);
 
-        return user;
+        return user.id;
     }
 
     async updateProfil(dto: UpdateProfilDtoForSuperAdmin): Promise<void> {

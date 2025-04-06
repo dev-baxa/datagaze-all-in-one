@@ -1,4 +1,4 @@
-export const userGetAllResponse = {
+export const  userGetAllResponse = {
     users: [
         {
             id: 'string',
