@@ -5,11 +5,11 @@ import { env } from 'src/config/env';
 
 import { CreateAgentDto } from './dto/create.agent.dto';
 import { UpdateApplicationsDTO } from './dto/update.application.dto';
-import { ComputerInterface } from './entity/computer.interface';
+import { IComputer } from './entity/computer.interface';
 import { AgentAuthService } from './service/agent.auth.service';
 
 @Injectable()
-export class AgentService extends BaseService<ComputerInterface> {
+export class AgentService extends BaseService<IComputer> {
     constructor(private readonly authService: AgentAuthService) {
         super('computers');
     }
@@ -33,7 +33,7 @@ export class AgentService extends BaseService<ComputerInterface> {
         )[0];
 
         let statusCode: number;
-        let result: ComputerInterface;
+        let result: IComputer;
 
         if (!isValidComp) {
             result = (
@@ -64,10 +64,7 @@ export class AgentService extends BaseService<ComputerInterface> {
         };
     }
 
-    async updateApplications(
-        data: UpdateApplicationsDTO[],
-        computer: ComputerInterface,
-    ): Promise<void> {
+    async updateApplications(data: UpdateApplicationsDTO[], computer: IComputer): Promise<void> {
         await db('apps').delete().where('computer_id', computer.id);
 
         for (const item of data) {

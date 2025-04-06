@@ -11,7 +11,7 @@ import {
 import { AgentService } from './agent.service';
 import { CreateAgentDto } from './dto/create.agent.dto';
 import { UpdateApplicationsDTO } from './dto/update.application.dto';
-import { ComputerInterface } from './entity/computer.interface';
+import { IComputer } from './entity/computer.interface';
 
 @Controller('agent')
 @ApiNotFoundResponse('Agent')
@@ -42,7 +42,7 @@ export class AgentController {
     async updateApplications(
         @Body()
         body: UpdateApplicationsDTO[],
-        @Req() req: Request & { computer: ComputerInterface },
+        @Req() req: Request & { computer: IComputer },
     ): Promise<{ message: string }> {
         await this.computerService.updateApplications(body, req.computer);
 

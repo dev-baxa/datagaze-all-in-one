@@ -9,10 +9,14 @@ export const ApiUnauthorizedResponse = (): MethodDecorator & ClassDecorator =>
             type: 'object',
             properties: {
                 success: { type: 'boolean', example: false },
-                statusCode: { type: 'number', example: 401 },
                 status: { type: 'string', example: 'error' },
                 message: { type: 'string', example: 'Unauthorized' },
-                timestamp: { type: 'string', example: new Date().toISOString() },
+                timestamp: {
+                    type: 'string',
+                    example: new Date(Date.now() + 5 * 60 * 60 * 1000)
+                        .toISOString()
+                        .replace('Z', `+05:00`),
+                },
             },
         },
     });
@@ -25,13 +29,17 @@ export const ApiNotFoundResponse = (entity: string): MethodDecorator & ClassDeco
             type: 'object',
             properties: {
                 succes: { type: 'boolean', example: false },
-                statusCode: { type: 'number', example: 404 },
                 message: {
                     type: 'string',
                     example: `${entity} not found`,
                 },
                 error: { type: 'string', example: 'Not Found' },
-                timestamp: { type: 'string', example: new Date().toISOString() },
+                timestamp: {
+                    type: 'string',
+                    example: new Date(Date.now() + 5 * 60 * 60 * 1000)
+                        .toISOString()
+                        .replace('Z', `+05:00`),
+                },
             },
         },
     });
@@ -46,10 +54,14 @@ export const ApiBadRequestResponse = (
             type: 'object',
             properties: {
                 succes: { type: 'boolean', example: false },
-                statusCode: { type: 'number', example: 400 },
                 message: { type: 'string', example: `${message}` },
                 error: { type: 'string', example: 'Bad Request' },
-                timestamp: { type: 'string', example: new Date().toISOString() },
+                timestamp: {
+                    type: 'string',
+                    example: new Date(Date.now() + 5 * 60 * 60 * 1000)
+                        .toISOString()
+                        .replace('Z', `+05:00`),
+                },
             },
         },
     });
@@ -64,10 +76,14 @@ export const ApiInternalServerErrorResponse = (
             type: 'object',
             properties: {
                 succes: { type: 'boolean', example: false },
-                statusCode: { type: 'number', example: 500 },
                 message: { type: 'string', example: message },
                 error: { type: 'string', example: 'Internal Server Error' },
-                timestamp: { type: 'string', example: new Date().toISOString() },
+                timestamp: {
+                    type: 'string',
+                    example: new Date(Date.now() + 5 * 60 * 60 * 1000)
+                        .toISOString()
+                        .replace('Z', `+05:00`),
+                },
             },
         },
     });
@@ -84,6 +100,12 @@ export const ApiSuccessResponse = (
             properties: {
                 succes: { type: 'boolean', example: true },
                 [key]: { type: 'string', example: value },
+                timestamp: {
+                    type: 'string',
+                    example: new Date(Date.now() + 5 * 60 * 60 * 1000)
+                        .toISOString()
+                        .replace('Z', `+05:00`),
+                },
             },
         },
     });
@@ -95,10 +117,14 @@ export const ApiCreatedResponse = (message: string = 'Created'): MethodDecorator
             type: 'object',
             properties: {
                 succes: { type: 'boolean', example: true },
-                statusCode: { type: 'number', example: 201 },
                 message: { type: 'string', example: message },
                 data: { type: 'object' },
-                timestamp: { type: 'string', example: new Date().toISOString() },
+                timestamp: {
+                    type: 'string',
+                    example: new Date(Date.now() + 5 * 60 * 60 * 1000)
+                        .toISOString()
+                        .replace('Z', `+05:00`),
+                },
             },
         },
     });
@@ -113,10 +139,14 @@ export const ApiForbiddenResponse = (
             type: 'object',
             properties: {
                 succes: { type: 'boolean', example: false },
-                statusCode: { type: 'number', example: 403 },
                 message: { type: 'string', example: message },
                 error: { type: 'string', example: 'Forbidden' },
-                timestamp: { type: 'string', example: new Date().toISOString() },
+                timestamp: {
+                    type: 'string',
+                    example: new Date(Date.now() + 5 * 60 * 60 * 1000)
+                        .toISOString()
+                        .replace('Z', `+05:00`),
+                },
             },
         },
     });

@@ -25,7 +25,7 @@ import {
 import { fileFieldsConfig } from 'src/config/file.fields.config';
 
 import { CreateProductDTO } from './dto/create.product.dto';
-import { Product } from './entities/product.interface';
+import { IProduct } from './entities/product.interface';
 import { createProductSwagger } from './entities/swagger.document';
 import { ProductService } from './product.service';
 
@@ -70,14 +70,14 @@ export class ProductController {
     }
 
     @Get('all')
-    async findAll(): Promise<(Partial<Product> & { ip: string | null })[]> {
+    async findAll(): Promise<(Partial<IProduct> & { ip: string | null })[]> {
         return await this.productService.getAllProducts();
     }
 
     @Get(':id')
     async findOne(
         @Param('id', new ParseUUIDPipe()) id: string,
-    ): Promise<(Product & { ip: string | null })[]> {
+    ): Promise<(IProduct & { ip: string | null })[]> {
         return this.productService.findByOne(id);
     }
 
@@ -87,7 +87,7 @@ export class ProductController {
         if (!product) throw new NotFoundException('This product not found');
         await this.productService.delete(id);
         return {
-            message: 'Product deleted successfully',
+            message: 'IProduct deleted successfully',
         };
     }
 }

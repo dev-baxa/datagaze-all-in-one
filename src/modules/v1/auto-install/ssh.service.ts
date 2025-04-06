@@ -3,14 +3,14 @@ import { Socket } from 'socket.io';
 import db from 'src/config/database.config';
 import { Channel, Client } from 'ssh2';
 
-import { Product } from '../product/entities/product.interface';
-import { ConnectConfigInterface } from '../ssh-connection/entities/connect.config.interface';
-import { ServerInterface } from '../ssh-connection/entities/server.interface';
+import { IProduct } from '../product/entities/product.interface';
+import { IConnectConfig } from '../ssh-connection/entities/connect.config.interface';
+import { IServer } from '../ssh-connection/entities/server.interface';
 
 @Injectable()
 export class SshService {
     private readonly logger = new Logger(SshService.name);
-    private product: Product;
+    private product: IProduct;
     private sshSessions: Map<string, { client: Client; shell: Channel }> = new Map();
 
     handleConnection(socket: Socket): void {
@@ -28,18 +28,18 @@ export class SshService {
     }
 
     async connectSSH(socket: Socket, productId: string): Promise<void> {
-        const product: Product = await db('products').where({ id: productId }).first();
+        const product: IProduct = await db('products').where({ id: productId }).first();
         if (!product) throw new NotFoundException('This product is not found');
 
         this.product = product;
 
-        const server: ServerInterface = await db('products')
+        const server: IServer = await db('products')
             .join('servers', 'products.server_id', 'servers.id')
             .where('products.id', productId)
             .select('servers.*')
             .first();
 
-        const connectConfig: ConnectConfigInterface = {
+        const connectConfig: IConnectConfig = {
             host: server.ip_address,
             port: server.port,
             username: server.username,
@@ -91,7 +91,7 @@ export class SshService {
     }
 
     async getInstallScript(id: string): Promise<string> {
-        const product: Product = await db('products').where({ id: id }).first();
+        const product: IProduct = await db('products').where({ id: id }).first();
         return product.install_scripts;
     }
 }

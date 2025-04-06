@@ -49,6 +49,10 @@ export default [
                 {
                     selector: ['variable', 'function'],
                     format: ['camelCase'],
+                    filter: {
+                        regex: '^(Roles|ApiUnauthorizedResponse|ApiNotFoundResponse|ApiBadRequestResponse|ApiInternalServerErrorResponse|ApiSuccessResponse|ApiCreatedResponse|ApiForbiddenResponse)$',
+                        match: false,
+                    },
                     leadingUnderscore: 'allow',
                 },
                 { selector: 'class', format: ['PascalCase'] },

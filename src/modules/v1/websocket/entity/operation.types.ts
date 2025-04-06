@@ -1,3 +1,5 @@
+import { ClientChannel , Client } from "ssh2";
+
 export enum ScriptPromptType {
     PASSWORD = 'password',
     CONFIRMATION = 'confirmation',
@@ -10,8 +12,8 @@ export enum OperationType {
     DELETE = 'delete',
 }
 
-export interface ScriptSession {
-    ssh: { client: any; shell: any };
+export interface IScriptSession {
+    ssh: { client: Client; shell: ClientChannel };
     scripts: string[];
     currentScriptIndex: number;
     currentScript: string;

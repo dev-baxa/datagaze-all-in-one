@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import {
     ConnectedSocket,
     MessageBody,
@@ -14,18 +15,19 @@ import { TerminalService } from '../services/terminal.service';
 
 @WebSocketGateway({ cors: true, namespace: 'terminal' })
 export class TerminalGateway implements OnGatewayConnection, OnGatewayDisconnect {
+    private logger = new Logger(TerminalGateway.name);
     @WebSocketServer()
     server: Server;
 
     constructor(private readonly terminalService: TerminalService) {}
 
-    async handleConnection(client: Socket) {
-        console.log(`Client connected: ${client.id}`);
+    handleConnection(client: Socket): void {
+        this.logger.log(`Client connected: ${client.id}`);
         client.emit('message', 'WebSocket connection established');
     }
 
-    async handleDisconnect(client: Socket) {
-        console.log(`Client disconnected: ${client.id}`);
+    handleDisconnect(client: Socket): void {
+        this.logger.log(`Client disconnected: ${client.id}`);
         this.terminalService.disconnectClient(client.id);
     }
 
@@ -33,7 +35,7 @@ export class TerminalGateway implements OnGatewayConnection, OnGatewayDisconnect
     async connectToServer(
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: ConnectToServerDto,
-    ) {
+    ): Promise<void> {
         await this.terminalService.connectToServer(client, payload);
     }
 
@@ -41,7 +43,7 @@ export class TerminalGateway implements OnGatewayConnection, OnGatewayDisconnect
     async handleTerminalData(
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: { data: string },
-    ) {
+    ): Promise<void> {
         this.terminalService.handleTerminalData(client, payload.data);
     }
 }

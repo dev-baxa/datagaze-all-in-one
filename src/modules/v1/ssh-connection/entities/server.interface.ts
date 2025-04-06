@@ -1,4 +1,4 @@
-export interface ServerInterface {
+export interface IServer {
     id: string;
     ip_address: string;
     port: number;

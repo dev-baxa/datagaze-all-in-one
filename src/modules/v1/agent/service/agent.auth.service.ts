@@ -3,7 +3,7 @@ import * as jose from 'jose';
 import { env } from 'src/config/env';
 
 import { IAgentTokenPayloadInterface } from '../entity/agent.token.payload.interface';
-import { ComputerPayloadInterface } from '../entity/computer.interface';
+import { IComputerPayload } from '../entity/computer.interface';
 
 @Injectable()
 export class AgentAuthService {
@@ -21,11 +21,11 @@ export class AgentAuthService {
         return token;
     }
 
-    async verifyToken(token: string): Promise<ComputerPayloadInterface> {
+    async verifyToken(token: string): Promise<IComputerPayload> {
         const secret = await jose.importPKCS8(this.privateKey, 'RSA-OAEP');
 
         const { payload } = await jose.jwtDecrypt(token, secret);
 
-        return payload as unknown as ComputerPayloadInterface;
+        return payload as unknown as IComputerPayload;
     }
 }

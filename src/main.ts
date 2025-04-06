@@ -8,7 +8,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
 import { env } from './config/env';
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule);
 
     app.enableVersioning({
@@ -37,4 +37,4 @@ async function bootstrap() {
     await app.listen(env.PORT ?? 4000, env.HOST ?? '0.0.0.0');
     // console.log(`Application is running on: ${await app.getUrl()}`);
 }
-bootstrap();
+void bootstrap();

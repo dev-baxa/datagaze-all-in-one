@@ -8,7 +8,7 @@ import {
     ApiUnauthorizedResponse,
 } from 'src/common/swagger/common.errors';
 
-import { User } from '../auth/entities/user.interface';
+import { IUser } from '../auth/entities/user.interface';
 import { ConnectionDTO } from './dto/ssh.connection.dto';
 import { SshConnectService } from './ssh.connection.service';
 
@@ -24,9 +24,9 @@ export class SshController {
     @ApiBadRequestResponse('Invalid authentication method')
     async connect(
         @Body() connectionData: ConnectionDTO,
-        @Req() req: Request & { user: User },
+        @Req() req: Request & { user: IUser },
     ): Promise<object> {
-        const user: User = req.user;
+        const user: IUser = req.user;
         return this.sshService.connectToServerCheck(connectionData, user);
     }
 }

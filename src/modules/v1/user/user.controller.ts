@@ -25,9 +25,9 @@ import {
 import { userGetAllResponse, userGetOneResponse } from 'src/common/swagger/succes.response';
 
 import { CreateUserDto } from '../auth/dto/create-user.dto';
-import { User } from '../auth/entities/user.interface';
 import { UpdateProfilDtoForSuperAdmin } from './dto/update.profil.for.superadmin.dto';
 import { UserService } from './user.service';
+import { IUser } from '../auth/entities/user.interface';
 
 @Controller({
     path: 'user',
@@ -47,7 +47,7 @@ export class UserController {
     async findAll(
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
-    ): Promise<{ users: User[]; total: number; page: number }> {
+    ): Promise<{ users: IUser[]; total: number; page: number }> {
         return this.userService.getAllUsers(Number(page), Number(limit));
     }
 
@@ -55,7 +55,7 @@ export class UserController {
     @Roles('superAdmin')
     @ApiParam({ name: 'id', required: true, type: 'string' })
     @ApiSuccessResponse('user', userGetOneResponse)
-    async findOne(@Param('id', new ParseUUIDPipe()) id: string): Promise<User> {
+    async findOne(@Param('id', new ParseUUIDPipe()) id: string): Promise<IUser> {
         return this.userService.getOneUser(id);
     }
 
@@ -74,7 +74,7 @@ export class UserController {
 
     @Put('update')
     @Roles('superAdmin')
-    @ApiSuccessResponse('message', 'User updated successfully.')
+    @ApiSuccessResponse('message', 'IUser updated successfully.')
     @ApiBadRequestResponse('Invalid data')
     @ApiNotFoundResponse('User')
     async update(

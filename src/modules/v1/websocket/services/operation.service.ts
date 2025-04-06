@@ -4,17 +4,18 @@ import { Socket } from 'socket.io';
 import db from 'src/config/database.config';
 import * as ssh from 'ssh2';
 
-import { OperationType, ScriptPromptType, ScriptSession } from '../entity/operation.types';
+import { IProduct } from '../../product/entities/product.interface';
+import { IScriptSession, OperationType, ScriptPromptType } from '../entity/operation.types';
 
 @Injectable()
 export class OperationsService {
-    private sessions: Map<string, ScriptSession> = new Map();
+    private sessions: Map<string, IScriptSession> = new Map();
 
     async startOperation(
         client: Socket,
         payload: { productId: string; password: string },
         operationType: OperationType,
-    ) {
+    ): Promise<void> {
         try {
             const product = await db('products')
                 .join('servers', 'products.server_id', 'servers.id')
@@ -27,16 +28,11 @@ export class OperationsService {
                 )
                 .first();
 
-            // console.log(product, 'product');
-            // console.log(payload, 'payload');
-
             if (!product) throw new WsException('Mahsulot yoki server topilmadi');
 
             const scriptsField = this.getScriptsForOperation(operationType, product);
 
             if (!scriptsField) throw new Error(`${operationType} uchun skriptlar mavjud emas`);
-
-            // console.log(payload , 1);
 
             const sshConnection = new ssh.Client();
             sshConnection.on('ready', () => {
@@ -46,7 +42,7 @@ export class OperationsService {
                         return;
                     }
                     client.emit(`${operationType}_started`, 'Skriptingiz boshlanmoqda...');
-                    const session: ScriptSession = {
+                    const session: IScriptSession = {
                         ssh: { client: sshConnection, shell: stream },
                         scripts: this.parseScripts(scriptsField),
                         currentScriptIndex: 0,
@@ -65,7 +61,6 @@ export class OperationsService {
             });
             sshConnection.on('error', err => {
                 client.emit(`${operationType}_error`, `SSH ulanish xatosi: ${err.message}`);
-                console.log(`SSH ulanish xatosi: ${err.message}`);
             });
 
             sshConnection.connect({
@@ -79,7 +74,7 @@ export class OperationsService {
         }
     }
 
-    handleScriptInteraction(client: Socket, payload: { response: string }) {
+    handleScriptInteraction(client: Socket, payload: { response: string }): void {
         const session = this.sessions.get(client.id);
         if (!session || !session.awaitingPrompt) {
             client.emit('interaction_error', 'Hozirda javob kutilmayapti');
@@ -92,7 +87,7 @@ export class OperationsService {
         setTimeout(() => this.executeNextScript(client, session), 500);
     }
 
-    private getScriptsForOperation(operationType: OperationType, product: any): string {
+    private getScriptsForOperation(operationType: OperationType, product: IProduct): string {
         switch (operationType) {
             case OperationType.INSTALL:
                 return product.install_scripts;
@@ -112,7 +107,7 @@ export class OperationsService {
             .filter(script => script && !script.startsWith('#'));
     }
 
-    private executeNextScript(client: Socket, session: ScriptSession) {
+    private executeNextScript(client: Socket, session: IScriptSession): void {
         if (session.currentScriptIndex >= session.scripts.length) {
             client.emit(
                 `${session.operationType}_complete`,
@@ -130,7 +125,7 @@ export class OperationsService {
         session.currentScriptIndex++;
     }
 
-    private processShellOutput(client: Socket, session: ScriptSession, output: string) {
+    private processShellOutput(client: Socket, session: IScriptSession, output: string): void {
         client.emit('script_output', output);
 
         if (/\[sudo\] password for|Password:/.test(output)) {
@@ -149,15 +144,15 @@ export class OperationsService {
 
     private promptUser(
         client: Socket,
-        session: ScriptSession,
+        session: IScriptSession,
         type: ScriptPromptType,
         message: string,
-    ) {
+    ): void {
         session.awaitingPrompt = { type, message, pattern: /:/ };
         client.emit('script_prompt', { type, message });
     }
 
-    terminateSession(client: Socket) {
+    terminateSession(client: Socket): void {
         const session = this.sessions.get(client.id);
         if (session) {
             session.ssh.client.end();

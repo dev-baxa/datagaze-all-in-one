@@ -23,7 +23,7 @@ import {
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdatePasswordDTOauth } from './dto/updata_password.dto';
-import { Payload } from './entities/token.interface';
+import { IPayload } from './entities/token.interface';
 // import { Request } from 'express';
 
 @Controller('auth')
@@ -49,7 +49,7 @@ export class AuthController {
     @ApiUnauthorizedResponse()
     async updatePassword(
         @Body(new ValidationPipe()) dto: UpdatePasswordDTOauth,
-        @Request() Request: Request & { user: Payload },
+        @Request() Request: Request & { user: IPayload },
     ): Promise<{ message: string }> {
         const user = Request.user;
 

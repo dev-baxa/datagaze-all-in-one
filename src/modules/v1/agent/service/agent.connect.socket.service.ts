@@ -34,7 +34,7 @@ export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisc
 
         const payload = await this.authService.verifyToken(token);
         if (!payload) {
-            this.logger.error(`No Payload: ${client.id}`);
+            this.logger.error(`No IPayload: ${client.id}`);
             client.disconnect();
             return;
         }

@@ -6,15 +6,15 @@ import { WsException } from '@nestjs/websockets';
 import db from 'src/config/database.config';
 import * as ssh from 'ssh2';
 
-import { Payload } from '../../auth/entities/token.interface';
-import { Product } from '../../product/entities/product.interface';
-import { connectDto } from '../dto/connect.and.upload.dto';
-import { ConnectConfigInterface } from '../entity/connect.config.interface';
-import { ServerInterface } from '../entity/server.interface';
+import { IPayload } from '../../auth/entities/token.interface';
+import { IProduct } from '../../product/entities/product.interface';
+import { ConnectDto } from '../dto/connect.and.upload.dto';
+import { IConnectConfig } from '../entity/connect.config.interface';
+import { IServer } from '../entity/server.interface';
 
 @Injectable()
 export class SshProductInstallService {
-    public sshConfig: ConnectConfigInterface = {
+    public sshConfig: IConnectConfig = {
         host: '',
         port: 22,
         username: '',
@@ -23,13 +23,13 @@ export class SshProductInstallService {
     };
 
     async installProduct(
-        data: connectDto,
-        user: Payload,
+        data: ConnectDto,
+        user: IPayload,
         progressCallback?: (progress: string, percentage: number) => void,
     ): Promise<object> {
         const product = await db('products').where({ id: data.productId }).first();
         if (!product?.server_path) {
-            throw new WsException('Product path not found');
+            throw new WsException('IProduct path not found');
         }
 
         const sshConfig = this.configureSshConnection(data);
@@ -67,7 +67,7 @@ export class SshProductInstallService {
                     resolve({
                         status: 'success',
                         session_id: log.id,
-                        message: 'Product installed successfully.',
+                        message: 'IProduct installed successfully.',
                         server_id: server.id,
                     });
                 });
@@ -97,10 +97,10 @@ export class SshProductInstallService {
     }
 
     private async saveInstallationData(
-        product: Product,
-        serverData: Partial<ServerInterface>,
+        product: IProduct,
+        serverData: Partial<IServer>,
         logId: string,
-    ): Promise<ServerInterface> {
+    ): Promise<IServer> {
         const [server] = await db('servers').insert(serverData).returning('*');
 
         await db('ssh_logs')
@@ -153,8 +153,8 @@ export class SshProductInstallService {
         });
     }
 
-    private configureSshConnection(data: connectDto): ConnectConfigInterface {
-        const config: ConnectConfigInterface = {
+    private configureSshConnection(data: ConnectDto): IConnectConfig {
+        const config: IConnectConfig = {
             host: data.ip,
             port: data.port || 22,
             username: data.username,

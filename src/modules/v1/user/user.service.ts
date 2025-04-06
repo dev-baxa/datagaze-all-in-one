@@ -3,14 +3,14 @@ import { BaseService } from 'src/common/utils/base.service';
 import { generateHashedPassword } from 'src/common/utils/bcrypt.functions';
 import db from 'src/config/database.config';
 
-import { UpdateProfilDtoForSuperAdmin } from './dto/update.profil.for.superadmin.dto';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
-import { Role } from '../auth/entities/role.interface';
-import { User } from '../auth/entities/user.interface';
+import { IRole } from '../auth/entities/role.interface';
+import { UpdateProfilDtoForSuperAdmin } from './dto/update.profil.for.superadmin.dto';
+import { IUser } from '../auth/entities/user.interface';
 // import { UpdatePasswordDTOForSuperAdmin } from './dto/update_password.dto.forSuperAdmin';
 
 @Injectable()
-export class UserService extends BaseService<User> {
+export class UserService extends BaseService<IUser> {
     constructor() {
         super('users');
     }
@@ -28,7 +28,7 @@ export class UserService extends BaseService<User> {
 
         dto.password = await generateHashedPassword(dto.password);
 
-        const user: User = await this.create(dto);
+        const user: IUser = await this.create(dto);
 
         return user.id;
     }
@@ -62,8 +62,8 @@ export class UserService extends BaseService<User> {
     async getAllUsers(
         page: number,
         limit: number,
-    ): Promise<{ users: User[]; total: number; page: number }> {
-        const superAdminRole: Role = await db('roles').where({ name: 'superAdmin' }).first();
+    ): Promise<{ users: IUser[]; total: number; page: number }> {
+        const superAdminRole: IRole = await db('roles').where({ name: 'superAdmin' }).first();
 
         const total = await db('users')
             .whereNot({ role_id: superAdminRole.id })
@@ -73,7 +73,7 @@ export class UserService extends BaseService<User> {
 
         const users = await db('users')
             .whereNot({ role_id: superAdminRole.id })
-            .select('id', 'username', 'email', 'created_at')
+            .select('id', 'fullname','username', 'email', 'created_at')
             .limit(limit)
             .offset(offset);
 
@@ -84,7 +84,7 @@ export class UserService extends BaseService<User> {
         };
     }
 
-    async getOneUser(id: string): Promise<User> {
+    async getOneUser(id: string): Promise<IUser> {
         const user = await db('users').where({ id }).select('id', 'username', 'email').first();
         if (!user) throw new NotFoundException('User not found');
 

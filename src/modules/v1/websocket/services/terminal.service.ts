@@ -4,8 +4,8 @@ import db from 'src/config/database.config';
 import * as ssh from 'ssh2';
 
 import { ConnectToServerDto } from '../dto/connect-to-server.dto';
-import { ConnectConfigInterface } from '../entity/connect.config.interface';
-import { ServerInterface } from '../entity/server.interface';
+import { IConnectConfig } from '../entity/connect.config.interface';
+import { IServer } from '../entity/server.interface';
 
 @Injectable()
 export class TerminalService {
@@ -14,13 +14,13 @@ export class TerminalService {
     async connectToServer(client: Socket, payload: ConnectToServerDto): Promise<void> {
         const productId = payload.productId;
 
-        const server: ServerInterface = await db('products')
+        const server: IServer = await db('products')
             .join('servers', 'products.server_id', 'servers.id')
             .where('products.id', productId)
             .select('servers.*')
             .first();
 
-        const connectConfig: ConnectConfigInterface = {
+        const connectConfig: IConnectConfig = {
             host: server.ip_address,
             port: server.port,
             username: server.username,

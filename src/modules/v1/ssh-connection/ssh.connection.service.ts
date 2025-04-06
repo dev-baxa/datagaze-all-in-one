@@ -2,16 +2,16 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import db from 'src/config/database.config';
 import * as ssh from 'ssh2';
 
-import { User } from '../auth/entities/user.interface';
+import { IUser } from '../auth/entities/user.interface';
 import { ConnectionDTO } from './dto/ssh.connection.dto';
-import { ConnectConfigInterface } from './entities/connect.config.interface';
+import { IConnectConfig } from './entities/connect.config.interface';
 
 @Injectable()
 export class SshConnectService {
-    async connectToServerCheck(data: ConnectionDTO, user: User): Promise<object> {
+    async connectToServerCheck(data: ConnectionDTO, user: IUser): Promise<object> {
         const conn = new ssh.Client();
 
-        const connectionConfig: ConnectConfigInterface = {
+        const connectionConfig: IConnectConfig = {
             host: data.ip,
             port: data.port,
             username: data.username,

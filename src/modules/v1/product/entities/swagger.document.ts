@@ -3,12 +3,22 @@ export const createProductSwagger = {
     schema: {
         type: 'object',
         properties: {
-            file: {
+            icon: {
                 type: 'string',
                 format: 'binary',
-                description: 'Product icon file',
+                description: 'Product icon file only .png  .jpg  .jpeg  .gif formats',
             },
-            name: { type: 'string', example: 'DLP', description: 'Product name' },
+            server: {
+                type: 'string',
+                format: 'binary',
+                description: 'Product server file',
+            },
+            agent: {
+                type: 'string',
+                format: 'binary',
+                description: 'Product agent file',
+            },
+            name: { type: 'string', example: 'DLP', description: 'IProduct name' },
             publisher: { type: 'string', example: 'DATAGAZE', description: 'Publisher name' },
             server_version: { type: 'string', example: '1.0.0', description: 'Server version' },
             agent_version: { type: 'string', example: '1.0.0', description: 'Agent version' },
@@ -30,7 +40,7 @@ export const createProductSwagger = {
             description: {
                 type: 'string',
                 example: 'This is a product description',
-                description: 'Product description',
+                description: 'IProduct description',
             },
             min_requirements: {
                 type: 'string',

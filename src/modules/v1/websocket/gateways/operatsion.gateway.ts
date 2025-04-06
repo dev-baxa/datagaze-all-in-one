@@ -2,11 +2,11 @@ import { Logger, UseFilters } from '@nestjs/common';
 import {
     ConnectedSocket,
     MessageBody,
+    OnGatewayConnection,
+    OnGatewayDisconnect,
     SubscribeMessage,
     WebSocketGateway,
     WebSocketServer,
-    OnGatewayConnection,
-    OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { WebsocketExceptionFilter } from 'src/common/filters/websocket.exception.filter';
@@ -29,7 +29,7 @@ export class OperationsGateway implements OnGatewayConnection, OnGatewayDisconne
     async startProductInstallation(
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: { productId: string; password: string },
-    ):Promise<void> {
+    ): Promise<void> {
         await this.operationsService.startOperation(client, payload, OperationType.INSTALL);
     }
 
@@ -37,7 +37,7 @@ export class OperationsGateway implements OnGatewayConnection, OnGatewayDisconne
     async startProductUpdate(
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: { productId: string; password: string },
-    ) {
+    ): Promise<void> {
         await this.operationsService.startOperation(client, payload, OperationType.UPDATE);
     }
 
@@ -45,7 +45,7 @@ export class OperationsGateway implements OnGatewayConnection, OnGatewayDisconne
     async startProductDelete(
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: { productId: string; password: string },
-    ) {
+    ): Promise<void> {
         await this.operationsService.startOperation(client, payload, OperationType.DELETE);
     }
 
@@ -53,15 +53,15 @@ export class OperationsGateway implements OnGatewayConnection, OnGatewayDisconne
     handleScriptInteraction(
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: { response: string },
-    ) {
+    ): void {
         this.operationsService.handleScriptInteraction(client, payload);
     }
 
-    handleConnection(client: Socket) {
+    handleConnection(client: Socket): void {
         this.logger.log(`Client connected: ${client.id}`);
     }
 
-    handleDisconnect(client: Socket) {
+    handleDisconnect(client: Socket): void {
         this.operationsService.terminateSession(client);
         this.logger.log(`Client disconnected: ${client.id}`);
     }

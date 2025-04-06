@@ -1,4 +1,4 @@
-export interface AppInterface {
+export interface IApp {
     id: string;
     computer_id: string;
     name: string;

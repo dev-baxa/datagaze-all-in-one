@@ -1,4 +1,4 @@
-export interface ConnectConfigInterface {
+export interface IConnectConfig {
     host: string;
     port: number;
     username: string;

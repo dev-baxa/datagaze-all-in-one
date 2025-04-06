@@ -3,11 +3,11 @@ import { BaseService } from 'src/common/utils/base.service';
 import db from 'src/config/database.config';
 
 import { CreateProductDTO } from './dto/create.product.dto';
-import { Product } from './entities/product.interface';
+import { IProduct } from './entities/product.interface';
 import { CryptoService } from './services/crypto.service';
 
 @Injectable()
-export class ProductService extends BaseService<Product> {
+export class ProductService extends BaseService<IProduct> {
     constructor(private readonly crypetoService: CryptoService) {
         super('products');
     }
@@ -20,7 +20,6 @@ export class ProductService extends BaseService<Product> {
         },
         dto: CreateProductDTO,
     ): Promise<string> {
-
         const product = await db('products')
             .insert({
                 ...dto,
@@ -33,8 +32,8 @@ export class ProductService extends BaseService<Product> {
         return product[0].id;
     }
 
-    async findByOne(id: string):Promise<(Product & { ip: string | null })[]> {
-        return  db('products')
+    async findByOne(id: string): Promise<(IProduct & { ip: string | null })[]> {
+        return db('products')
             .leftJoin('servers', 'products.server_id', 'servers.id')
             .where('products.id', id)
             .select(
@@ -45,7 +44,7 @@ export class ProductService extends BaseService<Product> {
             );
     }
 
-    async getAllProducts(): Promise<(Partial<Product> & { ip: string | null })[]> {
+    async getAllProducts(): Promise<(Partial<IProduct> & { ip: string | null })[]> {
         return db('products')
             .leftJoin('servers', 'products.server_id', 'servers.id')
             .select(
