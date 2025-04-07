@@ -38,8 +38,7 @@ export class AuthController {
     @ApiBadRequestResponse('Invalid username or password')
     @ApiSuccessResponse('token', 'eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkEyNTZHQ00ifQ...')
     async login(@Body(new ValidationPipe()) dto: LoginUserDto): Promise<{ token: string }> {
-        const token = await this.authService.createToken(dto);
-        return { token };
+        return this.authService.createToken(dto);
     }
 
     @Put('update-password')

@@ -19,7 +19,7 @@ export class AuthService extends BaseService<IUser> {
         super('users');
     }
 
-    async createToken(dto: LoginUserDto): Promise<string> {
+    async createToken(dto: LoginUserDto): Promise<Partial<IUser> & { token: string  , role:string}> {
         const user: IUser & { role: string } = await db('users')
             .join('roles', 'users.role_id', 'roles.id')
             .where('users.username', dto.username)
@@ -39,7 +39,14 @@ export class AuthService extends BaseService<IUser> {
             email: user.email,
         });
 
-        return token;
+        return {
+            token,
+            id: user.id,
+            username: user.username,
+            role: user.role,
+            email: user.email,
+            fullname: user.fullname,
+        };
     }
 
     private async generateTokenEncryptedJwt(payload: IPayload): Promise<string> {
