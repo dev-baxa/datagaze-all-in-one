@@ -1,173 +1,59 @@
-import * as fs from 'fs';
-import * as path from 'path';
-
 import { Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import db from 'src/config/database.config';
-import * as ssh from 'ssh2';
+import { Client } from 'ssh2';
 
 import { IPayload } from '../../auth/entities/token.interface';
-import { IProduct } from '../../product/entities/product.interface';
 import { ConnectDto } from '../dto/connect.and.upload.dto';
-import { IConnectConfig } from '../entity/connect.config.interface';
-import { IServer } from '../entity/server.interface';
-
+import { uploadFile } from '../helpers/file-upload.helper';
+import { saveInstallationData } from '../helpers/installation-data.helper';
+import { configureSshConnection, connectToServer, getSftp } from '../helpers/ssh-connection.helper';
+import { handleSshError } from '../helpers/ssh-error.handler';
 @Injectable()
 export class SshProductInstallService {
-    public sshConfig: IConnectConfig = {
-        host: '',
-        port: 22,
-        username: '',
-        password: '',
-        privateKey: '',
-    };
-
     async installProduct(
-        data: ConnectDto,
-        user: IPayload,
+        data: ConnectDto & { user: IPayload },
         progressCallback?: (progress: string, percentage: number) => void,
     ): Promise<object> {
         const product = await db('products').where({ id: data.productId }).first();
-        if (!product?.server_path) {
-            throw new WsException('IProduct path not found');
-        }
+        if (!product?.server_path) throw new WsException('IProduct path not found');
 
-        const sshConfig = this.configureSshConnection(data);
-        const [log] = await db('ssh_logs')
-            .insert({ status: 'pending', user_id: user.id })
-            .returning('*');
+        const sshConfig = configureSshConnection(data);
 
-        const conn = new ssh.Client();
-        return new Promise((resolve, reject) => {
-            conn.on('ready', async () => {
-                conn.sftp(async (err, sftp) => {
-                    if (err) {
-                        conn.end();
-                        return reject(err);
-                    }
+        const conn = new Client();
 
-                    await this.uploadFile(
-                        sftp,
-                        product.server_path,
-                        path.basename(product.server_path),
-                        progressCallback,
-                    );
+        try {
+            await connectToServer(conn, sshConfig);
+            const sftp = await getSftp(conn);
 
-                    const server = await this.saveInstallationData(
-                        product,
-                        {
-                            ip_address: data.ip,
-                            port: data.port || 22,
-                            username: data.username,
-                        },
-                        log.id,
-                    );
+            await uploadFile(sftp, product.server_path, progressCallback);
 
-                    conn.end();
-                    resolve({
-                        status: 'success',
-                        session_id: log.id,
-                        message: 'IProduct installed successfully.',
-                        server_id: server.id,
-                    });
-                });
-            });
+            const [log] = await db('ssh_logs')
+                .insert({ status: 'pending', user_id: data.user.id })
+                .returning('*');
 
-            conn.on('error', async err => {
-                const errorMessage = this.handleSshError(err);
-                await db('ssh_logs')
-                    .where({ id: log.id })
-                    .update({ status: 'failed', error_msg: errorMessage });
-                reject(new WsException({ message: errorMessage }));
-            });
-
-            conn.connect(sshConfig);
-        });
-    }
-
-    private handleSshError(err: Error): string {
-        if (err.message.includes('Cannot parse privateKey')) {
-            return 'Invalid private key format. Please check your key file.';
-        } else if (err.message.includes('All configured authentication methods failed')) {
-            return 'Authentication failed. Please check your username and password/private key.';
-        } else if (err.message.includes('ECONNREFUSED')) {
-            return 'Connection refused. Server might be unreachable.';
-        }
-        return 'Unknown error occurred while connecting to the server.';
-    }
-
-    private async saveInstallationData(
-        product: IProduct,
-        serverData: Partial<IServer>,
-        logId: string,
-    ): Promise<IServer> {
-        const [server] = await db('servers').insert(serverData).returning('*');
-
-        await db('ssh_logs')
-            .where({ id: logId })
-            .update({ status: 'success', server_id: server.id });
-        await db('installed_products').insert({
-            product_id: product.id,
-            server_id: server.id,
-            version: product.server_version,
-            status: 'installed',
-        });
-        await db('products')
-            .update({ server_id: server.id, is_installed: true })
-            .where({ id: product.id });
-
-        return server;
-    }
-
-    private async uploadFile(
-        sftp: ssh.SFTPWrapper,
-        localFilePath: string,
-        remoteFilePath: string,
-        progressCallback?: (progress: string, percentage: number) => void,
-    ): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const stats = fs.statSync(localFilePath);
-            const fileSize = stats.size;
-            const barLength = 20;
-            let transferred = 0;
-
-            const stream = sftp.createWriteStream(remoteFilePath);
-            const readStream = fs.createReadStream(localFilePath);
-
-            readStream.on('data', chunk => {
-                transferred += chunk.length;
-                const progress = Math.floor((transferred / fileSize) * barLength);
-                const percentage = ((transferred / fileSize) * 100).toFixed(2);
-                const progressBar = `[${'#'.repeat(progress)}${' '.repeat(barLength - progress)}]`;
-
-                if (progressCallback) {
-                    progressCallback(progressBar, parseFloat(percentage));
-                }
-            });
-
-            readStream.on('end', () => resolve());
-            readStream.on('error', err =>
-                reject(new WsException(`Faylni ko'chirishda xatolik: ${err.message}`)),
+            const server = await saveInstallationData(
+                product,
+                {
+                    ip_address: data.ip,
+                    port: data.port || 22,
+                    username: data.username,
+                },
             );
-            readStream.pipe(stream);
-        });
-    }
 
-    private configureSshConnection(data: ConnectDto): IConnectConfig {
-        const config: IConnectConfig = {
-            host: data.ip,
-            port: data.port || 22,
-            username: data.username,
-        };
+            sftp.end();
+            conn.end();
 
-        if (data.auth_type === 'password' && data.password) {
-            config.password = data.password;
-        } else if (data.auth_type === 'private_key' && data.private_key) {
-            config.privateKey = data.private_key;
-        } else {
-            throw new WsException('Invalid authentication method');
+            return {
+                status: 'success',
+                session_id: log.id,
+                message: 'IProduct installed successfully.',
+                server_id: server.id,
+            };
+        } catch (err) {
+            const errorMessage = handleSshError(err);
+            await db('ssh_logs').insert({ status: 'failed', user_id: data.user.id });
+            throw new WsException({ message: errorMessage });
         }
-
-        return config;
     }
 }

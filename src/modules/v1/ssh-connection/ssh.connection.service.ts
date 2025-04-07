@@ -9,6 +9,10 @@ import { IConnectConfig } from './entities/connect.config.interface';
 @Injectable()
 export class SshConnectService {
     async connectToServerCheck(data: ConnectionDTO, user: IUser): Promise<object> {
+
+        const product = await db('products').where({ id: data.product_id }).first();
+        if (!product) throw new BadRequestException('Product not found');
+
         const conn = new ssh.Client();
 
         const connectionConfig: IConnectConfig = {
@@ -58,12 +62,18 @@ export class SshConnectService {
 
             conn.end();
 
+            await db('products').where({ id: data.product_id }).update({
+                server_id: server.id,
+                is_installed: true,
+            });
+
             return {
                 status: 'success',
                 message: 'Connected successfully.',
                 session_id: log.id,
                 server_id: server.id,
             };
+            
         } catch (err) {
             const [log] = await db('ssh_logs')
                 .insert({

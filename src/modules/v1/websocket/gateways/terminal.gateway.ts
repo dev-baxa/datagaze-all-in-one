@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import {
     ConnectedSocket,
     MessageBody,
@@ -9,11 +9,14 @@ import {
     WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { WebsocketExceptionFilter } from 'src/common/filters/websocket.exception.filter';
+import { JwtWsAuthGuard } from 'src/common/guards/jwt.ws.auth.guard';
 
 import { ConnectToServerDto } from '../dto/connect-to-server.dto';
 import { TerminalService } from '../services/terminal.service';
 
 @WebSocketGateway({ cors: true, namespace: 'terminal' })
+@UseFilters(new WebsocketExceptionFilter())
 export class TerminalGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private logger = new Logger(TerminalGateway.name);
     @WebSocketServer()
@@ -30,7 +33,7 @@ export class TerminalGateway implements OnGatewayConnection, OnGatewayDisconnect
         this.logger.log(`Client disconnected: ${client.id}`);
         this.terminalService.disconnectClient(client.id);
     }
-
+    @UseGuards(JwtWsAuthGuard)
     @SubscribeMessage('connectToServer')
     async connectToServer(
         @ConnectedSocket() client: Socket,
@@ -39,6 +42,7 @@ export class TerminalGateway implements OnGatewayConnection, OnGatewayDisconnect
         await this.terminalService.connectToServer(client, payload);
     }
 
+    @UseGuards(JwtWsAuthGuard)
     @SubscribeMessage('terminalData')
     async handleTerminalData(
         @ConnectedSocket() client: Socket,

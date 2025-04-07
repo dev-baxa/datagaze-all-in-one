@@ -2,9 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ConnectionDTO {
-    // @IsNotEmpty()
-    // @IsString()
-    // server_id: string;
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty({ description: 'product_id', example: 'product_id' })
+    product_id: string;
 
     @IsNotEmpty()
     @IsString()
