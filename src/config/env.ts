@@ -18,6 +18,7 @@ interface IEnvConfig {
     JWT_PRIVAT_KEY: string | undefined;
     NODE_ENV: string | undefined;
     JWT_PUBLIC_KEY: string | undefined;
+    REDIS_PORT: string | undefined;
 }
 
 export const env: IEnvConfig = {
@@ -32,4 +33,5 @@ export const env: IEnvConfig = {
     JWT_PRIVAT_KEY: process.env.JWT_PRIVATE_KEY,
     NODE_ENV: process.env.NODE_ENV,
     JWT_PUBLIC_KEY: process.env.JWT_PUBLIC_KEY,
+    REDIS_PORT: process.env.REDIS_PORT,
 };

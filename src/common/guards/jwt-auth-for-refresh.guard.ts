@@ -3,7 +3,7 @@ import { AuthService } from 'src/modules/v1/auth/auth.service';
 import { IPayload } from 'src/modules/v1/auth/entities/token.interface';
 
 @Injectable()
-export class JwtAuthGuard implements CanActivate {
+export class JwtAuthGuardForRefresh implements CanActivate {
     constructor(private authService: AuthService) {}
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
@@ -15,9 +15,13 @@ export class JwtAuthGuard implements CanActivate {
         }
 
         const payload: IPayload = await this.authService.decryptJWT(token);
+        if (payload.type !== 'refresh') {
+            throw new UnauthorizedException('Invalid token type');
+        }
         const user = await this.authService.findById(payload.id);
         if (!user) throw new UnauthorizedException('User unauthorized');
         request.user = payload;
+        request.refresh = token;
         return true;
     }
     private extractTokenFromHeader(request: Request): string | undefined {

@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles.decorators';
-import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth-for-access.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import {
     ApiBadRequestResponse,
@@ -25,9 +25,9 @@ import {
 import { userGetAllResponse, userGetOneResponse } from 'src/common/swagger/succes.response';
 
 import { CreateUserDto } from '../auth/dto/create-user.dto';
+import { IUser } from '../auth/entities/user.interface';
 import { UpdateProfilDtoForSuperAdmin } from './dto/update.profil.for.superadmin.dto';
 import { UserService } from './user.service';
-import { IUser } from '../auth/entities/user.interface';
 
 @Controller({
     path: 'user',
