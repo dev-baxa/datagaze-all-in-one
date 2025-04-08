@@ -11,8 +11,6 @@ import { AgentAuthService } from './service/agent.auth.service';
 import { AgentWebSocketGateway } from './service/agent.connect.socket.service';
 import { UIWebSocketGateway } from './service/user.connect.socket.service';
 
-
-
 @Module({
     imports: [
         ServeStaticModule.forRoot({

@@ -15,7 +15,7 @@ export async function up(knex: Knex): Promise<void> {
         table.string('cpu').nullable();
         table.string('model').nullable();
         table.integer('cores').nullable();
-        table.timestamps(true, true);
+        table.timestamps(false, true);
     });
 }
 

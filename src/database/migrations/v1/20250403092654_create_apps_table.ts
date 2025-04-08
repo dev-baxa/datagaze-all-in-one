@@ -9,7 +9,7 @@ export async function up(knex: Knex): Promise<void> {
         table.timestamp('installed_date');
         table.string('type');
         table.integer('size');
-        table.timestamps(true, true);
+        table.timestamps(false, true);
     });
 }
 

@@ -18,11 +18,7 @@ export class HttpExceptionFilter {
                 ? { message: exeptionResponse }
                 : (exeptionResponse as object);
 
-        // let currentDate = new Date();
-        // currentDate.setHours(currentDate.getUTCHours() + 5);
-        // console.log(currentDate.toISOString());
-        // console.log(Date.now());
-        // ;
+        
 
         response.status(status).json({
             success: false,
