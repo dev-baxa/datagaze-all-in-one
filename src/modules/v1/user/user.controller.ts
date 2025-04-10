@@ -9,11 +9,10 @@ import {
     Put,
     Query,
     UseGuards,
-    ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles.decorators';
-import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth-for-access.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import {
     ApiBadRequestResponse,
@@ -25,9 +24,9 @@ import {
 import { userGetAllResponse, userGetOneResponse } from 'src/common/swagger/succes.response';
 
 import { CreateUserDto } from '../auth/dto/create-user.dto';
+import { IUser } from '../auth/entities/user.interface';
 import { UpdateProfilDtoForSuperAdmin } from './dto/update.profil.for.superadmin.dto';
 import { UserService } from './user.service';
-import { IUser } from '../auth/entities/user.interface';
 
 @Controller({
     path: 'user',
@@ -62,9 +61,7 @@ export class UserController {
     @Post('register')
     @Roles('superAdmin')
     @ApiSuccessResponse('id', '123e4567-e89b-12d3-a456-426614174000')
-    async register(
-        @Body(new ValidationPipe()) dto: CreateUserDto,
-    ): Promise<{ id: string; message: string }> {
+    async register(@Body() dto: CreateUserDto): Promise<{ id: string; message: string }> {
         const userId = await this.userService.register(dto);
         return {
             id: userId,
@@ -77,9 +74,7 @@ export class UserController {
     @ApiSuccessResponse('message', 'IUser updated successfully.')
     @ApiBadRequestResponse('Invalid data')
     @ApiNotFoundResponse('User')
-    async update(
-        @Body(new ValidationPipe()) dto: UpdateProfilDtoForSuperAdmin,
-    ): Promise<{ message: string }> {
+    async update(@Body() dto: UpdateProfilDtoForSuperAdmin): Promise<{ message: string }> {
         await this.userService.updateProfil(dto);
         return {
             message: 'User updated successfully.',

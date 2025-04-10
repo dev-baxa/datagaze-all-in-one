@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Req, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Request } from 'express';
-import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth-for-access.guard';
 import {
     ApiBadRequestResponse,
     ApiSuccessResponse,

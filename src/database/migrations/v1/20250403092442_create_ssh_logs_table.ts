@@ -7,7 +7,7 @@ export async function up(knex: Knex): Promise<void> {
         table.uuid('server_id').references('id').inTable('servers').onDelete('CASCADE');
         table.string('status').notNullable();
         table.text('error_msg').nullable();
-        table.timestamps(true, true);
+        table.timestamps(false, true);
     });
 }
 

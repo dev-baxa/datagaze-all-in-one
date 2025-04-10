@@ -10,12 +10,11 @@ import {
     UploadedFiles,
     UseGuards,
     UseInterceptors,
-    ValidationPipe,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles.decorators';
-import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth-for-access.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import {
     ApiBadRequestResponse,
@@ -61,7 +60,7 @@ export class ProductController {
             server: Express.Multer.File;
             agent: Express.Multer.File;
         },
-        @Body(new ValidationPipe()) dto: CreateProductDTO,
+        @Body() dto: CreateProductDTO,
     ): Promise<{ id: string }> {
         const result = await this.productService.createProduct(files, dto);
         return {

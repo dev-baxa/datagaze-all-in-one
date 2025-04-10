@@ -4,11 +4,10 @@ import db from 'src/config/database.config';
 
 import { CreateProductDTO } from './dto/create.product.dto';
 import { IProduct } from './entities/product.interface';
-import { CryptoService } from './services/crypto.service';
 
 @Injectable()
 export class ProductService extends BaseService<IProduct> {
-    constructor(private readonly crypetoService: CryptoService) {
+    constructor() {
         super('products');
     }
 

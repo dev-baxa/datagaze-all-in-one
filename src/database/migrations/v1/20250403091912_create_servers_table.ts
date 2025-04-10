@@ -9,7 +9,7 @@ export async function up(knex: Knex): Promise<void> {
         table.enum('os_type', ['linux', 'windows', 'macOs']).defaultTo('linux'); // From 20250219125446_update_servers
         table.string('username').nullable(); // From 20250219125446_update_servers
         // password and private_key were dropped in 20250402040051_update_servers
-        table.timestamps(true, true);
+        table.timestamps(false, true);
     });
 }
 

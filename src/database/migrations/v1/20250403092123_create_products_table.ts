@@ -33,7 +33,7 @@ export async function up(knex: Knex): Promise<void> {
         // From update_product_path
         table.specificType('path', 'json').nullable().defaultTo(null);
 
-        table.timestamps(true, true);
+        table.timestamps(false, true);
     });
 }
 

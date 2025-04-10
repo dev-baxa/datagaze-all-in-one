@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import db from 'src/config/database.config';
 
 @Injectable()
-export class BaseService<T> {
+export abstract class BaseService<T> {
     constructor(private tableName: string) {}
 
     async create(data: Partial<T>): Promise<T> {

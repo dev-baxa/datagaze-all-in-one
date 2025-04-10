@@ -16,7 +16,8 @@ import { IPayload } from '../../auth/entities/token.interface';
 import { ConnectDto } from '../dto/connect.and.upload.dto';
 import { SshProductInstallService } from '../services/connect.and.file.upload.service';
 
-@WebSocketGateway({ cors: true, namespace: 'connect-and-upload' })
+@WebSocketGateway({ namespace: 'connect-and-upload' })
+@UseFilters(new WebsocketExceptionFilter())
 export class SshProductInstallGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private logger = new Logger(SshProductInstallGateway.name);
     @WebSocketServer()
@@ -34,19 +35,16 @@ export class SshProductInstallGateway implements OnGatewayConnection, OnGatewayD
 
     @UseGuards(JwtWsAuthGuard)
     @SubscribeMessage('connectToServer')
-    @UseFilters(new WebsocketExceptionFilter())
     async connect(
         @ConnectedSocket() client: Socket,
         @MessageBody() payload: ConnectDto & { user: IPayload },
     ): Promise<void> {
-        const user = payload.user;
         const progressCallback = (progress: string, percentage: number): void => {
             client.emit('progress', { progressBar: progress, percentage });
         };
 
         const result = await this.sshProductInstallService.installProduct(
             payload,
-            user,
             progressCallback,
         );
         client.emit('response', result);

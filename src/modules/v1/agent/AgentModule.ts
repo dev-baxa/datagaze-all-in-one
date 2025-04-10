@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { join } from 'path/posix';
 
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';

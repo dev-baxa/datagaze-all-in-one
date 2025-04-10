@@ -7,7 +7,7 @@ export async function up(knex: Knex): Promise<void> {
         table.uuid('server_id').references('id').inTable('servers').onDelete('CASCADE');
         table.string('version').defaultTo('1.0.0');
         table.string('status').defaultTo('installed');
-        table.timestamps(true, true);
+        table.timestamps(false, true);
     });
 }
 

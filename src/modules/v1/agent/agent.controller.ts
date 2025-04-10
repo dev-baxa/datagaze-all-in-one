@@ -1,5 +1,7 @@
-import { Body, Controller, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { createReadStream } from 'fs';
+
+import { Body, Controller, Get, HttpCode, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { JwtAuthForComputersGuard } from 'src/common/guards/jwt.auth.for.computers.guard';
 import {
@@ -7,6 +9,7 @@ import {
     ApiSuccessResponse,
     ApiUnauthorizedResponse,
 } from 'src/common/swagger/common.errors';
+import { validateFilename } from 'src/common/utils/validate-file-name';
 
 import { AgentService } from './agent.service';
 import { CreateAgentDto } from './dto/create.agent.dto';
@@ -49,5 +52,18 @@ export class AgentController {
         return {
             message: 'Applications updated successfully',
         };
+    }
+
+    @Get('files/:filename')
+    // @UseGuards(JwtAuthForComputersGuard)
+    @ApiBearerAuth()
+    @ApiParam({ name: 'filename', description: 'Name of the file to retrieve', required: true })
+    async getFile(@Param('filename') filename: string, @Res() res: Response): Promise<void> {
+        const filePath = validateFilename(filename);
+        const stream = createReadStream(filePath);
+        res.setHeader('Content-Type', `application/octet-stream`);
+        res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+
+        stream.pipe(res);
     }
 }

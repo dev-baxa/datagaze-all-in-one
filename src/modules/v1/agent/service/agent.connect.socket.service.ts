@@ -13,7 +13,7 @@ import { AgentAuthService } from './agent.auth.service';
 
 @Injectable()
 @UseFilters(new WebsocketExceptionFilter())
-@WebSocketGateway(3501, { cors: { origin: '*' } })
+@WebSocketGateway(3501)
 export class AgentWebSocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly logger = new Logger(AgentWebSocketGateway.name);
 

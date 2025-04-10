@@ -5,9 +5,8 @@ import db from 'src/config/database.config';
 
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { IRole } from '../auth/entities/role.interface';
-import { UpdateProfilDtoForSuperAdmin } from './dto/update.profil.for.superadmin.dto';
 import { IUser } from '../auth/entities/user.interface';
-// import { UpdatePasswordDTOForSuperAdmin } from './dto/update_password.dto.forSuperAdmin';
+import { UpdateProfilDtoForSuperAdmin } from './dto/update.profil.for.superadmin.dto';
 
 @Injectable()
 export class UserService extends BaseService<IUser> {
@@ -73,7 +72,7 @@ export class UserService extends BaseService<IUser> {
 
         const users = await db('users')
             .whereNot({ role_id: superAdminRole.id })
-            .select('id', 'fullname','username', 'email', 'created_at')
+            .select('id', 'fullname', 'username', 'email', 'created_at')
             .limit(limit)
             .offset(offset);
 

@@ -9,17 +9,20 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { UpdatePasswordDTOauth } from './dto/updata_password.dto';
 import { IPayload } from './entities/token.interface';
 import { IUser } from './entities/user.interface';
+import { RedisService } from './redis.service';
 
 @Injectable()
 export class AuthService extends BaseService<IUser> {
     private privateKey = env.JWT_PRIVAT_KEY || '';
     private publicKey = env.JWT_PUBLIC_KEY || '';
 
-    constructor() {
+    constructor(private readonly redisService: RedisService) {
         super('users');
     }
 
-    async createToken(dto: LoginUserDto): Promise<string> {
+    async createToken(
+        dto: LoginUserDto,
+    ): Promise<Partial<IUser> & { accesToken: string; refreshToken: string; role: string }> {
         const user: IUser & { role: string } = await db('users')
             .join('roles', 'users.role_id', 'roles.id')
             .where('users.username', dto.username)
@@ -32,21 +35,73 @@ export class AuthService extends BaseService<IUser> {
 
         if (!isPasswordMatch) throw new UnauthorizedException('Password is incorrect');
 
-        const token = await this.generateTokenEncryptedJwt({
+        const accessToken = await this.generateTokenEncryptedJwt({
             id: user.id,
             username: user.username,
             role: user.role,
             email: user.email,
+            type: 'access',
         });
 
-        return token;
+        const refreshToken = await this.generateTokenEncryptedJwt({
+            id: user.id,
+            username: user.username,
+            role: user.role,
+            email: user.email,
+            type: 'refresh',
+        });
+
+        return {
+            accesToken: accessToken,
+            refreshToken: refreshToken,
+            id: user.id,
+            username: user.username,
+            role: user.role,
+            email: user.email,
+            fullname: user.fullname,
+        };
+    }
+
+    async refreshToken(user: IPayload , oldToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+        const isBlacklisted = await this.redisService.exists(`blacklist:${oldToken}`);
+
+        if (isBlacklisted) throw new UnauthorizedException('Token amal qilmaydi u Blacklistda');
+
+        const accessToken = await this.generateTokenEncryptedJwt({
+            id: user.id,
+            username: user.username,
+            role: user.role,
+            email: user.email,
+            type: 'access',
+        });
+
+        const refreshToken = await this.generateTokenEncryptedJwt({
+            id: user.id,
+            username: user.username,
+            role: user.role,
+            email: user.email,
+            type: 'refresh',
+        });
+
+        await this.redisService.set(`blacklist:${oldToken}`, 'true', 60 * 60 * 24); // 1 kun
+
+        return {
+            accessToken,
+            refreshToken,
+        };
     }
 
     private async generateTokenEncryptedJwt(payload: IPayload): Promise<string> {
         const secret = await jose.importSPKI(this.publicKey, 'RSA-OAEP');
+
+        const expirationTime =
+            payload.type === 'access'
+                ? Math.floor(Date.now() / 1000) + 60 * 60 * 2 // 2 soat
+                : Math.floor(Date.now() / 1000) + 60 * 60 * 24; // 1 kun
+
         const token = await new jose.EncryptJWT({ ...payload })
             .setProtectedHeader({ alg: 'RSA-OAEP', enc: 'A256GCM' })
-            .setExpirationTime(Math.floor(Date.now() / 1000) + 60 * 60 * 24)
+            .setExpirationTime(expirationTime)
             .encrypt(secret);
         return token;
     }
@@ -69,7 +124,7 @@ export class AuthService extends BaseService<IUser> {
 
     async decryptJWT(encryptedToken: string): Promise<IPayload> {
         const secret = await jose.importPKCS8(this.privateKey, 'RSA-OAEP');
-        const {payload} = await jose.jwtDecrypt<IPayload>(encryptedToken, secret);
-        return payload ;
+        const { payload } = await jose.jwtDecrypt<IPayload>(encryptedToken, secret);
+        return payload;
     }
 }

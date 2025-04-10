@@ -2,15 +2,16 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ConnectionDTO {
-    // @IsNotEmpty()
-    // @IsString()
-    // server_id: string;
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty({ description: 'product_id', example: 'product_id' })
+    product_id: string;
 
     @IsNotEmpty()
     @IsString()
     @ApiProperty({
         description: 'ip',
-        example: 'ec2-16-171-135-170.eu-north-1.compute.amazonaws.com',
+        example: '170.64.141.16',
     })
     ip: string;
 
@@ -21,7 +22,7 @@ export class ConnectionDTO {
 
     @IsNotEmpty()
     @IsString()
-    @ApiProperty({ description: 'username', example: 'user' })
+    @ApiProperty({ description: 'username', example: 'ubuntu' })
     username: string;
 
     @IsNotEmpty()
@@ -31,7 +32,7 @@ export class ConnectionDTO {
 
     @IsOptional()
     @IsString()
-    @ApiProperty({ description: 'password', example: 'userNew123' })
+    @ApiProperty({ description: 'password', example: 'ubuntuNew123' })
     password?: string;
 
     @IsOptional()

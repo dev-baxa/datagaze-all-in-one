@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import db from 'src/config/database.config';
 import * as ssh from 'ssh2';
@@ -13,6 +14,9 @@ export class TerminalService {
 
     async connectToServer(client: Socket, payload: ConnectToServerDto): Promise<void> {
         const productId = payload.productId;
+
+        const product = await db('products').where({ id: productId }).first();
+        if (!product) throw new WsException('Product not found');
 
         const server: IServer = await db('products')
             .join('servers', 'products.server_id', 'servers.id')
