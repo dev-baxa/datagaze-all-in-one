@@ -11,7 +11,7 @@ export interface IComputer {
     cpu: string;
     model: string;
     cores: number;
-    unicall_key?: string;
+    unical_key?: string;
     network_adapters: NetworkAdapterDto[];
     disks: DiskDto[];
 }

@@ -1,10 +1,9 @@
-import { VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 import { AllExcetionsFilter } from './common/filters/all-exception.filter';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
 import { env } from './config/env';
 
@@ -27,14 +26,19 @@ async function bootstrap(): Promise<void> {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
 
+    app.useGlobalPipes(
+        new ValidationPipe({
+            transform: true,
+            whitelist: true,
+        }),
+    );
     app.useGlobalInterceptors(new ResponseTransformInterceptor());
-    app.useGlobalFilters(new AllExcetionsFilter(), new HttpExceptionFilter());
+    app.useGlobalFilters(new AllExcetionsFilter());
     app.enableCors({
         origin: '*',
         methods: 'GET,PUT,POST,DELETE',
     });
 
     await app.listen(env.PORT ?? 4000, env.HOST ?? '0.0.0.0');
-    // console.log(`Application is running on: ${await app.getUrl()}`);
 }
 void bootstrap();

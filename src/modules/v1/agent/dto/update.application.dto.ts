@@ -17,4 +17,6 @@ export class UpdateApplicationsDTO {
 
     @ApiProperty({ description: 'size', example: 5000030 })
     size: number;
+
+    updated_at?: Date;
 }

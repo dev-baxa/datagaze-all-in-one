@@ -3,5 +3,5 @@ export interface IAgentTokenPayloadInterface {
   hostname: string;
   operation_system: string;
   platform: string;
-  unicall_key: string;
+  unical_key: string;
 }

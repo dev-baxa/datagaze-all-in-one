@@ -11,7 +11,7 @@ export class ConnectionDTO {
     @IsString()
     @ApiProperty({
         description: 'ip',
-        example: 'ec2-16-171-135-170.eu-north-1.compute.amazonaws.com',
+        example: '170.64.141.16',
     })
     ip: string;
 
@@ -22,7 +22,7 @@ export class ConnectionDTO {
 
     @IsNotEmpty()
     @IsString()
-    @ApiProperty({ description: 'username', example: 'user' })
+    @ApiProperty({ description: 'username', example: 'ubuntu' })
     username: string;
 
     @IsNotEmpty()
@@ -32,7 +32,7 @@ export class ConnectionDTO {
 
     @IsOptional()
     @IsString()
-    @ApiProperty({ description: 'password', example: 'userNew123' })
+    @ApiProperty({ description: 'password', example: 'ubuntuNew123' })
     password?: string;
 
     @IsOptional()

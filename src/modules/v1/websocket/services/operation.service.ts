@@ -36,7 +36,8 @@ export class OperationsService {
             if (!product) throw new WsException('Mahsulot yoki server topilmadi');
 
             const scriptsField = getScriptsForOperation(operationType, product);
-            if (!scriptsField) throw new WsException(`${operationType} uchun skriptlar mavjud emas`);
+            if (!scriptsField)
+                throw new WsException(`${operationType} uchun skriptlar mavjud emas`);
 
             const sshConnection = await connectViaSsh(product, payload.password);
             initializeShellSession(

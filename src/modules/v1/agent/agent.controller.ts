@@ -1,4 +1,3 @@
-import { log } from 'console';
 import { createReadStream } from 'fs';
 
 import { Body, Controller, Get, HttpCode, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
@@ -61,7 +60,6 @@ export class AgentController {
     @ApiParam({ name: 'filename', description: 'Name of the file to retrieve', required: true })
     async getFile(@Param('filename') filename: string, @Res() res: Response): Promise<void> {
         const filePath = validateFilename(filename);
-        log('filePath', filePath);
         const stream = createReadStream(filePath);
         res.setHeader('Content-Type', `application/octet-stream`);
         res.setHeader('Content-Disposition', `attachment; filename=${filename}`);

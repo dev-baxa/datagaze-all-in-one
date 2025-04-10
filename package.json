@@ -19,7 +19,6 @@
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json",
-        "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "migration:run": "knex migrate:latest --knexfile dist/database/knexfile.js",
         "migration:rollback": "knex migrate:rollback --knexfile dist/database/knexfile.js",
         "seed:run": "knex seed:run --knexfile dist/database/knexfile.js"
@@ -36,10 +35,8 @@
         "bcrypt": "^5.1.1",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.1",
-        "crypto-js": "^4.2.0",
         "dotenv": "^16.4.7",
         "jose": "^6.0.10",
-        "jsonwebtoken": "^9.0.2",
         "knex": "^3.1.0",
         "multer": "^1.4.5-lts.2",
         "pg": "^8.14.1",

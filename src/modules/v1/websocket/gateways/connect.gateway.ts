@@ -16,7 +16,7 @@ import { IPayload } from '../../auth/entities/token.interface';
 import { ConnectDto } from '../dto/connect.and.upload.dto';
 import { SshProductInstallService } from '../services/connect.and.file.upload.service';
 
-@WebSocketGateway({ cors: true, namespace: 'connect-and-upload' })
+@WebSocketGateway({ namespace: 'connect-and-upload' })
 @UseFilters(new WebsocketExceptionFilter())
 export class SshProductInstallGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private logger = new Logger(SshProductInstallGateway.name);

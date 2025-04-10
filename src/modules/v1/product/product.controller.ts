@@ -10,7 +10,6 @@ import {
     UploadedFiles,
     UseGuards,
     UseInterceptors,
-    ValidationPipe,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -61,7 +60,7 @@ export class ProductController {
             server: Express.Multer.File;
             agent: Express.Multer.File;
         },
-        @Body(new ValidationPipe()) dto: CreateProductDTO,
+        @Body() dto: CreateProductDTO,
     ): Promise<{ id: string }> {
         const result = await this.productService.createProduct(files, dto);
         return {

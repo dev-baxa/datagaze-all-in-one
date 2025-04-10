@@ -15,7 +15,6 @@ import { OperationType } from '../entity/operation.types';
 import { OperationsService } from '../services/operation.service';
 
 @WebSocketGateway({
-    cors: { origin: '*' },
     namespace: 'operation',
 })
 @UseFilters(new WebsocketExceptionFilter())

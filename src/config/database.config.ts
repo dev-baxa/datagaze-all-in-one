@@ -9,7 +9,7 @@ dotenv.config({
 
 const config: Knex.Config = {
     client: 'pg',
-    debug: true,
+    debug: process.env.NODE_ENV !== 'production',
     connection: {
         host: process.env.DB_HOST || 'localhost',
         port: Number(process.env.DB_PORT) || 5432,

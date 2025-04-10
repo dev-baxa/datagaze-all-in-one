@@ -32,14 +32,11 @@ export class SshProductInstallService {
                 .insert({ status: 'pending', user_id: data.user.id })
                 .returning('*');
 
-            const server = await saveInstallationData(
-                product,
-                {
-                    ip_address: data.ip,
-                    port: data.port || 22,
-                    username: data.username,
-                },
-            );
+            const server = await saveInstallationData(product, {
+                ip_address: data.ip,
+                port: data.port || 22,
+                username: data.username,
+            });
 
             sftp.end();
             conn.end();
